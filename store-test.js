@@ -30,7 +30,7 @@ var barverify = function(bar) {
   assert.equal(new Date(2020,1,1).toISOString(), _.isDate(bar.wen) ? bar.wen.toISOString() : bar.wen )
 
   assert.equal(''+[2,3],''+bar.arr)
-  assert.equal(JSON.stringify({a:1,b:[2],c:{d:3}}),JSON.stringify(bar.obj))
+  assert.deepEqual({a:1,b:[2],c:{d:3}},bar.obj)
 }
 
 
@@ -139,11 +139,11 @@ exports.basictest = function(si,done) {
           console.log('save5')
 
           scratch.foo2 = si.make({name$:'foo'})
-          scratch.foo2.id$ = 'zyx'
+          scratch.foo2.id$ = 'zxy'
           
           scratch.foo2.save$( verify(cb, function(foo2){
             assert.isNotNull(foo2.id)
-            assert.equal('zyx', foo2.id)
+            assert.equal('zxy', foo2.id)
             scratch.foo2 = foo2
           }))
         },
