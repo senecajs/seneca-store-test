@@ -47,10 +47,18 @@ var verify = exports.verify = function(cb,tests){
 
 
 
-exports.basictest = function(si,done) {
+exports.basictest = function(si,settings,done) {
+  if( _.isFunction(settings) ) {
+    done = settings
+    settings = {}
+  }
+
   si.ready(function(){
     console.log('BASIC')
     assert.isNotNull(si)
+
+
+    var must_merge = null == settings.must_merge ? false : settings.must_merge
 
     // TODO: test load$(string), remove$(string)
 
@@ -91,11 +99,19 @@ exports.basictest = function(si,done) {
 
           scratch.foo1.p1 = 'v1x'
           scratch.foo1.p2 = 'v2'
+
+          // test merge behaviour
+          delete scratch.foo1.p3
+
           scratch.foo1.save$( verify(cb,function(foo1){
             assert.isNotNull(foo1.id)
             assert.equal('v1x',foo1.p1)
             assert.equal('v2',foo1.p2)
-            assert.equal('v3',foo1.p3)
+
+            if( must_merge ) {
+              assert.equal('v3',foo1.p3)
+            }
+
             scratch.foo1 = foo1
           })) 
         },
