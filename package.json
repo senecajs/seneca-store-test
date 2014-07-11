@@ -28,9 +28,4 @@
     "README.md",
     "LICENSE.txt",
     "store-test.js"
-  ],
-  "devDependencies": {
-    "seneca": "~0.5.16",
-    "mocha": "~1.18.2"
-  }
-}
+  ]}

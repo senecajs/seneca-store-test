@@ -66,10 +66,12 @@ exports.basictest = function(si,done) {
 
           var foo1 = si.make({name$:'foo'}) ///si.make('foo')
           foo1.p1 = 'v1'
+          foo1.p3 = 'v3'
           
           foo1.save$( verify(cb, function(foo1){
             assert.isNotNull(foo1.id)
             assert.equal('v1',foo1.p1)
+            assert.equal('v3',foo1.p3)
             scratch.foo1 = foo1
           }))
         },
@@ -93,6 +95,7 @@ exports.basictest = function(si,done) {
             assert.isNotNull(foo1.id)
             assert.equal('v1x',foo1.p1)
             assert.equal('v2',foo1.p2)
+            assert.equal('v3',foo1.p3)
             scratch.foo1 = foo1
           })) 
         },
