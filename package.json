@@ -1,10 +1,10 @@
 {
   "name": "seneca-store-test",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Standard test cases for seneca stores",
   "main": "store-test.js",
   "scripts": {
-    "test": "./node_modules/.bin/mocha mem.test.js"
+    "test": "node store-test.js"
   },
   "repository": {
     "type": "git",
