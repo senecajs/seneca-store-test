@@ -23,7 +23,7 @@ Tested on: Seneca 0.5.19, Node 0.10.29
 
 ### Usage
 
-This module included as a development dependency by Seneca data store plugins. For a simple example, see the [seneca-mem-store](https://github.com/rjrodger/seneca-mem-store) plugin test cases.
+This module is included as a development dependency by Seneca data store plugins. For a simple example, see the [seneca-mem-store](https://github.com/rjrodger/seneca-mem-store) plugin test cases.
 
 
 ## Testing
