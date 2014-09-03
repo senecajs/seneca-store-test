@@ -158,11 +158,11 @@ exports.basictest = function(si,settings,done) {
           console.log('save5')
 
           scratch.foo2 = si.make({name$:'foo'})
-          scratch.foo2.id$ = '12345'
+          scratch.foo2.id$ = 'zxy'
           
           scratch.foo2.save$( verify(cb, function(foo2){
             assert.isNotNull(foo2.id)
-            assert.equal('12345', foo2.id)
+            assert.equal('zxy', foo2.id)
             scratch.foo2 = foo2
           }))
         },
