@@ -69,6 +69,14 @@ exports.basictest = function(si,settings,done) {
      */
     async.series(
       {
+        load0: function(cb) {
+          console.log('load0')
+          var foo0 = si.make('foo')
+          foo0.load$('does-not-exist-at-all-at-all',verify(cb,function(out){
+            assert.isNull(out)
+          }))
+        },
+
         save1: function(cb) {
           console.log('save1')
 
