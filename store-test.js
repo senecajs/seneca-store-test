@@ -331,7 +331,7 @@ exports.sqltest = function(si,done) {
           console.dir( err )
         }
         si.__testcount++
-        assert.isNull(err)
+        assert(err === null || err === undefined)
         done && done()
       }
     )
