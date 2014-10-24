@@ -304,8 +304,8 @@ exports.sqltest = function(si,done) {
         query_string: function( cb ) {
           Product.list$("SELECT * FROM product ORDER BY price",function(err,list){
             var s = _.map(list,function(p){return p.toString()}).toString()
-            assert.ok( 
-              gex("//product:{id=*;name=apple;price=100},//product:{id=*;name=pear;price=200}").on( s ) )
+            assert.ok(
+              gex("$-/-/product:{id=*;name=apple;price=100},$-/-/product:{id=*;name=pear;price=200}").on( s ) )
             cb()
           })
         },
@@ -313,8 +313,8 @@ exports.sqltest = function(si,done) {
         query_params: function( cb ) {
           Product.list$(["SELECT * FROM product WHERE price >= ? AND price <= ?",0,1000],function(err,list){
             var s = _.map(list,function(p){return p.toString()}).toString()
-            assert.ok( 
-              gex("//product:{id=*;name=apple;price=100},//product:{id=*;name=pear;price=200}").on( s ) )
+            assert.ok(
+              gex("$-/-/product:{id=*;name=apple;price=100},$-/-/product:{id=*;name=pear;price=200}").on( s ) )
             cb()
           })
         },
