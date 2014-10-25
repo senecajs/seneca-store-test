@@ -8,10 +8,10 @@ var _       = require('underscore')
 var gex     = require('gex')
 
 
-var bartemplate = { 
-  name$:'bar', 
-  base$:'moon', 
-  zone$:'zen',  
+var bartemplate = {
+  name$:'bar',
+  base$:'moon',
+  zone$:'zen',
 
   str:'aaa',
   int:11,
@@ -83,7 +83,7 @@ exports.basictest = function(si,settings,done) {
           var foo1 = si.make({name$:'foo'}) ///si.make('foo')
           foo1.p1 = 'v1'
           foo1.p3 = 'v3'
-          
+
           foo1.save$( verify(cb, function(foo1){
             assert.isNotNull(foo1.id)
             assert.equal('v1',foo1.p1)
@@ -121,9 +121,9 @@ exports.basictest = function(si,settings,done) {
             }
 
             scratch.foo1 = foo1
-          })) 
+          }))
         },
-        
+
         load2: function(cb) {
           console.log('load2')
 
@@ -154,7 +154,7 @@ exports.basictest = function(si,settings,done) {
 
           scratch.foo2 = si.make({name$:'foo'})
           scratch.foo2.p2 = 'v2'
-          
+
           scratch.foo2.save$( verify(cb, function(foo2){
             assert.isNotNull(foo2.id)
             assert.equal('v2',foo2.p2)
@@ -167,7 +167,7 @@ exports.basictest = function(si,settings,done) {
 
           scratch.foo2 = si.make({name$:'foo'})
           scratch.foo2.id$ = 'zxy'
-          
+
           scratch.foo2.save$( verify(cb, function(foo2){
             assert.isNotNull(foo2.id)
             assert.equal('zxy', foo2.id)
@@ -236,7 +236,7 @@ exports.basictest = function(si,settings,done) {
           console.log('remove1')
 
           var foo = si.make({name$:'foo'})
-          
+
           foo.remove$( {all$:true}, function(err, res){
             assert.isNull(err)
 
@@ -304,8 +304,8 @@ exports.sqltest = function(si,done) {
         query_string: function( cb ) {
           Product.list$("SELECT * FROM product ORDER BY price",function(err,list){
             var s = _.map(list,function(p){return p.toString()}).toString()
-            assert.ok( 
-              gex("//product:{id=*;name=apple;price=100},//product:{id=*;name=pear;price=200}").on( s ) )
+            assert.ok(
+              gex("$-/-/product:{id=*;name=apple;price=100},$-/-/product:{id=*;name=pear;price=200}").on( s ) )
             cb()
           })
         },
@@ -313,8 +313,8 @@ exports.sqltest = function(si,done) {
         query_params: function( cb ) {
           Product.list$(["SELECT * FROM product WHERE price >= ? AND price <= ?",0,1000],function(err,list){
             var s = _.map(list,function(p){return p.toString()}).toString()
-            assert.ok( 
-              gex("//product:{id=*;name=apple;price=100},//product:{id=*;name=pear;price=200}").on( s ) )
+            assert.ok(
+              gex("$-/-/product:{id=*;name=apple;price=100},$-/-/product:{id=*;name=pear;price=200}").on( s ) )
             cb()
           })
         },
@@ -331,7 +331,7 @@ exports.sqltest = function(si,done) {
           console.dir( err )
         }
         si.__testcount++
-        assert.isNull(err)
+        assert(err === null || err === undefined)
         done && done()
       }
     )
@@ -348,7 +348,7 @@ exports.closetest = function(si,testcount,done) {
       console.log('CLOSE')
       si.close()
       done && done()
-    } 
+    }
     else {
       retryCnt++
       setTimeout(retry, 500);
