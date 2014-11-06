@@ -454,7 +454,7 @@ exports.limitstest = function(si,done) {
         console.log('listlimit5skip2')
 
         var cl = si.make({name$: 'foo'})
-        cl.list$({limit$: 5, skip$: 2, sort$: { p: 1 }}, function (err, lst) {
+        cl.list$({limit$: 5, skip$: 2, sort$: { p1: 1 }}, function (err, lst) {
           assert.ok(null == err)
           assert.equal(1, lst.length)
           assert.equal('v3', lst[0].p1);
