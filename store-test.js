@@ -272,6 +272,206 @@ exports.basictest = function(si,settings,done) {
 }
 
 
+
+module.exports.sorttest = function(si, done) {
+  console.log('SORT')
+
+  async.series(
+    {
+
+      remove: function (cb) {
+        console.log('remove')
+
+        var cl = si.make$('foo')
+        // clear 'foo' collection
+        cl.remove$({all$: true}, function (err, foo) {
+          assert.ok(null == err)
+          cb()
+        })
+      },
+
+      insert1st: function (cb) {
+        console.log('insert1st')
+
+        var cl = si.make$('foo')
+        cl.p1 = 'v1'
+        cl.p2 = 'v1'
+
+        cl.save$(function (err, foo) {
+          assert.ok(null == err)
+          cb()
+        })
+      },
+
+      insert2nd: function (cb) {
+        console.log('insert2nd')
+
+        var cl = si.make$('foo')
+        cl.p1 = 'v2'
+        cl.p2 = 'v2'
+
+        cl.save$(function (err, foo) {
+          assert.ok(null == err)
+          cb()
+        })
+      },
+
+      insert3rd: function (cb) {
+        console.log('insert3rd')
+
+        var cl = si.make$('foo')
+        cl.p1 = 'v3'
+        cl.p2 = 'v3'
+
+        cl.save$(function (err, foo) {
+          assert.ok(null == err)
+          cb()
+        })
+      },
+
+      listasc: function (cb) {
+        console.log('listasc')
+
+        var cl = si.make({name$: 'foo'})
+        cl.list$({sort$: { p1: 1 }}, function (err, lst) {
+          assert.ok(null == err)
+          assert.equal(lst[0].p1, 'v1')
+          assert.equal(lst[1].p1, 'v2')
+          assert.equal(lst[2].p1, 'v3')
+          cb()
+        })
+      },
+
+      listdesc: function (cb) {
+        console.log('listdesc')
+
+        var cl = si.make({name$: 'foo'})
+        cl.list$({sort$: { p1: -1 }}, function (err, lst) {
+          assert.ok(null == err)
+          assert.equal(lst[0].p1, 'v3')
+          assert.equal(lst[1].p1, 'v2')
+          assert.equal(lst[2].p1, 'v1')
+          cb()
+        })
+      }
+    },
+    function (err, out) {
+      si.__testcount++
+      done()
+    }
+  )
+
+  si.__testcount++
+}
+
+
+exports.limitstest = function(si,done) {
+
+  console.log('LIMITS')
+
+  async.series(
+    {
+
+      remove: function (cb) {
+        console.log('remove')
+
+        var cl = si.make$('foo')
+        // clear 'foo' collection
+        cl.remove$({all$: true}, function (err, foo) {
+          assert.ok(null == err)
+          cb()
+        })
+      },
+
+      insert1st: function (cb) {
+        console.log('insert1st')
+
+        var cl = si.make$('foo')
+        cl.p1 = 'v1'
+        cl.save$(function (err, foo) {
+          assert.ok(null == err)
+          cb()
+        })
+      },
+
+      insert2nd: function (cb) {
+        console.log('insert2nd')
+
+        var cl = si.make$('foo')
+        cl.p1 = 'v2'
+        cl.save$(function (err, foo) {
+          assert.ok(null == err)
+          cb()
+        })
+      },
+
+      insert3rd: function (cb) {
+        console.log('insert3rd')
+
+        var cl = si.make$('foo')
+        cl.p1 = 'v3'
+        cl.save$(function (err, foo) {
+          assert.ok(null == err)
+          cb()
+        })
+      },
+
+      listall: function (cb) {
+        console.log('listall')
+
+        var cl = si.make({name$: 'foo'})
+        cl.list$({}, function (err, lst) {
+          assert.ok(null == err)
+          assert.equal(3, lst.length)
+          cb()
+        })
+      },
+
+      listlimit1skip1: function (cb) {
+        console.log('listlimit1skip1')
+
+        var cl = si.make({name$: 'foo'})
+        cl.list$({limit$: 1, skip$: 1, sort$: { p1: 1 }}, function (err, lst) {
+          assert.ok(null == err)
+          assert.equal(1, lst.length)
+          assert.equal('v2', lst[0].p1);
+          cb()
+        })
+      },
+
+      listlimit2skip3: function (cb) {
+        console.log('listlimit2skip3')
+
+        var cl = si.make({name$: 'foo'})
+        cl.list$({limit$: 2, skip$: 3}, function (err, lst) {
+          assert.ok(null == err)
+          assert.equal(0, lst.length)
+          cb()
+        })
+      },
+
+      listlimit5skip2: function (cb) {
+        console.log('listlimit5skip2')
+
+        var cl = si.make({name$: 'foo'})
+        cl.list$({limit$: 5, skip$: 2, sort$: { p1: 1 }}, function (err, lst) {
+          assert.ok(null == err)
+          assert.equal(1, lst.length)
+          assert.equal('v3', lst[0].p1);
+          cb()
+        })
+      }
+    },
+    function (err, out) {
+      si.__testcount++
+      done()
+    }
+  )
+
+  si.__testcount++
+}
+
+
 exports.sqltest = function(si,done) {
   si.ready(function(){
     assert.isNotNull(si)
