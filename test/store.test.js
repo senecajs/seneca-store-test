@@ -6,6 +6,13 @@ var seneca = require('seneca')
 
 var shared = require('..')
 
+
+var Lab = require('lab');
+var lab = exports.lab = Lab.script()
+
+var describe = lab.describe
+var it = lab.it
+
 var si = seneca({log:'silent'})
 
 si.__testcount = 0
