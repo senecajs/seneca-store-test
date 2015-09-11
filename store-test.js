@@ -296,6 +296,7 @@ exports.basictest = function(si,settings,done) {
         if( err ) {
           console.dir( err )
         }
+        console.log()
         si.__testcount++
         assert.isNull(err)
         done && done()
