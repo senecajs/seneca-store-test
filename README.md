@@ -18,7 +18,7 @@ have any questions! :) [@rjrodger](http://twitter.com/rjrodger)
 
 Current Version: 0.2.2
 
-Tested on: Seneca 0.5.19, Node 0.10.29
+Tested on: Seneca 0.5.21, Node 0.10.36
 
 
 ### Usage
