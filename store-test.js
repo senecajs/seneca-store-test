@@ -297,7 +297,7 @@ exports.basictest = function(si,settings,done) {
           console.dir( err )
         }
 
-        //this line if for readbility, it add a new line at the end of the test suite output
+        //this line if for readability, it add a new line at the end of the test suite output
         console.log()
         si.__testcount++
         assert.isNull(err)
