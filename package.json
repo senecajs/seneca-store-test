@@ -24,9 +24,10 @@
   "dependencies": {
     "async": "^0.9.2",
     "chai": "^1.9.2",
+    "chalk": "^1.1.1",
     "gex": "^0.1.4",
-    "nid": "^0.3.2",
-    "lodash": "^3.10.1"
+    "lodash": "^3.10.1",
+    "nid": "^0.3.2"
   },
   "files": [
     "README.md",

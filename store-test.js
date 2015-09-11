@@ -7,10 +7,11 @@ var async    = require('async')
 var _        = require('lodash')
 var gex      = require('gex')
 var readline = require('readline')
+var chalk    = require('chalk')
 
 var testpassed = function () {
   readline.moveCursor(process.stdout, 55, -1)
-  console.log("PASSED")
+  logging(chalk.green("[PASSED]"));
 }
 
 var bartemplate = {
@@ -44,9 +45,19 @@ var scratch = {}
 
 var verify = exports.verify = function(cb,tests){
   return function(error,out) {
-    if( error ) return cb(error);
+    if( error ) return cb(error)
     tests(out)
     cb()
+  }
+}
+
+var logging = function(msg){
+  console.log(chalk.white(msg))
+}
+
+var logCategory = function(category){
+  return function (msg){
+    console.log(chalk.yellow(category) + ' ' + msg)
   }
 }
 
@@ -59,7 +70,7 @@ exports.basictest = function(si,settings,done) {
   }
 
   si.ready(function(){
-    console.log('Running BASIC test suite\n')
+    logging(chalk.yellow('Running Seneca BASIC Memory Store test suite\n'))
     assert.isNotNull(si)
 
 
@@ -71,11 +82,16 @@ exports.basictest = function(si,settings,done) {
     /* Set up a data set for testing the store.
      * //foo contains [{p1:'v1',p2:'v2'},{p2:'v2'}]
      * zen/moon/bar contains [{..bartemplate..}]
+     *
      */
+    var dtLog = logCategory('[Data tests]'); //dataTest category logs
+    var saveLog = logCategory('[Save tests]'); //dataTest category logs
+    var loadLog = logCategory('[Load tests]'); //dataTest category logs
+    var rmLog = logCategory('[Remove tests]'); //dataTest category logs
     async.series(
       {
         load0: function(cb) {
-          console.log('Load non existing entity from store')
+          dtLog('Load non existing entity from store')
 
           var foo0 = si.make('foo')
           foo0.load$('does-not-exist-at-all-at-all',verify(cb,function(out){
@@ -85,7 +101,7 @@ exports.basictest = function(si,settings,done) {
         },
 
         save1: function(cb) {
-          console.log('Save an entity to store')
+          dtLog('Save an entity to store')
 
           var foo1 = si.make({name$:'foo'}) ///si.make('foo')
           foo1.p1 = 'v1'
@@ -101,7 +117,7 @@ exports.basictest = function(si,settings,done) {
         },
 
         load1: function(cb) {
-          console.log('Load an existing entity from store')
+          dtLog('Load an existing entity from store')
 
           scratch.foo1.load$( scratch.foo1.id, verify(cb,function(foo1){
             assert.isNotNull(foo1.id)
@@ -112,7 +128,7 @@ exports.basictest = function(si,settings,done) {
         },
 
         save2: function(cb) {
-          console.log('Save the same entity again to store')
+          dtLog('Save the same entity again to store')
 
           scratch.foo1.p1 = 'v1x'
           scratch.foo1.p2 = 'v2'
@@ -135,7 +151,7 @@ exports.basictest = function(si,settings,done) {
         },
 
         load2: function(cb) {
-          console.log('Load again the same entity')
+          dtLog('Load again the same entity')
 
           scratch.foo1.load$( scratch.foo1.id, verify(cb, function(foo1){
             assert.isNotNull(foo1.id)
@@ -147,7 +163,7 @@ exports.basictest = function(si,settings,done) {
         },
 
         save3: function(cb) {
-          console.log('Save an entity with different type of properties')
+          saveLog('Save an entity with different type of properties')
 
           scratch.bar = si.make( bartemplate )
           var mark = scratch.bar.mark = Math.random()
@@ -162,7 +178,7 @@ exports.basictest = function(si,settings,done) {
         },
 
         save4: function(cb) {
-          console.log('Save an entity with a prexisting name')
+          saveLog('Save an entity with a prexisting name')
 
           scratch.foo2 = si.make({name$:'foo'})
           scratch.foo2.p2 = 'v2'
@@ -177,7 +193,7 @@ exports.basictest = function(si,settings,done) {
         },
 
         save5: function(cb) {
-          console.log('Save an entity with an id')
+          saveLog('Save an entity with an id')
 
           scratch.foo2 = si.make({name$:'foo'})
           scratch.foo2.id$ = '0201775f-27c4-7428-b380-44b8f4c529f3'
@@ -192,7 +208,7 @@ exports.basictest = function(si,settings,done) {
         },
 
         query1: function(cb) {
-          console.log('Load a list of entities with one element')
+          loadLog('Load a list of entities with one element')
 
           scratch.barq = si.make('zen', 'moon','bar')
           scratch.barq.list$({}, verify(cb, function(res){
@@ -204,7 +220,7 @@ exports.basictest = function(si,settings,done) {
         },
 
         query2: function(cb) {
-          console.log('Load a list of entities with more than one element')
+          loadLog('Load a list of entities with more than one element')
 
           scratch.foo1.list$({}, verify(cb, function(res){
             assert.ok( 2 <= res.length)
@@ -214,7 +230,7 @@ exports.basictest = function(si,settings,done) {
         },
 
         query3: function(cb) {
-          console.log('Load an element by id')
+          loadLog('Load an element by id')
 
           scratch.barq.list$({id:scratch.bar.id}, verify(cb, function(res){
             assert.equal( 1, res.length )
@@ -225,7 +241,7 @@ exports.basictest = function(si,settings,done) {
         },
 
         query4: function(cb) {
-          console.log('Load an element by integer property')
+          loadLog('Load an element by integer property')
 
           scratch.bar.list$({mark:scratch.bar.mark}, verify(cb, function(res){
             assert.equal( 1, res.length )
@@ -236,7 +252,7 @@ exports.basictest = function(si,settings,done) {
         },
 
         query5: function(cb) {
-          console.log('Load an element by string property')
+          loadLog('Load an element by string property')
 
           scratch.foo1.list$({p2:'v2'}, verify(cb, function(res){
             assert.ok( 2 <= res.length )
@@ -247,7 +263,7 @@ exports.basictest = function(si,settings,done) {
 
 
         query6: function(cb) {
-          console.log('Load an element by two properties')
+          loadLog('Load an element by two properties')
 
           scratch.foo1.list$({p2:'v2',p1:'v1x'}, verify(cb, function(res){
             assert.ok( 1 <= res.length )
@@ -261,7 +277,7 @@ exports.basictest = function(si,settings,done) {
         },
 
         remove1: function(cb) {
-          console.log('Delete an element by name')
+          rmLog('Delete an element by name')
 
           var foo = si.make({name$:'foo'})
 
@@ -277,7 +293,7 @@ exports.basictest = function(si,settings,done) {
         },
 
         remove2: function(cb) {
-          console.log('Delete an element by property')
+          rmLog('Delete an element by property')
 
           scratch.bar.remove$({mark:scratch.bar.mark}, function(err,res){
             assert.isNull(err)
@@ -309,13 +325,14 @@ exports.basictest = function(si,settings,done) {
 
 
 module.exports.sorttest = function(si, done) {
-  console.log('SORT')
+  logging(chalk.yellow('Running Seneca SORT Memory Store tests'));
 
+  var sortLog = logCategory('[Sort tests]');
   async.series(
     {
 
       remove: function (cb) {
-        console.log('remove')
+        sortLog('clear foo collection');
 
         var cl = si.make$('foo')
         // clear 'foo' collection
@@ -326,7 +343,7 @@ module.exports.sorttest = function(si, done) {
       },
 
       insert1st: function (cb) {
-        console.log('insert1st')
+        sortLog('insert 1st basic entity')
 
         var cl = si.make$('foo')
         cl.p1 = 'v1'
@@ -339,7 +356,7 @@ module.exports.sorttest = function(si, done) {
       },
 
       insert2nd: function (cb) {
-        console.log('insert2nd')
+        sortLog('insert 2nd basic entity')
 
         var cl = si.make$('foo')
         cl.p1 = 'v2'
@@ -352,7 +369,7 @@ module.exports.sorttest = function(si, done) {
       },
 
       insert3rd: function (cb) {
-        console.log('insert3rd')
+        sortLog('insert 3rd basic entity')
 
         var cl = si.make$('foo')
         cl.p1 = 'v3'
@@ -365,7 +382,7 @@ module.exports.sorttest = function(si, done) {
       },
 
       listasc: function (cb) {
-        console.log('listasc')
+        sortLog('test list ascending')
 
         var cl = si.make({name$: 'foo'})
         cl.list$({sort$: { p1: 1 }}, function (err, lst) {
@@ -378,7 +395,7 @@ module.exports.sorttest = function(si, done) {
       },
 
       listdesc: function (cb) {
-        console.log('listdesc')
+        sortLog('test list descending')
 
         var cl = si.make({name$: 'foo'})
         cl.list$({sort$: { p1: -1 }}, function (err, lst) {
@@ -401,14 +418,14 @@ module.exports.sorttest = function(si, done) {
 
 
 exports.limitstest = function(si,done) {
-
-  console.log('LIMITS')
+  logging(chalk.yellow('Running Seneca LIMITS Memory Store tests'));
+  var limitLog = logCategory('[Limits tests]');
 
   async.series(
     {
 
       remove: function (cb) {
-        console.log('remove')
+        limitLog('clear foo collection')
 
         var cl = si.make$('foo')
         // clear 'foo' collection
@@ -419,7 +436,7 @@ exports.limitstest = function(si,done) {
       },
 
       insert1st: function (cb) {
-        console.log('insert1st')
+        limitLog('insert 1st basic')
 
         var cl = si.make$('foo')
         cl.p1 = 'v1'
@@ -430,7 +447,7 @@ exports.limitstest = function(si,done) {
       },
 
       insert2nd: function (cb) {
-        console.log('insert2nd')
+        limitLog('insert 2nd basic entity')
 
         var cl = si.make$('foo')
         cl.p1 = 'v2'
@@ -441,7 +458,7 @@ exports.limitstest = function(si,done) {
       },
 
       insert3rd: function (cb) {
-        console.log('insert3rd')
+        limitLog('insert 3rd basic entity')
 
         var cl = si.make$('foo')
         cl.p1 = 'v3'
@@ -452,7 +469,7 @@ exports.limitstest = function(si,done) {
       },
 
       listall: function (cb) {
-        console.log('listall')
+        limitLog('test list all entities')
 
         var cl = si.make({name$: 'foo'})
         cl.list$({}, function (err, lst) {
@@ -463,7 +480,7 @@ exports.limitstest = function(si,done) {
       },
 
       listlimit1skip1: function (cb) {
-        console.log('listlimit1skip1')
+        limitLog('test list limit 1 and skip to 2nd entity with skip$: 1')
 
         var cl = si.make({name$: 'foo'})
         cl.list$({limit$: 1, skip$: 1, sort$: { p1: 1 }}, function (err, lst) {
@@ -475,7 +492,7 @@ exports.limitstest = function(si,done) {
       },
 
       listlimit2skip3: function (cb) {
-        console.log('listlimit2skip3')
+        limitLog('test list limit 2 and skip 3 to get no entities returned.')
 
         var cl = si.make({name$: 'foo'})
         cl.list$({limit$: 2, skip$: 3}, function (err, lst) {
@@ -486,7 +503,7 @@ exports.limitstest = function(si,done) {
       },
 
       listlimit5skip2: function (cb) {
-        console.log('listlimit5skip2')
+        limitLog('test list limit 5 and skip to 3rd entity with skip$: 2')
 
         var cl = si.make({name$: 'foo'})
         cl.list$({limit$: 5, skip$: 2, sort$: { p1: 1 }}, function (err, lst) {
@@ -580,7 +597,7 @@ exports.closetest = function(si,testcount,done) {
   function retry(){
     //console.log(testcount+' '+si.__testcount)
     if( testcount <= si.__testcount || retryCnt > RETRY_LIMIT ) {
-      console.log('CLOSE')
+      logging(chalk.green('[Close test]'));
       si.close()
       done && done()
     }
@@ -591,3 +608,4 @@ exports.closetest = function(si,testcount,done) {
   }
   retry()
 }
+
