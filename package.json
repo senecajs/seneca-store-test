@@ -1,6 +1,6 @@
 {
   "name": "seneca-store-test",
-  "version": "0.2.3",
+  "version": "0.3.0",
   "description": "Standard test cases for seneca stores",
   "main": "store-test.js",
   "scripts": {
