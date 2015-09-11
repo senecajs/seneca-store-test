@@ -17,7 +17,8 @@
   ],
   "author": "Richard Rodger (http://richardrodger.com)",
   "contributors": [
-    "Paolo Chiodi (https://github.com/paolochiodi)"
+    "Paolo Chiodi (https://github.com/paolochiodi)",
+    "Michele Capra (https://github.com/piccoloaiutante)"
   ],
   "license": "MIT",
   "dependencies": {
