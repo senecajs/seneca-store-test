@@ -8,6 +8,9 @@ var _        = require('lodash')
 var gex      = require('gex')
 var readline = require('readline')
 
+var Lab = require('lab');
+
+
 var testpassed = function () {
   readline.moveCursor(process.stdout, 55, -1)
   console.log("PASSED")
@@ -43,268 +46,229 @@ var barverify = function(bar) {
 var scratch = {}
 
 var verify = exports.verify = function(cb,tests){
-  return function(error,out) {
-    if( error ) return cb(error);
-    tests(out)
+  return function(error, out) {
+    if( error ) {
+      return cb(error);
+    }
+
+    try {
+      tests(out)
+    }
+    catch (ex) {
+      return cb(ex)
+    }
+
     cb()
   }
 }
 
 
+function basictest (settings) {
+  var si = settings.seneca
+  var must_merge = !!settings.must_merge
+  var script = settings.script || Lab.script()
 
-exports.basictest = function(si,settings,done) {
-  if( _.isFunction(settings) ) {
-    done = settings
-    settings = {}
-  }
+  var describe = script.describe
+  var it = script.it
 
-  si.ready(function(){
-    console.log('Running BASIC test suite\n')
-    assert.isNotNull(si)
+  describe('basics', function () {
 
+    it('should load non existing entity from store', function (done) {
 
-    var must_merge = null == settings.must_merge ? false : settings.must_merge
+      var foo0 = si.make('foo')
+      foo0.load$('does-not-exist-at-all-at-all', verify(done, function(out){
+        assert.isNull(out)
+      }))
 
-    // TODO: test load$(string), remove$(string)
+    })
 
+    it('should save an entity to store', function (done) {
 
-    /* Set up a data set for testing the store.
-     * //foo contains [{p1:'v1',p2:'v2'},{p2:'v2'}]
-     * zen/moon/bar contains [{..bartemplate..}]
-     */
-    async.series(
-      {
-        load0: function(cb) {
-          console.log('Load non existing entity from store')
+      var foo1 = si.make({name$:'foo'}) ///si.make('foo')
+      foo1.p1 = 'v1'
+      foo1.p3 = 'v3'
 
-          var foo0 = si.make('foo')
-          foo0.load$('does-not-exist-at-all-at-all',verify(cb,function(out){
-            assert.isNull(out)
-            testpassed()
-          }))
-        },
+      foo1.save$(verify(done, function(foo1){
+        assert.isNotNull(foo1.id)
+        assert.equal('v1',foo1.p1)
+        assert.equal('v3',foo1.p3)
+        scratch.foo1 = foo1
+      }))
 
-        save1: function(cb) {
-          console.log('Save an entity to store')
+    })
 
-          var foo1 = si.make({name$:'foo'}) ///si.make('foo')
-          foo1.p1 = 'v1'
-          foo1.p3 = 'v3'
+    it('should load an existing entity from store', function (done) {
 
-          foo1.save$( verify(cb, function(foo1){
-            assert.isNotNull(foo1.id)
-            assert.equal('v1',foo1.p1)
-            assert.equal('v3',foo1.p3)
-            scratch.foo1 = foo1
-            testpassed()
-          }))
-        },
+      scratch.foo1.load$( scratch.foo1.id, verify(done, function(foo1){
+        assert.isNotNull(foo1.id)
+        assert.equal('v1',foo1.p1)
+        scratch.foo1 = foo1
+      }))
 
-        load1: function(cb) {
-          console.log('Load an existing entity from store')
+    })
 
-          scratch.foo1.load$( scratch.foo1.id, verify(cb,function(foo1){
-            assert.isNotNull(foo1.id)
-            assert.equal('v1',foo1.p1)
-            scratch.foo1 = foo1
-            testpassed()
-          }))
-        },
+    it('should save the same entity again to store', function (done) {
 
-        save2: function(cb) {
-          console.log('Save the same entity again to store')
+      scratch.foo1.p1 = 'v1x'
+      scratch.foo1.p2 = 'v2'
 
-          scratch.foo1.p1 = 'v1x'
-          scratch.foo1.p2 = 'v2'
+      // test merge behaviour
+      delete scratch.foo1.p3
 
-          // test merge behaviour
-          delete scratch.foo1.p3
+      scratch.foo1.save$(verify(done, function(foo1){
+        assert.isNotNull(foo1.id)
+        assert.equal('v1x',foo1.p1)
+        assert.equal('v2',foo1.p2)
 
-          scratch.foo1.save$( verify(cb,function(foo1){
-            assert.isNotNull(foo1.id)
-            assert.equal('v1x',foo1.p1)
-            assert.equal('v2',foo1.p2)
-
-            if( must_merge ) {
-              assert.equal('v3',foo1.p3)
-            }
-
-            scratch.foo1 = foo1
-            testpassed()
-          }))
-        },
-
-        load2: function(cb) {
-          console.log('Load again the same entity')
-
-          scratch.foo1.load$( scratch.foo1.id, verify(cb, function(foo1){
-            assert.isNotNull(foo1.id)
-            assert.equal('v1x',foo1.p1)
-            assert.equal('v2',foo1.p2)
-            scratch.foo1 = foo1
-            testpassed()
-          }))
-        },
-
-        save3: function(cb) {
-          console.log('Save an entity with different type of properties')
-
-          scratch.bar = si.make( bartemplate )
-          var mark = scratch.bar.mark = Math.random()
-
-          scratch.bar.save$( verify(cb, function(bar){
-            assert.isNotNull(bar.id)
-            barverify(bar)
-            assert.equal( mark, bar.mark )
-            scratch.bar = bar
-            testpassed()
-          }))
-        },
-
-        save4: function(cb) {
-          console.log('Save an entity with a prexisting name')
-
-          scratch.foo2 = si.make({name$:'foo'})
-          scratch.foo2.p2 = 'v2'
-
-          scratch.foo2.save$( verify(cb, function(foo2){
-            assert.isNotNull(foo2.id)
-            assert.equal('v2',foo2.p2)
-            scratch.foo2 = foo2
-
-            testpassed()
-          }))
-        },
-
-        save5: function(cb) {
-          console.log('Save an entity with an id')
-
-          scratch.foo2 = si.make({name$:'foo'})
-          scratch.foo2.id$ = '0201775f-27c4-7428-b380-44b8f4c529f3'
-
-          scratch.foo2.save$( verify(cb, function(foo2){
-            assert.isNotNull(foo2.id)
-            assert.equal('0201775f-27c4-7428-b380-44b8f4c529f3', foo2.id)
-            scratch.foo2 = foo2
-
-            testpassed()
-          }))
-        },
-
-        query1: function(cb) {
-          console.log('Load a list of entities with one element')
-
-          scratch.barq = si.make('zen', 'moon','bar')
-          scratch.barq.list$({}, verify(cb, function(res){
-            assert.ok( 1 <= res.length)
-            barverify(res[0])
-
-            testpassed()
-          }))
-        },
-
-        query2: function(cb) {
-          console.log('Load a list of entities with more than one element')
-
-          scratch.foo1.list$({}, verify(cb, function(res){
-            assert.ok( 2 <= res.length)
-
-            testpassed()
-          }))
-        },
-
-        query3: function(cb) {
-          console.log('Load an element by id')
-
-          scratch.barq.list$({id:scratch.bar.id}, verify(cb, function(res){
-            assert.equal( 1, res.length )
-            barverify(res[0])
-
-            testpassed()
-          }))
-        },
-
-        query4: function(cb) {
-          console.log('Load an element by integer property')
-
-          scratch.bar.list$({mark:scratch.bar.mark}, verify(cb, function(res){
-            assert.equal( 1, res.length )
-            barverify(res[0])
-
-            testpassed()
-          }))
-        },
-
-        query5: function(cb) {
-          console.log('Load an element by string property')
-
-          scratch.foo1.list$({p2:'v2'}, verify(cb, function(res){
-            assert.ok( 2 <= res.length )
-
-            testpassed()
-          }))
-        },
-
-
-        query6: function(cb) {
-          console.log('Load an element by two properties')
-
-          scratch.foo1.list$({p2:'v2',p1:'v1x'}, verify(cb, function(res){
-            assert.ok( 1 <= res.length )
-            res.forEach(function(foo){
-              assert.equal('v2',foo.p2)
-              assert.equal('v1x',foo.p1)
-
-              testpassed()
-            })
-          }))
-        },
-
-        remove1: function(cb) {
-          console.log('Delete an element by name')
-
-          var foo = si.make({name$:'foo'})
-
-          foo.remove$( {all$:true}, function(err, res){
-            assert.isNull(err)
-
-            foo.list$({},verify(cb,function(res){
-              assert.equal(0,res.length)
-
-              testpassed()
-            }))
-          })
-        },
-
-        remove2: function(cb) {
-          console.log('Delete an element by property')
-
-          scratch.bar.remove$({mark:scratch.bar.mark}, function(err,res){
-            assert.isNull(err)
-
-            scratch.bar.list$({mark:scratch.bar.mark}, verify(cb, function(res){
-              assert.equal( 0, res.length )
-
-              testpassed()
-            }))
-          })
-        },
-
-      },
-      function(err,out) {
-        err = err || null
-        if( err ) {
-          console.dir( err )
+        if( must_merge ) {
+          assert.equal('v3',foo1.p3)
         }
 
-        //this line if for readability, it add a new line at the end of the test suite output
-        console.log()
-        si.__testcount++
+        scratch.foo1 = foo1
+      }))
+
+    })
+
+    it('should load again the same entity', function (done) {
+
+      scratch.foo1.load$(scratch.foo1.id, verify(done, function(foo1){
+        assert.isNotNull(foo1.id)
+        assert.equal('v1x',foo1.p1)
+        assert.equal('v2',foo1.p2)
+        scratch.foo1 = foo1
+      }))
+
+    })
+
+    it('should save an entity with different type of properties', function (done) {
+
+      scratch.bar = si.make( bartemplate )
+      var mark = scratch.bar.mark = Math.random()
+
+      scratch.bar.save$(verify(done, function(bar){
+        assert.isNotNull(bar.id)
+        barverify(bar)
+        assert.equal( mark, bar.mark )
+        scratch.bar = bar
+      }))
+
+    })
+
+    it('should save an entity with a prexisting name', function (done) {
+
+      scratch.foo2 = si.make({name$:'foo'})
+      scratch.foo2.p2 = 'v2'
+
+      scratch.foo2.save$(verify(done, function(foo2){
+        assert.isNotNull(foo2.id)
+        assert.equal('v2',foo2.p2)
+        scratch.foo2 = foo2
+      }))
+
+    })
+
+    it('should save an entity with an id', function (done) {
+
+      scratch.foo2 = si.make({name$:'foo'})
+      scratch.foo2.id$ = '0201775f-27c4-7428-b380-44b8f4c529f3'
+
+      scratch.foo2.save$(verify(done, function(foo2){
+        assert.isNotNull(foo2.id)
+        assert.equal('0201775f-27c4-7428-b380-44b8f4c529f3', foo2.id)
+        scratch.foo2 = foo2
+      }))
+
+    })
+
+    it('should load a list of entities with one element', function (done) {
+
+      scratch.barq = si.make('zen', 'moon','bar')
+      scratch.barq.list$({}, verify(done, function(res){
+        assert.ok(1 <= res.length)
+        barverify(res[0])
+      }))
+
+    })
+
+    it('should load a list of entities with more than one element', function (done) {
+
+      scratch.foo1.list$({}, verify(done, function(res){
+        assert.ok(2 <= res.length)
+      }))
+
+    })
+
+    it('should load an element by id', function (done) {
+
+      scratch.barq.list$({id:scratch.bar.id}, verify(done, function(res){
+        assert.equal(1, res.length)
+        barverify(res[0])
+      }))
+
+    })
+
+    it('should load an element by integer property', function (done) {
+
+      scratch.bar.list$({mark:scratch.bar.mark}, verify(done, function(res){
+        assert.equal(1, res.length)
+        barverify(res[0])
+      }))
+
+    })
+
+    it('should load an element by string property', function (done) {
+
+      scratch.foo1.list$({p2:'v2'}, verify(done, function(res){
+        assert.ok(2 <= res.length)
+      }))
+    })
+
+
+    it('Load an element by two properties', function (done) {
+
+      scratch.foo1.list$({p2:'v2',p1:'v1x'}, verify(done, function(res){
+        assert.ok(1 <= res.length)
+        res.forEach(function(foo){
+          assert.equal('v2',foo.p2)
+          assert.equal('v1x',foo.p1)
+        })
+      }))
+
+    })
+
+    it('should delete an element by name', function (done) {
+
+      var foo = si.make({name$:'foo'})
+
+      foo.remove$( {all$:true}, function(err, res){
         assert.isNull(err)
-        done && done()
+
+        foo.list$({},verify(done, function(res){
+          assert.equal(0,res.length)
+        }))
       })
+
+    })
+
+    it('should delete an element by property', function (done) {
+
+      scratch.bar.remove$({mark:scratch.bar.mark}, function(err,res){
+        assert.isNull(err)
+
+        scratch.bar.list$({mark:scratch.bar.mark}, verify(done, function(res){
+          assert.equal(0, res.length )
+        }))
+      })
+
+    })
+
   })
+
+  return script
 }
+
+
+exports.basictest = basictest
 
 
 
