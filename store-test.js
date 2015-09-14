@@ -223,8 +223,7 @@ function basictest (settings) {
       }))
     })
 
-
-    it('Load an element by two properties', function (done) {
+    it('should load an element by two properties', function (done) {
 
       scratch.foo1.list$({p2:'v2',p1:'v1x'}, verify(done, function(res){
         assert.ok(1 <= res.length)
