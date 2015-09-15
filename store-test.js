@@ -440,70 +440,58 @@ module.exports.limitstest = function(settings) {
 }
 
 
-exports.sqltest = function(si,done) {
-  si.ready(function(){
-    assert.isNotNull(si)
+exports.sqltest = function (settings) {
 
-    var Product = si.make('product')
-    var products = []
+  var si = settings.seneca
+  var must_merge = !!settings.must_merge
+  var script = settings.script || Lab.script()
 
-    async.series(
-      {
-        setup: function(cb) {
+  var describe = script.describe
+  var it = script.it
 
-          products.push( Product.make$({name:'apple',price:100}) )
-          products.push( Product.make$({name:'pear',price:200}) )
+  var Product = si.make('product')
 
-          var i = 0
-          function saveproduct(){
-            return function(cb) {
-              products[i].save$(cb)
-              i++
-            }
-          }
+  describe("sql", function () {
 
-          async.series([
-            saveproduct(),
-            saveproduct(),
-          ],cb)
-        },
+    script.before(function before (done) {
+      var products = [
+        Product.make$({name:'apple',price:100}),
+        Product.make$({name:'pear',price:200})
+      ]
 
-
-        query_string: function( cb ) {
-          Product.list$("SELECT * FROM product ORDER BY price",function(err,list){
-            var s = _.map(list,function(p){return p.toString()}).toString()
-            assert.ok(
-              gex("$-/-/product:{id=*;name=apple;price=100},$-/-/product:{id=*;name=pear;price=200}").on( s ) )
-            cb()
-          })
-        },
-
-        query_params: function( cb ) {
-          Product.list$(["SELECT * FROM product WHERE price >= ? AND price <= ?",0,1000],function(err,list){
-            var s = _.map(list,function(p){return p.toString()}).toString()
-            assert.ok(
-              gex("$-/-/product:{id=*;name=apple;price=100},$-/-/product:{id=*;name=pear;price=200}").on( s ) )
-            cb()
-          })
-        },
-
-        teardown: function(cb) {
-          products.forEach(function(p){
-            p.remove$()
-          })
-          cb()
+      var i = 0
+      function saveproduct(){
+        return function(cb) {
+          products[i].save$(cb)
+          i++
         }
-      },
-      function(err,out){
-        if( err ) {
-          console.dir( err )
-        }
-        si.__testcount++
-        assert(err === null || err === undefined)
-        done && done()
       }
-    )
+
+      async.series([
+        saveproduct(),
+        saveproduct(),
+      ], done)
+    })
+
+
+    it('query_string', function (done) {
+      Product.list$("SELECT * FROM product ORDER BY price", verify(done, function(list) {
+        var s = _.map(list,function(p){return p.toString()}).toString()
+        assert.ok(
+          gex("$-/-/product:{id=*;name=apple;price=100},$-/-/product:{id=*;name=pear;price=200}").on( s ) )
+      }))
+    })
+
+    it('query_params', function (done) {
+      Product.list$(["SELECT * FROM product WHERE price >= ? AND price <= ?",0,1000], verify(done, function(list) {
+        var s = _.map(list,function(p){return p.toString()}).toString()
+        assert.ok(
+          gex("$-/-/product:{id=*;name=apple;price=100},$-/-/product:{id=*;name=pear;price=200}").on( s ) )
+      }))
+    })
   })
+
+  return script
 }
 
 exports.closetest = function(si,testcount,done) {
