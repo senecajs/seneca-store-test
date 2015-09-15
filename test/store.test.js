@@ -33,22 +33,3 @@ shared.limitstest({
   seneca: si,
   script: lab
 })
-
-
-// describe('mem', function(){
-
-//   it('sort', function(done){
-//     testcount++
-//     shared.sorttest(si,done)
-//   })
-
-//   it('limits', function(done){
-//     testcount++
-//     shared.limitstest(si,done)
-//   })
-
-
-//   it('close', function(done){
-//     shared.closetest(si,testcount,done)
-//   })
-// })

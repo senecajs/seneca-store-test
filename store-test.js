@@ -493,22 +493,3 @@ exports.sqltest = function (settings) {
 
   return script
 }
-
-exports.closetest = function(si,testcount,done) {
-  var RETRY_LIMIT = 10
-  var retryCnt = 0
-
-  function retry(){
-    //console.log(testcount+' '+si.__testcount)
-    if( testcount <= si.__testcount || retryCnt > RETRY_LIMIT ) {
-      console.log('CLOSE')
-      si.close()
-      done && done()
-    }
-    else {
-      retryCnt++
-      setTimeout(retry, 500);
-    }
-  }
-  retry()
-}
