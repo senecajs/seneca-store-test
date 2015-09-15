@@ -30,11 +30,9 @@ var barverify = function (bar) {
   assert.equal(33.33, bar.dec)
   assert.equal(false, bar.bol)
   assert.equal(new Date(2020,1,1).toISOString(), _.isDate(bar.wen) ? bar.wen.toISOString() : bar.wen)
-
   assert.equal(''+[2,3],''+bar.arr)
   assert.deepEqual({a:1,b:[2],c:{d:3}},bar.obj)
 }
-
 
 
 var scratch = {}
@@ -451,23 +449,25 @@ function sqltest (settings) {
   describe("Sql support", function () {
 
     script.before(function before (done) {
-      var products = [
-        Product.make$({name:'apple',price:100}),
-        Product.make$({name:'pear',price:200})
-      ]
-
-      var i = 0
-      function saveproduct () {
-        return function (cb) {
-          products[i].save$(cb)
-          i++
-        }
-      }
 
       async.series([
-        saveproduct(),
-        saveproduct(),
+        function clear (next) {
+          Product.remove$({all$: true}, next)
+        },
+        function create (next) {
+          var products = [
+            Product.make$({name:'apple',price:100}),
+            Product.make$({name:'pear',price:200})
+          ]
+
+          function saveproduct (product, next) {
+            product.save$(next)
+          }
+
+          async.forEach(products, saveproduct, next)
+        }
       ], done)
+
     })
 
 
