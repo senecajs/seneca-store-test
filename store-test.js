@@ -71,7 +71,7 @@ function basictest (settings) {
   var describe = script.describe
   var it = script.it
 
-  describe('basics', function () {
+  describe('Basic store', function () {
 
     it('should load non existing entity from store', function (done) {
 
@@ -279,7 +279,7 @@ module.exports.sorttest = function(settings) {
   var describe = script.describe
   var it = script.it
 
-  describe('sorting', function () {
+  describe('Sorting', function () {
 
     script.before(function before(done) {
 
@@ -326,7 +326,7 @@ module.exports.sorttest = function(settings) {
 
     })
 
-    it('should list entities in ascending order', function (done) {
+    it('should support ascending order', function (done) {
 
       var cl = si.make({name$: 'foo'})
       cl.list$({all$: true, sort$: { p1: 1 }}, verify(done, function (lst) {
@@ -338,7 +338,7 @@ module.exports.sorttest = function(settings) {
 
     })
 
-    it('should list entities in descending order', function (done) {
+    it('should support descending order', function (done) {
 
       var cl = si.make({name$: 'foo'})
       cl.list$({sort$: { p1: -1 }}, verify(done, function (lst) {
@@ -363,7 +363,7 @@ module.exports.limitstest = function(settings) {
   var describe = script.describe
   var it = script.it
 
-  describe("limits", function () {
+  describe("Limits", function () {
 
     script.before(function (done) {
       async.series([
@@ -404,14 +404,14 @@ module.exports.limitstest = function(settings) {
     })
 
 
-    it('listall', function listall (done) {
+    it('check setup correctly', function listall (done) {
       var cl = si.make({name$: 'foo'})
       cl.list$({}, verify(done, function (lst) {
         assert.equal(3, lst.length)
       }))
     })
 
-    it('listlimit1skip1', function listlimit1skip1 (done) {
+    it('should support limit, skip and sort', function listlimit1skip1 (done) {
       var cl = si.make({name$: 'foo'})
       cl.list$({limit$: 1, skip$: 1, sort$: { p1: 1 }}, verify(done, function (lst) {
         assert.equal(1, lst.length)
@@ -419,14 +419,14 @@ module.exports.limitstest = function(settings) {
       }))
     }),
 
-    it('listlimit2skip3', function listlimit2skip3 (done) {
+    it('should return empty array when skipping all the records', function listlimit2skip3 (done) {
       var cl = si.make({name$: 'foo'})
       cl.list$({limit$: 2, skip$: 3}, verify(done, function (lst) {
         assert.equal(0, lst.length)
       }))
     })
 
-    it('listlimit5skip2', function listlimit5skip2 (done) {
+    it('should return correct number of records if limit is too high', function listlimit5skip2 (done) {
       var cl = si.make({name$: 'foo'})
       cl.list$({limit$: 5, skip$: 2, sort$: { p1: 1 }}, verify(done, function (lst) {
         assert.equal(1, lst.length)
@@ -451,7 +451,7 @@ exports.sqltest = function (settings) {
 
   var Product = si.make('product')
 
-  describe("sql", function () {
+  describe("Sql support", function () {
 
     script.before(function before (done) {
       var products = [
@@ -474,7 +474,7 @@ exports.sqltest = function (settings) {
     })
 
 
-    it('query_string', function (done) {
+    it('should accept a string query', function (done) {
       Product.list$("SELECT * FROM product ORDER BY price", verify(done, function(list) {
         var s = _.map(list,function(p){return p.toString()}).toString()
         assert.ok(
@@ -482,7 +482,7 @@ exports.sqltest = function (settings) {
       }))
     })
 
-    it('query_params', function (done) {
+    it('should accept and array with query and parameters', function (done) {
       Product.list$(["SELECT * FROM product WHERE price >= ? AND price <= ?",0,1000], verify(done, function(list) {
         var s = _.map(list,function(p){return p.toString()}).toString()
         assert.ok(
