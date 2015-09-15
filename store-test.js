@@ -473,17 +473,32 @@ function sqltest (settings) {
 
     it('should accept a string query', function (done) {
       Product.list$("SELECT * FROM product ORDER BY price", verify(done, function (list) {
-        var s = _.map(list,function(p){return p.toString()}).toString()
-        assert.ok(
-          gex("$-/-/product:{id=*;name=apple;price=100},$-/-/product:{id=*;name=pear;price=200}").on( s ) )
+
+        assert.equal(2, list.length);
+
+        assert.equal('-/-/product', list[0].entity$);
+        assert.equal('apple', list[0].name);
+        assert.equal(100, list[0].price);
+
+        assert.equal('-/-/product', list[1].entity$);
+        assert.equal('pear', list[1].name);
+        assert.equal(200, list[1].price);
       }))
     })
 
     it('should accept and array with query and parameters', function (done) {
       Product.list$(["SELECT * FROM product WHERE price >= ? AND price <= ?",0,1000], verify(done, function (list) {
-        var s = _.map(list,function(p){return p.toString()}).toString()
-        assert.ok(
-          gex("$-/-/product:{id=*;name=apple;price=100},$-/-/product:{id=*;name=pear;price=200}").on( s ) )
+
+        assert.equal(2, list.length);
+
+        assert.equal('-/-/product', list[0].entity$);
+        assert.equal('apple', list[0].name);
+        assert.equal(100, list[0].price);
+
+        assert.equal('-/-/product', list[1].entity$);
+        assert.equal('pear', list[1].name);
+        assert.equal(200, list[1].price);
+
       }))
     })
   })
