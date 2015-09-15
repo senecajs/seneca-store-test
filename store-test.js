@@ -1,20 +1,14 @@
 /* Copyright (c) 2014 Richard Rodger, MIT License */
-"use strict";
+'use strict';
 
 var assert   = require('chai').assert
 
 var async    = require('async')
 var _        = require('lodash')
 var gex      = require('gex')
-var readline = require('readline')
 
 var Lab = require('lab');
 
-
-var testpassed = function () {
-  readline.moveCursor(process.stdout, 55, -1)
-  console.log("PASSED")
-}
 
 var bartemplate = {
   name$:'bar',
@@ -30,12 +24,12 @@ var bartemplate = {
   obj:{a:1,b:[2],c:{d:3}}
 }
 
-var barverify = function(bar) {
+var barverify = function (bar) {
   assert.equal('aaa', bar.str)
   assert.equal(11,    bar.int)
   assert.equal(33.33, bar.dec)
   assert.equal(false, bar.bol)
-  assert.equal(new Date(2020,1,1).toISOString(), _.isDate(bar.wen) ? bar.wen.toISOString() : bar.wen )
+  assert.equal(new Date(2020,1,1).toISOString(), _.isDate(bar.wen) ? bar.wen.toISOString() : bar.wen)
 
   assert.equal(''+[2,3],''+bar.arr)
   assert.deepEqual({a:1,b:[2],c:{d:3}},bar.obj)
@@ -45,8 +39,8 @@ var barverify = function(bar) {
 
 var scratch = {}
 
-var verify = exports.verify = function(cb,tests){
-  return function(error, out) {
+function verify (cb, tests) {
+  return function (error, out) {
     if( error ) {
       return cb(error);
     }
@@ -76,7 +70,7 @@ function basictest (settings) {
     it('should load non existing entity from store', function (done) {
 
       var foo0 = si.make('foo')
-      foo0.load$('does-not-exist-at-all-at-all', verify(done, function(out){
+      foo0.load$('does-not-exist-at-all-at-all', verify(done, function (out) {
         assert.isNull(out)
       }))
 
@@ -88,7 +82,7 @@ function basictest (settings) {
       foo1.p1 = 'v1'
       foo1.p3 = 'v3'
 
-      foo1.save$(verify(done, function(foo1){
+      foo1.save$(verify(done, function (foo1) {
         assert.isNotNull(foo1.id)
         assert.equal('v1',foo1.p1)
         assert.equal('v3',foo1.p3)
@@ -99,7 +93,7 @@ function basictest (settings) {
 
     it('should load an existing entity from store', function (done) {
 
-      scratch.foo1.load$( scratch.foo1.id, verify(done, function(foo1){
+      scratch.foo1.load$(scratch.foo1.id, verify(done, function (foo1) {
         assert.isNotNull(foo1.id)
         assert.equal('v1',foo1.p1)
         scratch.foo1 = foo1
@@ -115,12 +109,12 @@ function basictest (settings) {
       // test merge behaviour
       delete scratch.foo1.p3
 
-      scratch.foo1.save$(verify(done, function(foo1){
+      scratch.foo1.save$(verify(done, function (foo1) {
         assert.isNotNull(foo1.id)
         assert.equal('v1x',foo1.p1)
         assert.equal('v2',foo1.p2)
 
-        if( must_merge ) {
+        if(must_merge ){
           assert.equal('v3',foo1.p3)
         }
 
@@ -131,7 +125,7 @@ function basictest (settings) {
 
     it('should load again the same entity', function (done) {
 
-      scratch.foo1.load$(scratch.foo1.id, verify(done, function(foo1){
+      scratch.foo1.load$(scratch.foo1.id, verify(done, function (foo1) {
         assert.isNotNull(foo1.id)
         assert.equal('v1x',foo1.p1)
         assert.equal('v2',foo1.p2)
@@ -142,13 +136,13 @@ function basictest (settings) {
 
     it('should save an entity with different type of properties', function (done) {
 
-      scratch.bar = si.make( bartemplate )
+      scratch.bar = si.make(bartemplate)
       var mark = scratch.bar.mark = Math.random()
 
-      scratch.bar.save$(verify(done, function(bar){
+      scratch.bar.save$(verify(done, function (bar) {
         assert.isNotNull(bar.id)
         barverify(bar)
-        assert.equal( mark, bar.mark )
+        assert.equal(mark, bar.mark)
         scratch.bar = bar
       }))
 
@@ -159,7 +153,7 @@ function basictest (settings) {
       scratch.foo2 = si.make({name$:'foo'})
       scratch.foo2.p2 = 'v2'
 
-      scratch.foo2.save$(verify(done, function(foo2){
+      scratch.foo2.save$(verify(done, function (foo2) {
         assert.isNotNull(foo2.id)
         assert.equal('v2',foo2.p2)
         scratch.foo2 = foo2
@@ -172,7 +166,7 @@ function basictest (settings) {
       scratch.foo2 = si.make({name$:'foo'})
       scratch.foo2.id$ = '0201775f-27c4-7428-b380-44b8f4c529f3'
 
-      scratch.foo2.save$(verify(done, function(foo2){
+      scratch.foo2.save$(verify(done, function (foo2) {
         assert.isNotNull(foo2.id)
         assert.equal('0201775f-27c4-7428-b380-44b8f4c529f3', foo2.id)
         scratch.foo2 = foo2
@@ -183,7 +177,7 @@ function basictest (settings) {
     it('should load a list of entities with one element', function (done) {
 
       scratch.barq = si.make('zen', 'moon','bar')
-      scratch.barq.list$({}, verify(done, function(res){
+      scratch.barq.list$({}, verify(done, function (res) {
         assert.ok(1 <= res.length)
         barverify(res[0])
       }))
@@ -192,7 +186,7 @@ function basictest (settings) {
 
     it('should load a list of entities with more than one element', function (done) {
 
-      scratch.foo1.list$({}, verify(done, function(res){
+      scratch.foo1.list$({}, verify(done, function (res) {
         assert.ok(2 <= res.length)
       }))
 
@@ -200,7 +194,7 @@ function basictest (settings) {
 
     it('should load an element by id', function (done) {
 
-      scratch.barq.list$({id:scratch.bar.id}, verify(done, function(res){
+      scratch.barq.list$({id:scratch.bar.id}, verify(done, function (res) {
         assert.equal(1, res.length)
         barverify(res[0])
       }))
@@ -209,7 +203,7 @@ function basictest (settings) {
 
     it('should load an element by integer property', function (done) {
 
-      scratch.bar.list$({mark:scratch.bar.mark}, verify(done, function(res){
+      scratch.bar.list$({mark:scratch.bar.mark}, verify(done, function (res) {
         assert.equal(1, res.length)
         barverify(res[0])
       }))
@@ -218,18 +212,18 @@ function basictest (settings) {
 
     it('should load an element by string property', function (done) {
 
-      scratch.foo1.list$({p2:'v2'}, verify(done, function(res){
+      scratch.foo1.list$({p2:'v2'}, verify(done, function (res) {
         assert.ok(2 <= res.length)
       }))
     })
 
     it('should load an element by two properties', function (done) {
 
-      scratch.foo1.list$({p2:'v2',p1:'v1x'}, verify(done, function(res){
+      scratch.foo1.list$({p2:'v2',p1:'v1x'}, verify(done, function (res) {
         assert.ok(1 <= res.length)
-        res.forEach(function(foo){
-          assert.equal('v2',foo.p2)
-          assert.equal('v1x',foo.p1)
+        res.forEach(function (foo) {
+          assert.equal('v2', foo.p2)
+          assert.equal('v1x', foo.p1)
         })
       }))
 
@@ -239,10 +233,10 @@ function basictest (settings) {
 
       var foo = si.make({name$:'foo'})
 
-      foo.remove$( {all$:true}, function(err, res){
+      foo.remove$({all$:true}, function (err, res) {
         assert.isNull(err)
 
-        foo.list$({},verify(done, function(res){
+        foo.list$({}, verify(done, function (res) {
           assert.equal(0,res.length)
         }))
       })
@@ -251,10 +245,10 @@ function basictest (settings) {
 
     it('should delete an element by property', function (done) {
 
-      scratch.bar.remove$({mark:scratch.bar.mark}, function(err,res){
+      scratch.bar.remove$({mark:scratch.bar.mark}, function (err,res) {
         assert.isNull(err)
 
-        scratch.bar.list$({mark:scratch.bar.mark}, verify(done, function(res){
+        scratch.bar.list$({mark:scratch.bar.mark}, verify(done, function (res) {
           assert.equal(0, res.length )
         }))
       })
@@ -266,14 +260,8 @@ function basictest (settings) {
   return script
 }
 
-
-exports.basictest = basictest
-
-
-
-module.exports.sorttest = function(settings) {
+function sorttest (settings) {
   var si = settings.seneca
-  var must_merge = !!settings.must_merge
   var script = settings.script || Lab.script()
 
   var describe = script.describe
@@ -354,10 +342,8 @@ module.exports.sorttest = function(settings) {
   return script
 }
 
-
-module.exports.limitstest = function(settings) {
+function limitstest (settings) {
   var si = settings.seneca
-  var must_merge = !!settings.must_merge
   var script = settings.script || Lab.script()
 
   var describe = script.describe
@@ -439,11 +425,9 @@ module.exports.limitstest = function(settings) {
   return script
 }
 
-
-exports.sqltest = function (settings) {
+function sqltest (settings) {
 
   var si = settings.seneca
-  var must_merge = !!settings.must_merge
   var script = settings.script || Lab.script()
 
   var describe = script.describe
@@ -460,8 +444,8 @@ exports.sqltest = function (settings) {
       ]
 
       var i = 0
-      function saveproduct(){
-        return function(cb) {
+      function saveproduct () {
+        return function (cb) {
           products[i].save$(cb)
           i++
         }
@@ -475,7 +459,7 @@ exports.sqltest = function (settings) {
 
 
     it('should accept a string query', function (done) {
-      Product.list$("SELECT * FROM product ORDER BY price", verify(done, function(list) {
+      Product.list$("SELECT * FROM product ORDER BY price", verify(done, function (list) {
         var s = _.map(list,function(p){return p.toString()}).toString()
         assert.ok(
           gex("$-/-/product:{id=*;name=apple;price=100},$-/-/product:{id=*;name=pear;price=200}").on( s ) )
@@ -483,7 +467,7 @@ exports.sqltest = function (settings) {
     })
 
     it('should accept and array with query and parameters', function (done) {
-      Product.list$(["SELECT * FROM product WHERE price >= ? AND price <= ?",0,1000], verify(done, function(list) {
+      Product.list$(["SELECT * FROM product WHERE price >= ? AND price <= ?",0,1000], verify(done, function (list) {
         var s = _.map(list,function(p){return p.toString()}).toString()
         assert.ok(
           gex("$-/-/product:{id=*;name=apple;price=100},$-/-/product:{id=*;name=pear;price=200}").on( s ) )
@@ -492,4 +476,12 @@ exports.sqltest = function (settings) {
   })
 
   return script
+}
+
+module.exports = {
+  basictest: basictest,
+  sorttest: sorttest,
+  limitstest: limitstest,
+  sqltest: sqltest,
+  verify: verify
 }
