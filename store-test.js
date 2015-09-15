@@ -271,202 +271,172 @@ exports.basictest = basictest
 
 
 
-module.exports.sorttest = function(si, done) {
-  console.log('SORT')
+module.exports.sorttest = function(settings) {
+  var si = settings.seneca
+  var must_merge = !!settings.must_merge
+  var script = settings.script || Lab.script()
 
-  async.series(
-    {
+  var describe = script.describe
+  var it = script.it
 
-      remove: function (cb) {
-        console.log('remove')
+  describe('sorting', function () {
 
-        var cl = si.make$('foo')
-        // clear 'foo' collection
-        cl.remove$({all$: true}, function (err, foo) {
-          assert.ok(null == err)
-          cb()
-        })
-      },
+    script.before(function before(done) {
 
-      insert1st: function (cb) {
-        console.log('insert1st')
+      async.series([
+        function clear (cb) {
+          var cl = si.make$('foo')
+          // clear 'foo' collection
+          cl.remove$({all$: true}, function (err, foo) {
+            assert.ok(null == err)
+            cb()
+          })
+        },
+        function insert1st (cb) {
+          var cl = si.make$('foo')
+          cl.p1 = 'v1'
+          cl.p2 = 'v1'
 
-        var cl = si.make$('foo')
-        cl.p1 = 'v1'
-        cl.p2 = 'v1'
+          cl.save$(function (err, foo) {
+            assert.ok(null == err)
+            cb()
+          })
+        },
+        function insert2nd (cb) {
+          var cl = si.make$('foo')
+          cl.p1 = 'v2'
+          cl.p2 = 'v2'
 
-        cl.save$(function (err, foo) {
-          assert.ok(null == err)
-          cb()
-        })
-      },
+          cl.save$(function (err, foo) {
+            assert.ok(null == err)
+            cb()
+          })
+        },
+        function insert3rd (cb) {
+          var cl = si.make$('foo')
+          cl.p1 = 'v3'
+          cl.p2 = 'v3'
 
-      insert2nd: function (cb) {
-        console.log('insert2nd')
+          cl.save$(function (err, foo) {
+            assert.ok(null == err)
+            cb()
+          })
+        }
+      ], done)
 
-        var cl = si.make$('foo')
-        cl.p1 = 'v2'
-        cl.p2 = 'v2'
+    })
 
-        cl.save$(function (err, foo) {
-          assert.ok(null == err)
-          cb()
-        })
-      },
+    it('should list entities in ascending order', function (done) {
 
-      insert3rd: function (cb) {
-        console.log('insert3rd')
+      var cl = si.make({name$: 'foo'})
+      cl.list$({all$: true, sort$: { p1: 1 }}, verify(done, function (lst) {
+        assert.equal(lst.length, 3)
+        assert.equal(lst[0].p1, 'v1')
+        assert.equal(lst[1].p1, 'v2')
+        assert.equal(lst[2].p1, 'v3')
+      }))
 
-        var cl = si.make$('foo')
-        cl.p1 = 'v3'
-        cl.p2 = 'v3'
+    })
 
-        cl.save$(function (err, foo) {
-          assert.ok(null == err)
-          cb()
-        })
-      },
+    it('should list entities in descending order', function (done) {
 
-      listasc: function (cb) {
-        console.log('listasc')
+      var cl = si.make({name$: 'foo'})
+      cl.list$({sort$: { p1: -1 }}, verify(done, function (lst) {
+        assert.equal(lst.length, 3)
+        assert.equal(lst[0].p1, 'v3')
+        assert.equal(lst[1].p1, 'v2')
+        assert.equal(lst[2].p1, 'v1')
+      }))
+    })
 
-        var cl = si.make({name$: 'foo'})
-        cl.list$({sort$: { p1: 1 }}, function (err, lst) {
-          assert.ok(null == err)
-          assert.equal(lst[0].p1, 'v1')
-          assert.equal(lst[1].p1, 'v2')
-          assert.equal(lst[2].p1, 'v3')
-          cb()
-        })
-      },
+  })
 
-      listdesc: function (cb) {
-        console.log('listdesc')
-
-        var cl = si.make({name$: 'foo'})
-        cl.list$({sort$: { p1: -1 }}, function (err, lst) {
-          assert.ok(null == err)
-          assert.equal(lst[0].p1, 'v3')
-          assert.equal(lst[1].p1, 'v2')
-          assert.equal(lst[2].p1, 'v1')
-          cb()
-        })
-      }
-    },
-    function (err, out) {
-      si.__testcount++
-      done()
-    }
-  )
-
-  si.__testcount++
+  return script
 }
 
 
-exports.limitstest = function(si,done) {
+module.exports.limitstest = function(settings) {
+  var si = settings.seneca
+  var must_merge = !!settings.must_merge
+  var script = settings.script || Lab.script()
 
-  console.log('LIMITS')
+  var describe = script.describe
+  var it = script.it
 
-  async.series(
-    {
+  describe("limits", function () {
 
-      remove: function (cb) {
-        console.log('remove')
+    script.before(function (done) {
+      async.series([
+        function remove (cb) {
+          var cl = si.make$('foo')
+          // clear 'foo' collection
+          cl.remove$({all$: true}, function (err, foo) {
+            assert.ok(null == err)
+            cb()
+          })
+        },
+        function insert1st (cb) {
+          var cl = si.make$('foo')
+          cl.p1 = 'v1'
+          cl.save$(function (err, foo) {
+            assert.ok(null == err)
+            cb()
+          })
+        },
+        function insert2nd (cb) {
+          var cl = si.make$('foo')
+          cl.p1 = 'v2'
+          cl.save$(function (err, foo) {
+            assert.ok(null == err)
+            cb()
+          })
+        },
 
-        var cl = si.make$('foo')
-        // clear 'foo' collection
-        cl.remove$({all$: true}, function (err, foo) {
-          assert.ok(null == err)
-          cb()
-        })
-      },
+        function insert3rd (cb) {
+          var cl = si.make$('foo')
+          cl.p1 = 'v3'
+          cl.save$(function (err, foo) {
+            assert.ok(null == err)
+            cb()
+          })
+        }
+      ], done)
+    })
 
-      insert1st: function (cb) {
-        console.log('insert1st')
 
-        var cl = si.make$('foo')
-        cl.p1 = 'v1'
-        cl.save$(function (err, foo) {
-          assert.ok(null == err)
-          cb()
-        })
-      },
+    it('listall', function listall (done) {
+      var cl = si.make({name$: 'foo'})
+      cl.list$({}, verify(done, function (lst) {
+        assert.equal(3, lst.length)
+      }))
+    })
 
-      insert2nd: function (cb) {
-        console.log('insert2nd')
+    it('listlimit1skip1', function listlimit1skip1 (done) {
+      var cl = si.make({name$: 'foo'})
+      cl.list$({limit$: 1, skip$: 1, sort$: { p1: 1 }}, verify(done, function (lst) {
+        assert.equal(1, lst.length)
+        assert.equal('v2', lst[0].p1);
+      }))
+    }),
 
-        var cl = si.make$('foo')
-        cl.p1 = 'v2'
-        cl.save$(function (err, foo) {
-          assert.ok(null == err)
-          cb()
-        })
-      },
+    it('listlimit2skip3', function listlimit2skip3 (done) {
+      var cl = si.make({name$: 'foo'})
+      cl.list$({limit$: 2, skip$: 3}, verify(done, function (lst) {
+        assert.equal(0, lst.length)
+      }))
+    })
 
-      insert3rd: function (cb) {
-        console.log('insert3rd')
+    it('listlimit5skip2', function listlimit5skip2 (done) {
+      var cl = si.make({name$: 'foo'})
+      cl.list$({limit$: 5, skip$: 2, sort$: { p1: 1 }}, verify(done, function (lst) {
+        assert.equal(1, lst.length)
+        assert.equal('v3', lst[0].p1);
+      }))
+    })
 
-        var cl = si.make$('foo')
-        cl.p1 = 'v3'
-        cl.save$(function (err, foo) {
-          assert.ok(null == err)
-          cb()
-        })
-      },
+  })
 
-      listall: function (cb) {
-        console.log('listall')
-
-        var cl = si.make({name$: 'foo'})
-        cl.list$({}, function (err, lst) {
-          assert.ok(null == err)
-          assert.equal(3, lst.length)
-          cb()
-        })
-      },
-
-      listlimit1skip1: function (cb) {
-        console.log('listlimit1skip1')
-
-        var cl = si.make({name$: 'foo'})
-        cl.list$({limit$: 1, skip$: 1, sort$: { p1: 1 }}, function (err, lst) {
-          assert.ok(null == err)
-          assert.equal(1, lst.length)
-          assert.equal('v2', lst[0].p1);
-          cb()
-        })
-      },
-
-      listlimit2skip3: function (cb) {
-        console.log('listlimit2skip3')
-
-        var cl = si.make({name$: 'foo'})
-        cl.list$({limit$: 2, skip$: 3}, function (err, lst) {
-          assert.ok(null == err)
-          assert.equal(0, lst.length)
-          cb()
-        })
-      },
-
-      listlimit5skip2: function (cb) {
-        console.log('listlimit5skip2')
-
-        var cl = si.make({name$: 'foo'})
-        cl.list$({limit$: 5, skip$: 2, sort$: { p1: 1 }}, function (err, lst) {
-          assert.ok(null == err)
-          assert.equal(1, lst.length)
-          assert.equal('v3', lst[0].p1);
-          cb()
-        })
-      }
-    },
-    function (err, out) {
-      si.__testcount++
-      done()
-    }
-  )
-
-  si.__testcount++
+  return script
 }
 
 

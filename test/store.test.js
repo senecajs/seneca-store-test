@@ -24,6 +24,17 @@ shared.basictest({
   script: lab
 })
 
+shared.sorttest({
+  seneca: si,
+  script: lab
+})
+
+shared.limitstest({
+  seneca: si,
+  script: lab
+})
+
+
 // describe('mem', function(){
 
 //   it('sort', function(done){
