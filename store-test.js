@@ -67,6 +67,19 @@ function basictest (settings) {
 
   describe('Basic store', function () {
 
+    script.before(function before (done) {
+
+      async.series([
+        function clearFoo (next) {
+          si.make({name$:'foo'}).remove$({all$: true}, next)
+        },
+        function clearBar (next) {
+          si.make('zen', 'moon','bar').remove$({all$: true}, next)
+        }
+      ], done)
+
+    });
+
     it('should load non existing entity from store', function (done) {
 
       var foo0 = si.make('foo')
