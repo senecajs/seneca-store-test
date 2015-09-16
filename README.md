@@ -16,9 +16,9 @@ For a gentle introduction to Seneca itself, see the
 If you're using this plugin module, feel free to contact me on twitter if you
 have any questions! :) [@rjrodger](http://twitter.com/rjrodger)
 
-Current Version: 0.3.0
+Current Version: 1.0.0
 
-Tested on: Seneca 0.5.21, Node 0.10.36
+Tested on: Seneca 0.6.5, Node 0.12.5 / 4.0.0
 
 
 ### Usage

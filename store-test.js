@@ -1,593 +1,498 @@
 /* Copyright (c) 2014 Richard Rodger, MIT License */
-"use strict";
+'use strict';
 
 var assert   = require('chai').assert
 
 var async    = require('async')
 var _        = require('lodash')
 var gex      = require('gex')
-var readline = require('readline')
 
-var testpassed = function () {
-  readline.moveCursor(process.stdout, 55, -1)
-  console.log("PASSED")
-}
+var lab = require('lab')
+
 
 var bartemplate = {
-  name$:'bar',
-  base$:'moon',
-  zone$:'zen',
+  name$: 'bar',
+  base$: 'moon',
+  zone$: 'zen',
 
-  str:'aaa',
-  int:11,
-  dec:33.33,
-  bol:false,
-  wen:new Date(2020,1,1),
-  arr:[2,3],
-  obj:{a:1,b:[2],c:{d:3}}
+  str: 'aaa',
+  int: 11,
+  dec: 33.33,
+  bol: false,
+  wen: new Date(2020, 1, 1),
+  arr: [ 2, 3 ],
+  obj: {
+    a: 1,
+    b: [2],
+    c: { d: 3 }
+  }
 }
 
-var barverify = function(bar) {
+var barverify = function (bar) {
   assert.equal('aaa', bar.str)
   assert.equal(11,    bar.int)
   assert.equal(33.33, bar.dec)
   assert.equal(false, bar.bol)
-  assert.equal(new Date(2020,1,1).toISOString(), _.isDate(bar.wen) ? bar.wen.toISOString() : bar.wen )
-
-  assert.equal(''+[2,3],''+bar.arr)
-  assert.deepEqual({a:1,b:[2],c:{d:3}},bar.obj)
+  assert.equal(new Date(2020, 1, 1).toISOString(), _.isDate(bar.wen) ? bar.wen.toISOString() : bar.wen)
+  assert.equal('' + [ 2, 3 ], '' + bar.arr)
+  assert.deepEqual({
+    a: 1,
+    b: [2],
+    c: { d: 3 }
+  }, bar.obj)
 }
-
 
 
 var scratch = {}
 
-var verify = exports.verify = function(cb,tests){
-  return function(error,out) {
-    if( error ) return cb(error);
-    tests(out)
+function verify (cb, tests) {
+  return function (error, out) {
+    if (error) {
+      return cb(error)
+    }
+
+    try {
+      tests(out)
+    }
+    catch (ex) {
+      return cb(ex)
+    }
+
     cb()
   }
 }
 
 
+function basictest (settings) {
+  var si = settings.seneca
+  var must_merge = !!settings.must_merge
+  var script = settings.script || lab.script()
 
-exports.basictest = function(si,settings,done) {
-  if( _.isFunction(settings) ) {
-    done = settings
-    settings = {}
-  }
+  var describe = script.describe
+  var it = script.it
 
-  si.ready(function(){
-    console.log('Running BASIC test suite\n')
-    assert.isNotNull(si)
+  describe('Basic store', function () {
 
+    script.before(function before (done) {
 
-    var must_merge = null == settings.must_merge ? false : settings.must_merge
-
-    // TODO: test load$(string), remove$(string)
-
-
-    /* Set up a data set for testing the store.
-     * //foo contains [{p1:'v1',p2:'v2'},{p2:'v2'}]
-     * zen/moon/bar contains [{..bartemplate..}]
-     */
-    async.series(
-      {
-        load0: function(cb) {
-          console.log('Load non existing entity from store')
-
-          var foo0 = si.make('foo')
-          foo0.load$('does-not-exist-at-all-at-all',verify(cb,function(out){
-            assert.isNull(out)
-            testpassed()
-          }))
+      async.series([
+        function clearFoo (next) {
+          si.make({ name$: 'foo' }).remove$({ all$: true }, next)
         },
+        function clearBar (next) {
+          si.make('zen', 'moon', 'bar').remove$({ all$: true }, next)
+        }
+      ], done)
 
-        save1: function(cb) {
-          console.log('Save an entity to store')
+    })
 
-          var foo1 = si.make({name$:'foo'}) ///si.make('foo')
-          foo1.p1 = 'v1'
-          foo1.p3 = 'v3'
+    it('should load non existing entity from store', function (done) {
 
-          foo1.save$( verify(cb, function(foo1){
-            assert.isNotNull(foo1.id)
-            assert.equal('v1',foo1.p1)
-            assert.equal('v3',foo1.p3)
-            scratch.foo1 = foo1
-            testpassed()
-          }))
-        },
+      var foo0 = si.make('foo')
+      foo0.load$('does-not-exist-at-all-at-all', verify(done, function (out) {
+        assert.isNull(out)
+      }))
 
-        load1: function(cb) {
-          console.log('Load an existing entity from store')
+    })
 
-          scratch.foo1.load$( scratch.foo1.id, verify(cb,function(foo1){
-            assert.isNotNull(foo1.id)
-            assert.equal('v1',foo1.p1)
-            scratch.foo1 = foo1
-            testpassed()
-          }))
-        },
+    it('should save an entity to store', function (done) {
 
-        save2: function(cb) {
-          console.log('Save the same entity again to store')
+      var foo1 = si.make({ name$: 'foo' })
+      foo1.p1 = 'v1'
+      foo1.p3 = 'v3'
 
-          scratch.foo1.p1 = 'v1x'
-          scratch.foo1.p2 = 'v2'
+      foo1.save$(verify(done, function (foo1) {
+        assert.isNotNull(foo1.id)
+        assert.equal('v1', foo1.p1)
+        assert.equal('v3', foo1.p3)
+        scratch.foo1 = foo1
+      }))
 
-          // test merge behaviour
-          delete scratch.foo1.p3
+    })
 
-          scratch.foo1.save$( verify(cb,function(foo1){
-            assert.isNotNull(foo1.id)
-            assert.equal('v1x',foo1.p1)
-            assert.equal('v2',foo1.p2)
+    it('should load an existing entity from store', function (done) {
 
-            if( must_merge ) {
-              assert.equal('v3',foo1.p3)
-            }
+      scratch.foo1.load$(scratch.foo1.id, verify(done, function (foo1) {
+        assert.isNotNull(foo1.id)
+        assert.equal('v1', foo1.p1)
+        scratch.foo1 = foo1
+      }))
 
-            scratch.foo1 = foo1
-            testpassed()
-          }))
-        },
+    })
 
-        load2: function(cb) {
-          console.log('Load again the same entity')
+    it('should save the same entity again to store', function (done) {
 
-          scratch.foo1.load$( scratch.foo1.id, verify(cb, function(foo1){
-            assert.isNotNull(foo1.id)
-            assert.equal('v1x',foo1.p1)
-            assert.equal('v2',foo1.p2)
-            scratch.foo1 = foo1
-            testpassed()
-          }))
-        },
+      scratch.foo1.p1 = 'v1x'
+      scratch.foo1.p2 = 'v2'
 
-        save3: function(cb) {
-          console.log('Save an entity with different type of properties')
+      // test merge behaviour
+      delete scratch.foo1.p3
 
-          scratch.bar = si.make( bartemplate )
-          var mark = scratch.bar.mark = Math.random()
+      scratch.foo1.save$(verify(done, function (foo1) {
+        assert.isNotNull(foo1.id)
+        assert.equal('v1x', foo1.p1)
+        assert.equal('v2', foo1.p2)
 
-          scratch.bar.save$( verify(cb, function(bar){
-            assert.isNotNull(bar.id)
-            barverify(bar)
-            assert.equal( mark, bar.mark )
-            scratch.bar = bar
-            testpassed()
-          }))
-        },
-
-        save4: function(cb) {
-          console.log('Save an entity with a prexisting name')
-
-          scratch.foo2 = si.make({name$:'foo'})
-          scratch.foo2.p2 = 'v2'
-
-          scratch.foo2.save$( verify(cb, function(foo2){
-            assert.isNotNull(foo2.id)
-            assert.equal('v2',foo2.p2)
-            scratch.foo2 = foo2
-
-            testpassed()
-          }))
-        },
-
-        save5: function(cb) {
-          console.log('Save an entity with an id')
-
-          scratch.foo2 = si.make({name$:'foo'})
-          scratch.foo2.id$ = '0201775f-27c4-7428-b380-44b8f4c529f3'
-
-          scratch.foo2.save$( verify(cb, function(foo2){
-            assert.isNotNull(foo2.id)
-            assert.equal('0201775f-27c4-7428-b380-44b8f4c529f3', foo2.id)
-            scratch.foo2 = foo2
-
-            testpassed()
-          }))
-        },
-
-        query1: function(cb) {
-          console.log('Load a list of entities with one element')
-
-          scratch.barq = si.make('zen', 'moon','bar')
-          scratch.barq.list$({}, verify(cb, function(res){
-            assert.ok( 1 <= res.length)
-            barverify(res[0])
-
-            testpassed()
-          }))
-        },
-
-        query2: function(cb) {
-          console.log('Load a list of entities with more than one element')
-
-          scratch.foo1.list$({}, verify(cb, function(res){
-            assert.ok( 2 <= res.length)
-
-            testpassed()
-          }))
-        },
-
-        query3: function(cb) {
-          console.log('Load an element by id')
-
-          scratch.barq.list$({id:scratch.bar.id}, verify(cb, function(res){
-            assert.equal( 1, res.length )
-            barverify(res[0])
-
-            testpassed()
-          }))
-        },
-
-        query4: function(cb) {
-          console.log('Load an element by integer property')
-
-          scratch.bar.list$({mark:scratch.bar.mark}, verify(cb, function(res){
-            assert.equal( 1, res.length )
-            barverify(res[0])
-
-            testpassed()
-          }))
-        },
-
-        query5: function(cb) {
-          console.log('Load an element by string property')
-
-          scratch.foo1.list$({p2:'v2'}, verify(cb, function(res){
-            assert.ok( 2 <= res.length )
-
-            testpassed()
-          }))
-        },
-
-
-        query6: function(cb) {
-          console.log('Load an element by two properties')
-
-          scratch.foo1.list$({p2:'v2',p1:'v1x'}, verify(cb, function(res){
-            assert.ok( 1 <= res.length )
-            res.forEach(function(foo){
-              assert.equal('v2',foo.p2)
-              assert.equal('v1x',foo.p1)
-
-              testpassed()
-            })
-          }))
-        },
-
-        remove1: function(cb) {
-          console.log('Delete an element by name')
-
-          var foo = si.make({name$:'foo'})
-
-          foo.remove$( {all$:true}, function(err, res){
-            assert.isNull(err)
-
-            foo.list$({},verify(cb,function(res){
-              assert.equal(0,res.length)
-
-              testpassed()
-            }))
-          })
-        },
-
-        remove2: function(cb) {
-          console.log('Delete an element by property')
-
-          scratch.bar.remove$({mark:scratch.bar.mark}, function(err,res){
-            assert.isNull(err)
-
-            scratch.bar.list$({mark:scratch.bar.mark}, verify(cb, function(res){
-              assert.equal( 0, res.length )
-
-              testpassed()
-            }))
-          })
-        },
-
-      },
-      function(err,out) {
-        err = err || null
-        if( err ) {
-          console.dir( err )
+        if (must_merge) {
+          assert.equal('v3', foo1.p3)
         }
 
-        //this line if for readability, it add a new line at the end of the test suite output
-        console.log()
-        si.__testcount++
+        scratch.foo1 = foo1
+      }))
+
+    })
+
+    it('should load again the same entity', function (done) {
+
+      scratch.foo1.load$(scratch.foo1.id, verify(done, function (foo1) {
+        assert.isNotNull(foo1.id)
+        assert.equal('v1x', foo1.p1)
+        assert.equal('v2', foo1.p2)
+        scratch.foo1 = foo1
+      }))
+
+    })
+
+    it('should save an entity with different type of properties', function (done) {
+
+      scratch.bar = si.make(bartemplate)
+      var mark = scratch.bar.mark = Math.random()
+
+      scratch.bar.save$(verify(done, function (bar) {
+        assert.isNotNull(bar.id)
+        barverify(bar)
+        assert.equal(mark, bar.mark)
+        scratch.bar = bar
+      }))
+
+    })
+
+    it('should save an entity with a prexisting name', function (done) {
+
+      scratch.foo2 = si.make({ name$: 'foo' })
+      scratch.foo2.p2 = 'v2'
+
+      scratch.foo2.save$(verify(done, function (foo2) {
+        assert.isNotNull(foo2.id)
+        assert.equal('v2', foo2.p2)
+        scratch.foo2 = foo2
+      }))
+
+    })
+
+    it('should save an entity with an id', function (done) {
+
+      scratch.foo2 = si.make({ name$: 'foo' })
+      scratch.foo2.id$ = '0201775f-27c4-7428-b380-44b8f4c529f3'
+
+      scratch.foo2.save$(verify(done, function (foo2) {
+        assert.isNotNull(foo2.id)
+        assert.equal('0201775f-27c4-7428-b380-44b8f4c529f3', foo2.id)
+        scratch.foo2 = foo2
+      }))
+
+    })
+
+    it('should load a list of entities with one element', function (done) {
+
+      scratch.barq = si.make('zen', 'moon', 'bar')
+      scratch.barq.list$({}, verify(done, function (res) {
+        assert.ok(1 <= res.length)
+        barverify(res[0])
+      }))
+
+    })
+
+    it('should load a list of entities with more than one element', function (done) {
+
+      scratch.foo1.list$({}, verify(done, function (res) {
+        assert.ok(2 <= res.length)
+      }))
+
+    })
+
+    it('should load an element by id', function (done) {
+
+      scratch.barq.list$({ id: scratch.bar.id }, verify(done, function (res) {
+        assert.equal(1, res.length)
+        barverify(res[0])
+      }))
+
+    })
+
+    it('should load an element by integer property', function (done) {
+
+      scratch.bar.list$({ mark: scratch.bar.mark }, verify(done, function (res) {
+        assert.equal(1, res.length)
+        barverify(res[0])
+      }))
+
+    })
+
+    it('should load an element by string property', function (done) {
+
+      scratch.foo1.list$({ p2: 'v2' }, verify(done, function (res) {
+        assert.ok(2 <= res.length)
+      }))
+    })
+
+    it('should load an element by two properties', function (done) {
+
+      scratch.foo1.list$({ p2: 'v2', p1: 'v1x' }, verify(done, function (res) {
+        assert.ok(1 <= res.length)
+        res.forEach(function (foo) {
+          assert.equal('v2', foo.p2)
+          assert.equal('v1x', foo.p1)
+        })
+      }))
+
+    })
+
+    it('should delete an element by name', function (done) {
+
+      var foo = si.make({ name$: 'foo' })
+
+      foo.remove$({ all$: true }, function (err, res) {
         assert.isNull(err)
-        done && done()
+
+        foo.list$({}, verify(done, function (res) {
+          assert.equal(0, res.length)
+        }))
       })
+
+    })
+
+    it('should delete an element by property', function (done) {
+
+      scratch.bar.remove$({ mark: scratch.bar.mark }, function (err, res) {
+        assert.isNull(err)
+
+        scratch.bar.list$({ mark: scratch.bar.mark }, verify(done, function (res) {
+          assert.equal(0, res.length)
+        }))
+      })
+
+    })
+
   })
+
+  return script
 }
 
+function sorttest (settings) {
+  var si = settings.seneca
+  var script = settings.script || lab.script()
 
+  var describe = script.describe
+  var it = script.it
 
-module.exports.sorttest = function(si, done) {
-  console.log('SORT')
+  describe('Sorting', function () {
 
-  async.series(
-    {
+    script.before(function before(done) {
 
-      remove: function (cb) {
-        console.log('remove')
+      async.series([
+        function clear (next) {
+          var cl = si.make$('foo')
+          cl.remove$({ all$: true }, next)
+        },
+        function insert1st (next) {
+          var cl = si.make$('foo')
+          cl.p1 = 'v1'
+          cl.p2 = 'v1'
 
-        var cl = si.make$('foo')
-        // clear 'foo' collection
-        cl.remove$({all$: true}, function (err, foo) {
-          assert.ok(null == err)
-          cb()
-        })
-      },
+          cl.save$(next)
+        },
+        function insert2nd (next) {
+          var cl = si.make$('foo')
+          cl.p1 = 'v2'
+          cl.p2 = 'v2'
 
-      insert1st: function (cb) {
-        console.log('insert1st')
+          cl.save$(next)
+        },
+        function insert3rd (next) {
+          var cl = si.make$('foo')
+          cl.p1 = 'v3'
+          cl.p2 = 'v3'
 
-        var cl = si.make$('foo')
-        cl.p1 = 'v1'
-        cl.p2 = 'v1'
+          cl.save$(next)
+        }
+      ], done)
 
-        cl.save$(function (err, foo) {
-          assert.ok(null == err)
-          cb()
-        })
-      },
+    })
 
-      insert2nd: function (cb) {
-        console.log('insert2nd')
+    it('should support ascending order', function (done) {
 
-        var cl = si.make$('foo')
-        cl.p1 = 'v2'
-        cl.p2 = 'v2'
+      var cl = si.make({ name$: 'foo' })
+      cl.list$({ all$: true, sort$: { p1: 1 } }, verify(done, function (lst) {
+        assert.equal(lst.length, 3)
+        assert.equal(lst[0].p1, 'v1')
+        assert.equal(lst[1].p1, 'v2')
+        assert.equal(lst[2].p1, 'v3')
+      }))
 
-        cl.save$(function (err, foo) {
-          assert.ok(null == err)
-          cb()
-        })
-      },
+    })
 
-      insert3rd: function (cb) {
-        console.log('insert3rd')
+    it('should support descending order', function (done) {
 
-        var cl = si.make$('foo')
-        cl.p1 = 'v3'
-        cl.p2 = 'v3'
+      var cl = si.make({ name$: 'foo' })
+      cl.list$({ sort$: { p1: -1 } }, verify(done, function (lst) {
+        assert.equal(lst.length, 3)
+        assert.equal(lst[0].p1, 'v3')
+        assert.equal(lst[1].p1, 'v2')
+        assert.equal(lst[2].p1, 'v1')
+      }))
+    })
 
-        cl.save$(function (err, foo) {
-          assert.ok(null == err)
-          cb()
-        })
-      },
+  })
 
-      listasc: function (cb) {
-        console.log('listasc')
-
-        var cl = si.make({name$: 'foo'})
-        cl.list$({sort$: { p1: 1 }}, function (err, lst) {
-          assert.ok(null == err)
-          assert.equal(lst[0].p1, 'v1')
-          assert.equal(lst[1].p1, 'v2')
-          assert.equal(lst[2].p1, 'v3')
-          cb()
-        })
-      },
-
-      listdesc: function (cb) {
-        console.log('listdesc')
-
-        var cl = si.make({name$: 'foo'})
-        cl.list$({sort$: { p1: -1 }}, function (err, lst) {
-          assert.ok(null == err)
-          assert.equal(lst[0].p1, 'v3')
-          assert.equal(lst[1].p1, 'v2')
-          assert.equal(lst[2].p1, 'v1')
-          cb()
-        })
-      }
-    },
-    function (err, out) {
-      si.__testcount++
-      done()
-    }
-  )
-
-  si.__testcount++
+  return script
 }
 
+function limitstest (settings) {
+  var si = settings.seneca
+  var script = settings.script || lab.script()
 
-exports.limitstest = function(si,done) {
+  var describe = script.describe
+  var it = script.it
 
-  console.log('LIMITS')
+  describe('Limits', function () {
 
-  async.series(
-    {
+    script.before(function (done) {
+      async.series([
+        function remove (next) {
+          var cl = si.make$('foo')
+          // clear 'foo' collection
+          cl.remove$({ all$: true }, next)
+        },
+        function insert1st (next) {
+          var cl = si.make$('foo')
+          cl.p1 = 'v1'
+          cl.save$(next)
+        },
+        function insert2nd (next) {
+          var cl = si.make$('foo')
+          cl.p1 = 'v2'
+          cl.save$(next)
+        },
 
-      remove: function (cb) {
-        console.log('remove')
+        function insert3rd (next) {
+          var cl = si.make$('foo')
+          cl.p1 = 'v3'
+          cl.save$(next)
+        }
+      ], done)
+    })
 
-        var cl = si.make$('foo')
-        // clear 'foo' collection
-        cl.remove$({all$: true}, function (err, foo) {
-          assert.ok(null == err)
-          cb()
-        })
-      },
 
-      insert1st: function (cb) {
-        console.log('insert1st')
+    it('check setup correctly', function listall (done) {
+      var cl = si.make({ name$: 'foo' })
+      cl.list$({}, verify(done, function (lst) {
+        assert.equal(3, lst.length)
+      }))
+    })
 
-        var cl = si.make$('foo')
-        cl.p1 = 'v1'
-        cl.save$(function (err, foo) {
-          assert.ok(null == err)
-          cb()
-        })
-      },
+    it('should support limit, skip and sort', function listlimit1skip1 (done) {
+      var cl = si.make({ name$: 'foo' })
+      cl.list$({ limit$: 1, skip$: 1, sort$: { p1: 1 } }, verify(done, function (lst) {
+        assert.equal(1, lst.length)
+        assert.equal('v2', lst[0].p1)
+      }))
+    }),
 
-      insert2nd: function (cb) {
-        console.log('insert2nd')
+    it('should return empty array when skipping all the records', function listlimit2skip3 (done) {
+      var cl = si.make({ name$: 'foo' })
+      cl.list$({ limit$: 2, skip$: 3 }, verify(done, function (lst) {
+        assert.equal(0, lst.length)
+      }))
+    })
 
-        var cl = si.make$('foo')
-        cl.p1 = 'v2'
-        cl.save$(function (err, foo) {
-          assert.ok(null == err)
-          cb()
-        })
-      },
+    it('should return correct number of records if limit is too high', function listlimit5skip2 (done) {
+      var cl = si.make({ name$: 'foo' })
+      cl.list$({ limit$: 5, skip$: 2, sort$: { p1: 1 } }, verify(done, function (lst) {
+        assert.equal(1, lst.length)
+        assert.equal('v3', lst[0].p1)
+      }))
+    })
 
-      insert3rd: function (cb) {
-        console.log('insert3rd')
+  })
 
-        var cl = si.make$('foo')
-        cl.p1 = 'v3'
-        cl.save$(function (err, foo) {
-          assert.ok(null == err)
-          cb()
-        })
-      },
-
-      listall: function (cb) {
-        console.log('listall')
-
-        var cl = si.make({name$: 'foo'})
-        cl.list$({}, function (err, lst) {
-          assert.ok(null == err)
-          assert.equal(3, lst.length)
-          cb()
-        })
-      },
-
-      listlimit1skip1: function (cb) {
-        console.log('listlimit1skip1')
-
-        var cl = si.make({name$: 'foo'})
-        cl.list$({limit$: 1, skip$: 1, sort$: { p1: 1 }}, function (err, lst) {
-          assert.ok(null == err)
-          assert.equal(1, lst.length)
-          assert.equal('v2', lst[0].p1);
-          cb()
-        })
-      },
-
-      listlimit2skip3: function (cb) {
-        console.log('listlimit2skip3')
-
-        var cl = si.make({name$: 'foo'})
-        cl.list$({limit$: 2, skip$: 3}, function (err, lst) {
-          assert.ok(null == err)
-          assert.equal(0, lst.length)
-          cb()
-        })
-      },
-
-      listlimit5skip2: function (cb) {
-        console.log('listlimit5skip2')
-
-        var cl = si.make({name$: 'foo'})
-        cl.list$({limit$: 5, skip$: 2, sort$: { p1: 1 }}, function (err, lst) {
-          assert.ok(null == err)
-          assert.equal(1, lst.length)
-          assert.equal('v3', lst[0].p1);
-          cb()
-        })
-      }
-    },
-    function (err, out) {
-      si.__testcount++
-      done()
-    }
-  )
-
-  si.__testcount++
+  return script
 }
 
+function sqltest (settings) {
 
-exports.sqltest = function(si,done) {
-  si.ready(function(){
-    assert.isNotNull(si)
+  var si = settings.seneca
+  var script = settings.script || lab.script()
 
-    var Product = si.make('product')
-    var products = []
+  var describe = script.describe
+  var it = script.it
 
-    async.series(
-      {
-        setup: function(cb) {
+  var Product = si.make('product')
 
-          products.push( Product.make$({name:'apple',price:100}) )
-          products.push( Product.make$({name:'pear',price:200}) )
+  describe('Sql support', function () {
 
-          var i = 0
-          function saveproduct(){
-            return function(cb) {
-              products[i].save$(cb)
-              i++
-            }
+    script.before(function before (done) {
+
+      async.series([
+        function clear (next) {
+          Product.remove$({ all$: true }, next)
+        },
+        function create (next) {
+          var products = [
+            Product.make$({ name: 'apple', price: 100 }),
+            Product.make$({ name: 'pear', price: 200 })
+          ]
+
+          function saveproduct (product, saved) {
+            product.save$(saved)
           }
 
-          async.series([
-            saveproduct(),
-            saveproduct(),
-          ],cb)
-        },
-
-
-        query_string: function( cb ) {
-          Product.list$("SELECT * FROM product ORDER BY price",function(err,list){
-            var s = _.map(list,function(p){return p.toString()}).toString()
-            assert.ok(
-              gex("$-/-/product:{id=*;name=apple;price=100},$-/-/product:{id=*;name=pear;price=200}").on( s ) )
-            cb()
-          })
-        },
-
-        query_params: function( cb ) {
-          Product.list$(["SELECT * FROM product WHERE price >= ? AND price <= ?",0,1000],function(err,list){
-            var s = _.map(list,function(p){return p.toString()}).toString()
-            assert.ok(
-              gex("$-/-/product:{id=*;name=apple;price=100},$-/-/product:{id=*;name=pear;price=200}").on( s ) )
-            cb()
-          })
-        },
-
-        teardown: function(cb) {
-          products.forEach(function(p){
-            p.remove$()
-          })
-          cb()
+          async.forEach(products, saveproduct, next)
         }
-      },
-      function(err,out){
-        if( err ) {
-          console.dir( err )
-        }
-        si.__testcount++
-        assert(err === null || err === undefined)
-        done && done()
-      }
-    )
+      ], done)
+
+    })
+
+
+    it('should accept a string query', function (done) {
+      Product.list$('SELECT * FROM product ORDER BY price', verify(done, function (list) {
+
+        assert.equal(2, list.length)
+
+        assert.equal('-/-/product', list[0].entity$)
+        assert.equal('apple', list[0].name)
+        assert.equal(100, list[0].price)
+
+        assert.equal('-/-/product', list[1].entity$)
+        assert.equal('pear', list[1].name)
+        assert.equal(200, list[1].price)
+      }))
+    })
+
+    it('should accept and array with query and parameters', function (done) {
+      Product.list$([ 'SELECT * FROM product WHERE price >= ? AND price <= ?', 0, 1000 ], verify(done, function (list) {
+
+        assert.equal(2, list.length)
+
+        assert.equal('-/-/product', list[0].entity$)
+        assert.equal('apple', list[0].name)
+        assert.equal(100, list[0].price)
+
+        assert.equal('-/-/product', list[1].entity$)
+        assert.equal('pear', list[1].name)
+        assert.equal(200, list[1].price)
+
+      }))
+    })
   })
+
+  return script
 }
 
-exports.closetest = function(si,testcount,done) {
-  var RETRY_LIMIT = 10
-  var retryCnt = 0
-
-  function retry(){
-    //console.log(testcount+' '+si.__testcount)
-    if( testcount <= si.__testcount || retryCnt > RETRY_LIMIT ) {
-      console.log('CLOSE')
-      si.close()
-      done && done()
-    }
-    else {
-      retryCnt++
-      setTimeout(retry, 500);
-    }
-  }
-  retry()
+module.exports = {
+  basictest: basictest,
+  sorttest: sorttest,
+  limitstest: limitstest,
+  sqltest: sqltest,
+  verify: verify
 }
