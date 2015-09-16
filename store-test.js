@@ -7,7 +7,7 @@ var async    = require('async')
 var _        = require('lodash')
 var gex      = require('gex')
 
-var Lab = require('lab');
+var lab = require('lab');
 
 
 var bartemplate = {
@@ -58,7 +58,7 @@ function verify (cb, tests) {
 function basictest (settings) {
   var si = settings.seneca
   var must_merge = !!settings.must_merge
-  var script = settings.script || Lab.script()
+  var script = settings.script || lab.script()
 
   var describe = script.describe
   var it = script.it
@@ -273,7 +273,7 @@ function basictest (settings) {
 
 function sorttest (settings) {
   var si = settings.seneca
-  var script = settings.script || Lab.script()
+  var script = settings.script || lab.script()
 
   var describe = script.describe
   var it = script.it
@@ -355,7 +355,7 @@ function sorttest (settings) {
 
 function limitstest (settings) {
   var si = settings.seneca
-  var script = settings.script || Lab.script()
+  var script = settings.script || lab.script()
 
   var describe = script.describe
   var it = script.it
@@ -439,7 +439,7 @@ function limitstest (settings) {
 function sqltest (settings) {
 
   var si = settings.seneca
-  var script = settings.script || Lab.script()
+  var script = settings.script || lab.script()
 
   var describe = script.describe
   var it = script.it
