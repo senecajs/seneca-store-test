@@ -291,43 +291,30 @@ function sorttest (settings) {
     script.before(function before(done) {
 
       async.series([
-        function clear (cb) {
+        function clear (next) {
           var cl = si.make$('foo')
-          // clear 'foo' collection
-          cl.remove$({ all$: true }, function (err, foo) {
-            assert.ok(null == err)
-            cb()
-          })
+          cl.remove$({ all$: true }, next)
         },
-        function insert1st (cb) {
+        function insert1st (next) {
           var cl = si.make$('foo')
           cl.p1 = 'v1'
           cl.p2 = 'v1'
 
-          cl.save$(function (err, foo) {
-            assert.ok(null == err)
-            cb()
-          })
+          cl.save$(next)
         },
-        function insert2nd (cb) {
+        function insert2nd (next) {
           var cl = si.make$('foo')
           cl.p1 = 'v2'
           cl.p2 = 'v2'
 
-          cl.save$(function (err, foo) {
-            assert.ok(null == err)
-            cb()
-          })
+          cl.save$(next)
         },
-        function insert3rd (cb) {
+        function insert3rd (next) {
           var cl = si.make$('foo')
           cl.p1 = 'v3'
           cl.p2 = 'v3'
 
-          cl.save$(function (err, foo) {
-            assert.ok(null == err)
-            cb()
-          })
+          cl.save$(next)
         }
       ], done)
 
@@ -372,38 +359,26 @@ function limitstest (settings) {
 
     script.before(function (done) {
       async.series([
-        function remove (cb) {
+        function remove (next) {
           var cl = si.make$('foo')
           // clear 'foo' collection
-          cl.remove$({ all$: true }, function (err, foo) {
-            assert.ok(null == err)
-            cb()
-          })
+          cl.remove$({ all$: true }, next)
         },
-        function insert1st (cb) {
+        function insert1st (next) {
           var cl = si.make$('foo')
           cl.p1 = 'v1'
-          cl.save$(function (err, foo) {
-            assert.ok(null == err)
-            cb()
-          })
+          cl.save$(next)
         },
-        function insert2nd (cb) {
+        function insert2nd (next) {
           var cl = si.make$('foo')
           cl.p1 = 'v2'
-          cl.save$(function (err, foo) {
-            assert.ok(null == err)
-            cb()
-          })
+          cl.save$(next)
         },
 
-        function insert3rd (cb) {
+        function insert3rd (next) {
           var cl = si.make$('foo')
           cl.p1 = 'v3'
-          cl.save$(function (err, foo) {
-            assert.ok(null == err)
-            cb()
-          })
+          cl.save$(next)
         }
       ], done)
     })
@@ -468,8 +443,8 @@ function sqltest (settings) {
             Product.make$({ name: 'pear', price: 200 })
           ]
 
-          function saveproduct (product, next) {
-            product.save$(next)
+          function saveproduct (product, saved) {
+            product.save$(saved)
           }
 
           async.forEach(products, saveproduct, next)
