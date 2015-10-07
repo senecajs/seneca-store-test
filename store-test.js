@@ -287,6 +287,29 @@ function basictest (settings) {
       })
     })
 
+    it('should not return the element if removed with load$=false', function (done) {
+
+      var foo = si.make({ name$: 'foo' })
+      foo.b = '4'
+
+      foo.save$(function (err, res) {
+        assert.isNull(err)
+        foo.list$({ }, function (err, res) {
+          assert.isNull(err)
+          assert.equal(1, res.length)
+
+          foo.remove$({load$: false}, function (err, res) {
+            assert.isNull(err)
+            assert.isNull(res)
+
+            foo.list$({}, verify(done, function (res) {
+              assert.equal(0, res.length)
+            }))
+          })
+        })
+      })
+    })
+
     it('should delete an element by property', function (done) {
 
       scratch.bar.remove$({ mark: scratch.bar.mark }, function (err, res) {
