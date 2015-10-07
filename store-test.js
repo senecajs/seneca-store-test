@@ -248,18 +248,43 @@ function basictest (settings) {
 
     })
 
-    it('should delete an element by name', function (done) {
+    it('should delete a single element by name', function (done) {
 
       var foo = si.make({ name$: 'foo' })
 
-      foo.remove$({ all$: true }, function (err, res) {
+
+      foo.list$({}, function (err, res) {
         assert.isNull(err)
+        assert.equal(3, res.length)
 
-        foo.list$({}, verify(done, function (res) {
-          assert.equal(0, res.length)
-        }))
+        foo.remove$({}, function (err, res) {
+          assert.isNull(err)
+          assert.isNotNull(res)
+          assert.equal(typeof res, 'object')
+
+          foo.list$({}, verify(done, function (res) {
+            assert.equal(2, res.length)
+          }))
+        })
       })
+    })
 
+    it('should delete all elements by name', function (done) {
+
+      var foo = si.make({ name$: 'foo' })
+      foo.list$({ }, function (err, res) {
+        assert.isNull(err)
+        assert.equal(2, res.length)
+
+        foo.remove$({ all$: true }, function (err, res) {
+          assert.isNull(err)
+          assert.isNull(res)
+
+          foo.list$({}, verify(done, function (res) {
+            assert.equal(0, res.length)
+          }))
+        })
+      })
     })
 
     it('should delete an element by property', function (done) {
