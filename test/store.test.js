@@ -9,9 +9,12 @@ var Lab = require('lab')
 var lab = exports.lab = Lab.script()
 
 var si = seneca({log: 'silent'})
+var merge = seneca({log: 'silent'})
+merge.use('mem-store', { merge: true })
 
 shared.basictest({
   seneca: si,
+  senecaMerge: merge,
   script: lab
 })
 

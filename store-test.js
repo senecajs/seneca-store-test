@@ -89,6 +89,7 @@ function createEntities (si, name, data) {
 
 function basictest (settings) {
   var si = settings.seneca
+  var merge = settings.senecaMerge
   var script = settings.script || lab.script()
 
   var describe = script.describe
@@ -337,6 +338,80 @@ function basictest (settings) {
       })
 
     })
+
+    describe('With Option marge:false', function () {
+
+      beforeEach(clearDb(si))
+      beforeEach(createEntities(si, 'foo', [{
+        id$: 'to-be-updated',
+        p1: 'v1',
+        p2: 'v2',
+        p3: 'v3'
+      }]))
+
+      it('should provide senecaMerge', function (done) {
+        assert(merge, "Implementor should provide a seneca instance with the store configured to default to merge:false")
+        done()
+      })
+
+      it('should update an entity if id provided', function (done) {
+
+        var foo = merge.make({ name$: 'foo' })
+        foo.id = 'to-be-updated'
+        foo.p1 = 'z1'
+        foo.p2 = 'z2'
+
+        foo.save$(function (err, foo1) {
+
+          assert.isNull(err)
+          assert.isNotNull(foo1.id)
+          assert.equal(foo1.id, 'to-be-updated')
+          assert.equal(foo1.p1, 'z1')
+          assert.equal(foo1.p2, 'z2')
+          assert.notOk(foo1.p3)
+
+          foo1.load$('to-be-updated', verify(done, function (foo2) {
+            assert.isNotNull(foo2)
+            assert.equal(foo2.id, 'to-be-updated')
+            assert.equal(foo2.p1, 'z1')
+            assert.equal(foo2.p2, 'z2')
+            assert.notOk(foo2.p3)
+
+          }))
+
+        })
+      })
+
+      it('should allow to merge during update with merge$: true', function (done) {
+
+        var foo = merge.make({ name$: 'foo' })
+        foo.id = 'to-be-updated'
+        foo.p1 = 'z1'
+        foo.p2 = 'z2'
+
+        foo.save$({ merge$: true }, function (err, foo1) {
+
+          assert.isNull(err)
+          assert.isNotNull(foo1.id)
+          assert.equal(foo1.id, 'to-be-updated')
+          assert.equal(foo1.p1, 'z1')
+          assert.equal(foo1.p2, 'z2')
+          assert.equal(foo1.p3, 'v3')
+
+          foo1.load$('to-be-updated', verify(done, function (foo2) {
+            assert.isNotNull(foo2)
+            assert.equal(foo2.id, 'to-be-updated')
+            assert.equal(foo2.p1, 'z1')
+            assert.equal(foo2.p2, 'z2')
+            assert.equal(foo1.p3, 'v3')
+
+          }))
+
+        })
+
+      })
+
+  })
 
     describe('List', function () {
 
