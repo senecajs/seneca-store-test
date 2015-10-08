@@ -889,34 +889,26 @@ function sqltest (settings) {
   var script = settings.script || lab.script()
 
   var describe = script.describe
+  var before = script.before
   var it = script.it
 
   var Product = si.make('product')
   describe('Sql support', function () {
     script.before(function before (done) {
-      async.series([
-        function clear (next) {
-          Product.remove$({ all$: true }, next)
-        },
-        function create (next) {
-          var products = [
-            Product.make$({ name: 'apple', price: 100 }),
-            Product.make$({ name: 'pear', price: 200 })
-          ]
 
-          function saveproduct (product, saved) {
-            product.save$(saved)
-          }
+      before(clearDb(si))
+      before(createEntities, 'product', [
+        { name: 'apple', price: 100 },
+        { name: 'pear', price: 200 }
+      ])
 
-          async.forEach(products, saveproduct, next)
-        }
-      ], done)
     })
 
 
     it('should accept a string query', function (done) {
-      Product.list$('SELECT * FROM product ORDER BY price', verify(done, function (list) {
-        assert.equal(2, list.length)
+      Product.list$({ native$: 'SELECT * FROM product ORDER BY price' }, verify(done, function (list) {
+
+        assert.lengthOf(list)
 
         assert.equal('-/-/product', list[0].entity$)
         assert.equal('apple', list[0].name)
@@ -929,8 +921,9 @@ function sqltest (settings) {
     })
 
     it('should accept and array with query and parameters', function (done) {
-      Product.list$([ 'SELECT * FROM product WHERE price >= ? AND price <= ?', 0, 1000 ], verify(done, function (list) {
-        assert.equal(2, list.length)
+      Product.list$({ native$: [ 'SELECT * FROM product WHERE price >= ? AND price <= ?', 0, 1000 ] }, verify(done, function (list) {
+
+        assert.lengthOf(list, 2)
 
         assert.equal('-/-/product', list[0].entity$)
         assert.equal('apple', list[0].name)
