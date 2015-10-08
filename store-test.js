@@ -487,12 +487,11 @@ function basictest (settings) {
 
       })
 
-      it('should return only first deleted entity if load$: true', function (done) {
+      it('should never return deleted entities if all$: true', function (done) {
 
         var foo = si.make('foo')
         foo.remove$({ all$: true, load$: true }, verify(done, function (res) {
-          assert.ok(res)
-          assert.equal(res.p1, 'v1')
+          assert.notOk(res)
         }))
 
       })
