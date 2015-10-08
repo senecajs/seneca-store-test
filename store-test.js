@@ -89,7 +89,6 @@ function createEntities (si, name, data) {
 
 function basictest (settings) {
   var si = settings.seneca
-  var must_merge = !!settings.must_merge
   var script = settings.script || lab.script()
 
   var describe = script.describe
@@ -242,34 +241,52 @@ function basictest (settings) {
 
         foo.save$(function (err, foo1) {
 
-          try {
-            assert.isNull(err)
-            assert.isNotNull(foo1.id)
-            assert.equal(foo1.id, 'to-be-updated')
-            assert.equal(foo1.p1, 'z1')
-            assert.equal(foo1.p2, 'z2')
-
-            if (must_merge) {
-              assert.equal(foo1.p3, 'v3')
-            }
-
-          } catch (ex) {
-            return done(ex);
-          }
-
+          assert.isNull(err)
+          assert.isNotNull(foo1.id)
+          assert.equal(foo1.id, 'to-be-updated')
+          assert.equal(foo1.p1, 'z1')
+          assert.equal(foo1.p2, 'z2')
+          assert.equal(foo1.p3, 'v3')
 
           foo1.load$('to-be-updated', verify(done, function (foo2) {
             assert.isNotNull(foo2)
             assert.equal(foo2.id, 'to-be-updated')
             assert.equal(foo2.p1, 'z1')
             assert.equal(foo2.p2, 'z2')
+            assert.equal(foo2.p3, 'v3')
 
-            if (must_merge) {
-              assert.equal(foo2.p3, 'v3')
-            }
           }))
 
         })
+      })
+
+      it('should allow to not merge during update with merge$: false', function (done) {
+
+        var foo = si.make({ name$: 'foo' })
+        foo.id = 'to-be-updated'
+        foo.p1 = 'z1'
+        foo.p2 = 'z2'
+
+        foo.save$({ merge$: false }, function (err, foo1) {
+
+          assert.isNull(err)
+          assert.isNotNull(foo1.id)
+          assert.equal(foo1.id, 'to-be-updated')
+          assert.equal(foo1.p1, 'z1')
+          assert.equal(foo1.p2, 'z2')
+          assert.notOk(foo1.p3)
+
+          foo1.load$('to-be-updated', verify(done, function (foo2) {
+            assert.isNotNull(foo2)
+            assert.equal(foo2.id, 'to-be-updated')
+            assert.equal(foo2.p1, 'z1')
+            assert.equal(foo2.p2, 'z2')
+            assert.notOk(foo1.p3)
+
+          }))
+
+        })
+
       })
 
       it('should support different attribute types', function (done) {
