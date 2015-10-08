@@ -62,6 +62,31 @@ function verify (cb, tests) {
 }
 
 
+function clearDb (si) {
+  return function clear (done) {
+    async.series([
+      function clearFoo (next) {
+        si.make({ name$: 'foo' }).remove$({ all$: true }, next)
+      },
+      function clearBar (next) {
+        si.make('zen', 'moon', 'bar').remove$({ all$: true }, next)
+      }
+    ], done)
+  }
+}
+
+function createEntities (si, name, data) {
+
+  return function create (done) {
+
+    async.each(data, function (el, next) {
+      si.make$(name, el).save$(next)
+    }, done)
+
+  }
+
+}
+
 function basictest (settings) {
   var si = settings.seneca
   var must_merge = !!settings.must_merge
@@ -69,243 +94,407 @@ function basictest (settings) {
 
   var describe = script.describe
   var it = script.it
+  var before = script.before
+  var beforeEach = script.beforeEach
 
-  describe('Basic store', function () {
-    script.before(function before (done) {
-      async.series([
-        function clearFoo (next) {
-          si.make({ name$: 'foo' }).remove$({ all$: true }, next)
-        },
-        function clearBar (next) {
-          si.make('zen', 'moon', 'bar').remove$({ all$: true }, next)
-        }
-      ], done)
-    })
+  describe('Basic Tests', function () {
 
-    it('should load non existing entity from store', function (done) {
-      var foo0 = si.make('foo')
-      foo0.load$('does-not-exist-at-all-at-all', verify(done, function (out) {
-        assert.isNull(out)
-      }))
-    })
+    describe('Load', function () {
 
-    it('should save an entity to store', function (done) {
-      var foo1 = si.make({ name$: 'foo' })
-      foo1.p1 = 'v1'
-      foo1.p3 = 'v3'
+      before(clearDb(si))
+      before(createEntities(si, 'foo', [{
+        id$: 'foo1',
+        p1: 'v1'
+      }, {
+        id$: 'foo2',
+        p1: 'v2',
+        p2: 'z2'
+      }]))
+      before(createEntities(si, 'bar', [ bartemplate ]))
 
-      foo1.save$(verify(done, function (foo1) {
-        assert.isNotNull(foo1.id)
-        assert.equal('v1', foo1.p1)
-        assert.equal('v3', foo1.p3)
-        scratch.foo1 = foo1
-      }))
-    })
+      it('should load an entity', function (done) {
 
-    it('should load an existing entity from store', function (done) {
-      scratch.foo1.load$(scratch.foo1.id, verify(done, function (foo1) {
-        assert.isNotNull(foo1.id)
-        assert.equal('v1', foo1.p1)
-        scratch.foo1 = foo1
-      }))
-    })
-
-    it('should save the same entity again to store', function (done) {
-      scratch.foo1.p1 = 'v1x'
-      scratch.foo1.p2 = 'v2'
-
-      // test merge behaviour
-      delete scratch.foo1.p3
-
-      scratch.foo1.save$(verify(done, function (foo1) {
-        assert.isNotNull(foo1.id)
-        assert.equal('v1x', foo1.p1)
-        assert.equal('v2', foo1.p2)
-
-        if (must_merge) {
-          assert.equal('v3', foo1.p3)
-        }
-
-        scratch.foo1 = foo1
-      }))
-    })
-
-    it('should load again the same entity', function (done) {
-      scratch.foo1.load$(scratch.foo1.id, verify(done, function (foo1) {
-        assert.isNotNull(foo1.id)
-        assert.equal('v1x', foo1.p1)
-        assert.equal('v2', foo1.p2)
-        scratch.foo1 = foo1
-      }))
-    })
-
-    it('should save an entity with different type of properties', function (done) {
-      scratch.bar = si.make(bartemplate)
-      var mark = scratch.bar.mark = Math.random()
-
-      scratch.bar.save$(verify(done, function (bar) {
-        assert.isNotNull(bar.id)
-        barverify(bar)
-        assert.equal(mark, bar.mark)
-        scratch.bar = bar
-      }))
-    })
-
-    it('should save an entity with a prexisting name', function (done) {
-      scratch.foo2 = si.make({ name$: 'foo' })
-      scratch.foo2.p2 = 'v2'
-
-      scratch.foo2.save$(verify(done, function (foo2) {
-        assert.isNotNull(foo2.id)
-        assert.equal('v2', foo2.p2)
-        scratch.foo2 = foo2
-      }))
-    })
-
-    it('should save an entity with an id', function (done) {
-      scratch.foo2 = si.make({ name$: 'foo' })
-      scratch.foo2.id$ = '0201775f-27c4-7428-b380-44b8f4c529f3'
-
-      scratch.foo2.save$(verify(done, function (foo2) {
-        assert.isNotNull(foo2.id)
-        assert.equal('0201775f-27c4-7428-b380-44b8f4c529f3', foo2.id)
-        scratch.foo2 = foo2
-      }))
-    })
-
-    it('should load a list of entities with one element', function (done) {
-      scratch.barq = si.make('zen', 'moon', 'bar')
-      scratch.barq.list$({}, verify(done, function (res) {
-        assert.ok(1 <= res.length)
-        barverify(res[0])
-      }))
-    })
-
-    it('should load a list of entities with more than one element', function (done) {
-      scratch.foo1.list$({}, verify(done, function (res) {
-        assert.ok(2 <= res.length)
-      }))
-    })
-
-    it('should load an element by id', function (done) {
-      scratch.barq.list$({ id: scratch.bar.id }, verify(done, function (res) {
-        assert.equal(1, res.length)
-        barverify(res[0])
-      }))
-    })
-
-    it('should load an element by integer property', function (done) {
-      scratch.bar.list$({ mark: scratch.bar.mark }, verify(done, function (res) {
-        assert.equal(1, res.length)
-        barverify(res[0])
-      }))
-    })
-
-    it('should load an element by string property', function (done) {
-      scratch.foo1.list$({ p2: 'v2' }, verify(done, function (res) {
-        assert.ok(2 <= res.length)
-      }))
-    })
-
-    it('should load an element by two properties', function (done) {
-      scratch.foo1.list$({ p2: 'v2', p1: 'v1x' }, verify(done, function (res) {
-        assert.ok(1 <= res.length)
-        res.forEach(function (foo) {
-          assert.equal('v2', foo.p2)
-          assert.equal('v1x', foo.p1)
-        })
-      }))
-    })
-
-    it('should delete a single element by name (all$: false by default)', function (done) {
-      var foo = si.make({ name$: 'foo' })
-
-
-      foo.list$({}, function (err, res) {
-        assert.isNull(err)
-        assert.equal(3, res.length)
-
-        foo.remove$({}, function (err, res) {
-          assert.isNull(err)
-          assert.isNotNull(res)
-          assert.equal(typeof res, 'object')
-
-          foo.list$({}, verify(done, function (res) {
-            assert.equal(2, res.length)
-          }))
-        })
-      })
-    })
-
-    it('should delete all elements by name (all$: true)', function (done) {
-      var foo = si.make({ name$: 'foo' })
-      foo.list$({ }, function (err, res) {
-        assert.isNull(err)
-        assert.equal(2, res.length)
-
-        foo.remove$({ all$: true }, function (err, res) {
-          assert.isNull(err)
-          assert.isNull(res)
-
-          foo.list$({}, verify(done, function (res) {
-            assert.equal(0, res.length)
-          }))
-        })
-      })
-    })
-
-    it('should not return the element if removed with load$=false', function (done) {
-      var foo = si.make({ name$: 'foo' })
-      foo.b = '4'
-
-      foo.save$(function (err, res) {
-        assert.isNull(err)
-        foo.list$({ }, function (err, res) {
-          assert.isNull(err)
-          assert.equal(1, res.length)
-
-          foo.remove$({load$: false}, function (err, res) {
-            assert.isNull(err)
-            assert.isNull(res)
-
-            foo.list$({}, verify(done, function (res) {
-              assert.equal(0, res.length)
-            }))
-          })
-        })
-      })
-    })
-
-    it('should return the element if removed with load$=true', function (done) {
-      var foo = si.make({ name$: 'foo' })
-      foo.b = '4'
-
-      foo.save$(function (err, res) {
-        assert.isNull(err)
-        foo.list$({ }, function (err, res) {
-          assert.isNull(err)
-          assert.equal(1, res.length)
-
-          foo.remove$({load$: true}, function (err, res) {
-            assert.isNull(err)
-            assert.isNotNull(res)
-            assert.equal('4', res.b)
-
-            foo.list$({}, verify(done, function (res) {
-              assert.equal(0, res.length)
-            }))
-          })
-        })
-      })
-    })
-
-    it('should delete an element by property', function (done) {
-      scratch.bar.remove$({ mark: scratch.bar.mark }, function (err, res) {
-        assert.isNull(err)
-
-        scratch.bar.list$({ mark: scratch.bar.mark }, verify(done, function (res) {
-          assert.equal(0, res.length)
+        var foo = si.make('foo')
+        foo.load$('foo1', verify(done, function (foo1) {
+          assert.isNotNull(foo1)
+          assert.equal(foo1.id, 'foo1')
+          assert.equal(foo1.p1, 'v1')
         }))
+
+      })
+
+      it('should return null for non existing entity', function (done) {
+
+        var foo = si.make('foo')
+        foo.load$('does-not-exist-at-all-at-all', verify(done, function (out) {
+          assert.isNull(out)
+        }))
+
+      })
+
+      it('should support filtering', function (done) {
+
+        var foo = si.make('foo')
+        foo.load$({ p1: 'v2' }, verify(done, function (foo1) {
+          assert.isNotNull(foo1)
+          assert.equal(foo1.id, 'foo2')
+          assert.equal(foo1.p1, 'v2')
+          assert.equal(foo1.p2, 'z2')
+        }))
+
+      })
+
+      it('should filter with AND', function (done) {
+
+        var foo = si.make('foo')
+        foo.load$({ p1: 'v2', p2: 'z2' }, verify(done, function (foo1) {
+          assert.isNotNull(foo1)
+          assert.equal(foo1.id, 'foo2')
+          assert.equal(foo1.p1, 'v2')
+          assert.equal(foo1.p2, 'z2')
+        }))
+
+      })
+
+      it('should filter with AND 2', function (done) {
+
+        var foo = si.make('foo')
+        foo.load$({ p1: 'v2', p2: 'a' }, verify(done, function (foo1) {
+          assert.isNull(foo1)
+        }))
+
+      })
+
+      it('should support different attribute types', function (done) {
+        var bar = si.make({ name$: 'bar', base$: 'moon', zone$: 'zen' })
+
+        bar.load$({ str: 'aaa' }, verify(done, function (bar1) {
+
+          assert.isNotNull(bar1)
+          assert.isNotNull(bar1.id)
+          barverify(bar1)
+
+        }))
+
+      })
+
+    })
+
+    describe('Save', function () {
+
+      beforeEach(clearDb(si))
+      beforeEach(createEntities(si, 'foo', [{
+        id$: 'to-be-updated',
+        p1: 'v1',
+        p2: 'v2',
+        p3: 'v3'
+      }]))
+
+      it('should save an entity to store (and generate an id)', function (done) {
+
+        var foo = si.make({ name$: 'foo' })
+        foo.p1 = 'v1'
+        foo.p2 = 'v2'
+
+        foo.save$(function (err, foo1) {
+          assert.isNull(err)
+          assert.isNotNull(foo1.id)
+
+
+          foo1.load$(foo1.id, verify(done, function (foo2) {
+            assert.isNotNull(foo2)
+            assert.equal(foo2.id, foo1.id)
+            assert.equal(foo2.p1, 'v1')
+            assert.equal(foo2.p2, 'v2')
+          }))
+
+        })
+      })
+
+      it('should save an entity to store (with provided id)', function (done) {
+
+        var foo = si.make({ name$: 'foo' })
+        foo.id$ = 'existing'
+        foo.p1 = 'v1'
+        foo.p2 = 'v2'
+
+        foo.save$(function (err, foo1) {
+          assert.isNull(err)
+          assert.isNotNull(foo1.id)
+          assert.equal(foo1.id, 'existing')
+
+          foo1.load$('existing', verify(done, function (foo2) {
+            assert.isNotNull(foo2)
+            assert.equal(foo2.id, 'existing')
+            assert.equal(foo2.p1, 'v1')
+            assert.equal(foo2.p2, 'v2')
+          }))
+
+        })
+      })
+
+      it('should update an entity if id provided', function (done) {
+
+        var foo = si.make({ name$: 'foo' })
+        foo.id = 'to-be-updated'
+        foo.p1 = 'z1'
+        foo.p2 = 'z2'
+
+        foo.save$(function (err, foo1) {
+
+          try {
+            assert.isNull(err)
+            assert.isNotNull(foo1.id)
+            assert.equal(foo1.id, 'to-be-updated')
+            assert.equal(foo1.p1, 'z1')
+            assert.equal(foo1.p2, 'z2')
+
+            if (must_merge) {
+              assert.equal(foo1.p3, 'v3')
+            }
+
+          } catch (ex) {
+            return done(ex);
+          }
+
+
+          foo1.load$('to-be-updated', verify(done, function (foo2) {
+            assert.isNotNull(foo2)
+            assert.equal(foo2.id, 'to-be-updated')
+            assert.equal(foo2.p1, 'z1')
+            assert.equal(foo2.p2, 'z2')
+
+            if (must_merge) {
+              assert.equal(foo2.p3, 'v3')
+            }
+          }))
+
+        })
+      })
+
+      it('should support different attribute types', function (done) {
+        var bar = si.make(bartemplate)
+        var mark = bar.mark = Math.random()
+
+        bar.save$(function (err, bar) {
+          assert.isNull(err)
+          assert.isNotNull(bar)
+          assert.isNotNull(bar.id)
+          barverify(bar)
+          assert.equal(bar.mark, mark)
+
+          bar.load$(bar.id, verify(done, function (bar1) {
+
+            assert.isNotNull(bar1)
+            assert.equal(bar1.id, bar.id)
+            barverify(bar1)
+            assert.equal(bar1.mark, mark)
+
+          }))
+
+        })
+      })
+
+      it('should allow dublicate attributes', function (done) {
+
+        var foo = si.make({ name$: 'foo' })
+        foo.p2 = 'v2'
+
+        foo.save$(function (err, foo1) {
+
+          assert.isNull(err)
+          assert.isNotNull(foo1.id)
+          assert.equal('v2', foo1.p2)
+
+          foo.load$(foo1.id, verify(done, function (foo2) {
+
+            assert.isNotNull(foo2)
+            assert.equal(foo2.id, foo1.id)
+            assert.equal(foo2.p2, 'v2')
+            assert.isUndefined(foo2.p1)
+            assert.isUndefined(foo2.p3)
+
+          }))
+
+        })
+      })
+
+    })
+
+    describe('List', function () {
+
+      before(clearDb(si))
+      before(createEntities(si, 'foo', [{
+        id$: 'foo1',
+        p1: 'v1'
+      }, {
+        id$: 'foo2',
+        p1: 'v2',
+        p2: 'z2'
+      }]))
+      before(createEntities(si, 'bar', [ bartemplate ]))
+
+      it('should load all elements if no params', function (done) {
+
+        var bar = si.make('zen', 'moon', 'bar')
+        bar.list$({}, verify(done, function (res) {
+          assert.lengthOf(res, 1)
+          barverify(res[0])
+        }))
+
+      })
+
+      it('should load all elements if no params 2', function (done) {
+
+        var foo = si.make('foo');
+        foo.list$({}, verify(done, function (res) {
+          assert.lengthOf(res, 2)
+        }))
+
+      })
+
+      it('should list entities by id', function (done) {
+
+        var foo = si.make('foo')
+        foo.list$({ id: 'foo1' }, verify(done, function (res) {
+          assert.lengthOf(res, 1)
+          assert.equal(res[0].p1, 'v1')
+          assert.isUndefined(res[0].p2)
+          assert.isUndefined(res[0].p3)
+        }))
+
+      })
+
+      it('should list entities by integer property', function (done) {
+
+        var bar = si.make('zen', 'moon', 'bar')
+        bar.list$({ int: bartemplate.int }, verify(done, function (res) {
+          assert.equal(1, res.length)
+          barverify(res[0])
+        }))
+
+      })
+
+      it('should list entities by string property', function (done) {
+
+        var foo = si.make('foo');
+        foo.list$({ p2: 'z2' }, verify(done, function (res) {
+          assert.lengthOf(res, 1)
+          assert.equal(res[0].p1, 'v2')
+          assert.equal(res[0].p2, 'z2')
+        }))
+      })
+
+      it('should list entities by two properties', function (done) {
+
+        var foo = si.make('foo')
+        foo.list$({ p2: 'z2', p1: 'v2' }, verify(done, function (res) {
+          assert.lengthOf(res, 1)
+          assert.equal(res[0].p1, 'v2')
+          assert.equal(res[0].p2, 'z2')
+        }))
+
+      })
+
+      it('should filter with AND', function (done) {
+
+        var foo = si.make('foo')
+        foo.list$({ p2: 'z2', p1: 'v1' }, verify(done, function (res) {
+          assert.lengthOf(res, 0)
+        }))
+
+      })
+
+    })
+
+    describe('Remove', function () {
+
+      beforeEach(clearDb(si))
+      beforeEach(createEntities(si, 'foo', [{
+        id$: 'foo1',
+        p1: 'v1'
+      }, {
+        id$: 'foo2',
+        p1: 'v2',
+        p2: 'z2'
+      }]))
+      beforeEach(createEntities(si, 'bar', [ bartemplate ]))
+
+      it('should delete only an entity', function (done) {
+
+        var foo = si.make('foo')
+        foo.remove$({}, function (err, res) {
+
+          assert.isNull(err)
+          assert.notOk(res)
+
+          foo.list$({}, verify(done, function (res) {
+            assert.lengthOf(res, 1)
+          }))
+        })
+
+      })
+
+      it('should delete all entities if all$ = true', function (done) {
+
+        var foo = si.make('foo')
+        foo.remove$({ all$: true }, function (err, res) {
+
+          assert.isNull(err)
+          assert.notOk(res)
+
+          foo.list$({}, verify(done, function (res) {
+            assert.lengthOf(res, 0)
+          }))
+        })
+
+      })
+
+      it('should delete an entity by property', function (done) {
+
+        var bar = si.make('bar')
+        bar.remove$({ int: bartemplate.int }, function (err, res) {
+          assert.isNull(err)
+
+          bar.list$({ int: bartemplate.int }, verify(done, function (res) {
+            assert.lengthOf(res, 0)
+          }))
+        })
+
+      })
+
+      it('should delete entities filtered by AND', function (done) {
+
+        var foo = si.make('foo')
+        foo.remove$({ p1: 'v1', p2: 'z2' }, function (err) {
+          assert.isNull(err)
+
+          foo.list$({}, verify(done, function (res) {
+            assert.lengthOf(res, 2)
+          }))
+        })
+
+      })
+
+      it('should return deleted entity if load$: true', function (done) {
+
+        var foo = si.make('foo')
+        foo.remove$({ p1: 'v2', load$: true }, verify(done, function (res) {
+          assert.ok(res)
+          assert.equal(res.p1, 'v2')
+          assert.equal(res.p2, 'z2')
+        }))
+
+      })
+
+      it('should return only first deleted entity if load$: true', function (done) {
+
+        var foo = si.make('foo')
+        foo.remove$({ all$: true, load$: true }, verify(done, function (res) {
+          assert.ok(res)
+          assert.equal(res.p1, 'v1')
+        }))
+
       })
     })
   })
@@ -319,56 +508,109 @@ function sorttest (settings) {
 
   var describe = script.describe
   var it = script.it
+  var beforeEach = script.beforeEach
 
   describe('Sorting', function () {
-    script.before(function before (done) {
-      async.series([
-        function clear (next) {
-          var cl = si.make$('foo')
-          cl.remove$({ all$: true }, next)
-        },
-        function insert1st (next) {
-          var cl = si.make$('foo')
-          cl.p1 = 'v1'
-          cl.p2 = 'v1'
 
-          cl.save$(next)
-        },
-        function insert2nd (next) {
-          var cl = si.make$('foo')
-          cl.p1 = 'v2'
-          cl.p2 = 'v2'
+    beforeEach(clearDb(si))
+    beforeEach(createEntities(si, 'foo', [
+      { p1: 'v1', p2: 'v1' },
+      // make sure this is not in alphabetical order,
+      // otherwise insertion order will be similar to the order we use for tests
+      // possibly leading to false positives
+      { p1: 'v2', p2: 'v3' },
+      { p1: 'v3', p2: 'v2' }
+    ]))
 
-          cl.save$(next)
-        },
-        function insert3rd (next) {
-          var cl = si.make$('foo')
-          cl.p1 = 'v3'
-          cl.p2 = 'v3'
+    describe('Load', function () {
 
-          cl.save$(next)
-        }
-      ], done)
+      it('should support ascending order', function (done) {
+
+        var cl = si.make('foo')
+        cl.load$({ sort$: { p1: 1 } }, verify(done, function (foo) {
+          assert.ok(foo)
+          assert.equal(foo.p1, 'v1')
+        }))
+
+      })
+
+      it('should support descending order', function (done) {
+
+        var cl = si.make('foo')
+        cl.load$({ sort$: { p1: -1 } }, verify(done, function (foo) {
+          assert.ok(foo)
+          assert.equal(foo.p1, 'v3')
+        }))
+      })
+
     })
 
-    it('should support ascending order', function (done) {
-      var cl = si.make({ name$: 'foo' })
-      cl.list$({ all$: true, sort$: { p1: 1 } }, verify(done, function (lst) {
-        assert.equal(lst.length, 3)
-        assert.equal(lst[0].p1, 'v1')
-        assert.equal(lst[1].p1, 'v2')
-        assert.equal(lst[2].p1, 'v3')
-      }))
+    describe('List', function () {
+
+      it('should support ascending order', function (done) {
+
+        var cl = si.make('foo')
+        cl.list$({ sort$: { p1: 1 } }, verify(done, function (lst) {
+          assert.lengthOf(lst, 3)
+          assert.equal(lst[0].p1, 'v1')
+          assert.equal(lst[1].p1, 'v2')
+          assert.equal(lst[2].p1, 'v3')
+        }))
+
+      })
+
+      it('should support descending order', function (done) {
+
+        var cl = si.make('foo')
+        cl.list$({ sort$: { p1: -1 } }, verify(done, function (lst) {
+          assert.lengthOf(lst, 3)
+          assert.equal(lst[0].p1, 'v3')
+          assert.equal(lst[1].p1, 'v2')
+          assert.equal(lst[2].p1, 'v1')
+        }))
+      })
+
     })
 
-    it('should support descending order', function (done) {
-      var cl = si.make({ name$: 'foo' })
-      cl.list$({ sort$: { p1: -1 } }, verify(done, function (lst) {
-        assert.equal(lst.length, 3)
-        assert.equal(lst[0].p1, 'v3')
-        assert.equal(lst[1].p1, 'v2')
-        assert.equal(lst[2].p1, 'v1')
-      }))
+    describe('Remove', function () {
+
+      it('should support ascending order', function (done) {
+
+        var cl = si.make({ name$: 'foo' })
+        cl.remove$({ sort$: { p1: 1 } }, function (err) {
+
+          if (err) {
+            return done(err)
+          }
+
+          cl.list$({ sort$: { p1: 1 }}, verify(done, function (lst) {
+            assert.equal(lst.length, 2)
+            assert.equal(lst[0].p1, 'v2')
+            assert.equal(lst[1].p1, 'v3')
+          }))
+
+        })
+
+      })
+
+      it('should support descending order', function (done) {
+
+        var cl = si.make({ name$: 'foo' })
+        cl.remove$({ sort$: { p1: -1 } }, function (err) {
+
+          if (err) {
+            return done(err)
+          }
+
+          cl.list$({ sort$: { p1: 1 }}, verify(done, function (lst) {
+            assert.equal(lst.length, 2)
+            assert.equal(lst[0].p1, 'v1')
+            assert.equal(lst[1].p1, 'v2')
+          }))
+
+        })
+      })
+
     })
   })
 
@@ -381,62 +623,170 @@ function limitstest (settings) {
 
   var describe = script.describe
   var it = script.it
+  var beforeEach = script.beforeEach
 
   describe('Limits', function () {
-    script.before(function (done) {
-      async.series([
-        function remove (next) {
-          var cl = si.make$('foo')
-          // clear 'foo' collection
-          cl.remove$({ all$: true }, next)
-        },
-        function insert1st (next) {
-          var cl = si.make$('foo')
-          cl.p1 = 'v1'
-          cl.save$(next)
-        },
-        function insert2nd (next) {
-          var cl = si.make$('foo')
-          cl.p1 = 'v2'
-          cl.save$(next)
-        },
 
-        function insert3rd (next) {
-          var cl = si.make$('foo')
-          cl.p1 = 'v3'
-          cl.save$(next)
-        }
-      ], done)
-    })
+    beforeEach(clearDb(si))
+    beforeEach(createEntities(si, 'foo', [
+      { p1: 'v1' },
+      // make sure this is not in alphabetical order,
+      // otherwise insertion order will be similar to the order we use for tests
+      // possibly leading to false positives
+      { p1: 'v3' },
+      { p1: 'v2' }
+    ]))
 
-    it('check setup correctly', function listall (done) {
+    it('check setup correctly', function (done) {
       var cl = si.make({ name$: 'foo' })
       cl.list$({}, verify(done, function (lst) {
         assert.equal(3, lst.length)
       }))
     })
 
-    it('should support limit skip and sort', function listlimit1skip1 (done) {
-      var cl = si.make({ name$: 'foo' })
-      cl.list$({ limit$: 1, skip$: 1, sort$: { p1: 1 } }, verify(done, function (lst) {
-        assert.equal(1, lst.length)
-        assert.equal('v2', lst[0].p1)
-      }))
+    describe("Load", function () {
+
+      it('should support skip and sort', function (done) {
+        var cl = si.make('foo')
+        cl.load$({ skip$: 1, sort$: { p1: 1 } }, verify(done, function (foo) {
+          assert.ok(foo)
+          assert.equal(foo.p1, 'v2')
+        }))
+      }),
+
+      it('should return empty array when skipping all the records', function (done) {
+        var cl = si.make('foo')
+        cl.load$({ skip$: 3 }, verify(done, function (foo) {
+          assert.notOk(foo)
+        }))
+      })
+
+      it('should not be influenced by limit', function (done) {
+        var cl = si.make('foo')
+        cl.load$({ limit$: 2, sort$: { p1: 1 } }, verify(done, function (foo) {
+          assert.ok(foo)
+          assert.equal(foo.p1, 'v1')
+        }))
+      })
+
     })
 
-    it('should return empty array when skipping all the records', function listlimit2skip3 (done) {
-      var cl = si.make({ name$: 'foo' })
-      cl.list$({ limit$: 2, skip$: 3 }, verify(done, function (lst) {
-        assert.equal(0, lst.length)
-      }))
+
+    describe("List", function () {
+
+      it('should support limit, skip and sort', function (done) {
+        var cl = si.make('foo')
+        cl.list$({ limit$: 1, skip$: 1, sort$: { p1: 1 } }, verify(done, function (lst) {
+          assert.equal(1, lst.length)
+          assert.equal(lst[0].p1, 'v2')
+        }))
+      }),
+
+      it('should return empty array when skipping all the records', function (done) {
+        var cl = si.make('foo')
+        cl.list$({ limit$: 2, skip$: 3 }, verify(done, function (lst) {
+          assert.lengthOf(lst, 0)
+        }))
+      })
+
+      it('should return correct number of records if limit is too high', function (done) {
+        var cl = si.make('foo')
+        cl.list$({ limit$: 5, skip$: 2, sort$: { p1: 1 } }, verify(done, function (lst) {
+          assert.lengthOf(lst, 1)
+          assert.equal(lst[0].p1, 'v3')
+        }))
+      })
+
     })
 
-    it('should return correct number of records if limit is too high', function listlimit5skip2 (done) {
-      var cl = si.make({ name$: 'foo' })
-      cl.list$({ limit$: 5, skip$: 2, sort$: { p1: 1 } }, verify(done, function (lst) {
-        assert.equal(1, lst.length)
-        assert.equal('v3', lst[0].p1)
-      }))
+    describe("Remove", function () {
+
+      it('should support limit, skip and sort', function (done) {
+        var cl = si.make('foo')
+        cl.remove$({ limit$: 1, skip$: 1, sort$: { p1: 1 } }, function (err) {
+
+          if (err) {
+            return done(err)
+          }
+
+          cl.list$({ sort$: { p1: 1 }}, verify(done, function (lst) {
+
+            assert.lengthOf(lst, 2)
+            assert.equal(lst[0].p1, 'v1')
+            assert.equal(lst[1].p1, 'v3')
+
+          }))
+        })
+
+      })
+
+      it('should not be impacted by limit > 1', function (done) {
+        var cl = si.make('foo')
+        cl.remove$({ limit$: 2, sort$: { p1: 1 } }, function (err) {
+
+          if (err) {
+            return done(err)
+          }
+
+          cl.list$({ sort$: { p1: 1 }}, verify(done, function (lst) {
+
+            assert.lengthOf(lst, 2)
+            assert.equal(lst[0].p1, 'v2')
+            assert.equal(lst[1].p1, 'v3')
+
+          }))
+
+        })
+      })
+
+      it('should work with all$: true', function (done) {
+        var cl = si.make('foo')
+        cl.remove$({ all$: true, limit$: 2, skip$: 1, sort$: { p1: 1 } }, function (err) {
+
+          if (err) {
+            return done(err)
+          }
+
+          cl.list$({ sort$: { p1: 1 }}, verify(done, function (lst) {
+
+            assert.lengthOf(lst, 1)
+            assert.equal(lst[0].p1, 'v1')
+
+          }))
+
+        })
+      })
+
+      it('should not delete anyithing when skipping all the records', function (done) {
+        var cl = si.make('foo')
+        cl.remove$({ all$: true, limit$: 2, skip$: 3 }, function (err) {
+          if (err) {
+            return done(err)
+          }
+
+          cl.list$({ sort$: { p1: 1 }}, verify(done, function (lst) {
+            assert.lengthOf(lst, 3)
+          }))
+
+        })
+      })
+
+      it('should delete correct number of records if limit is too high', function (done) {
+        var cl = si.make('foo')
+        cl.remove$({ all$: true, limit$: 5, skip$: 2, sort$: { p1: 1 } }, function (err) {
+          if (err) {
+            return done(err)
+          }
+
+          cl.list$({ sort$: { p1: 1 }}, verify(done, function (lst) {
+            assert.lengthOf(lst, 2)
+            assert.equal(lst[0].p1, 'v1')
+            assert.equal(lst[1].p1, 'v2')
+          }))
+
+        })
+      })
+
     })
   })
 
