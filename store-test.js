@@ -3,8 +3,8 @@
 
 var assert = require('chai').assert
 
-var async = require('async')
-var _ = require('lodash')
+var async    = require('async')
+var _        = require('lodash')
 
 var lab = require('lab')
 
@@ -28,21 +28,19 @@ var bartemplate = {
 }
 
 var barverify = function (bar) {
-  assert.equal('aaa', bar.str)
-  assert.equal(11, bar.int)
-  assert.equal(33.33, bar.dec)
-  assert.equal(false, bar.bol)
-  assert.equal(new Date(2020, 1, 1).toISOString(), _.isDate(bar.wen) ? bar.wen.toISOString() : bar.wen)
-  assert.equal('' + [ 2, 3 ], '' + bar.arr)
-  assert.deepEqual({
+  assert.equal(bar.str, 'aaa')
+  assert.equal(bar.int, 11)
+  assert.equal(bar.dec, 33.33)
+  assert.equal(bar.bol, false)
+  assert.equal(_.isDate(bar.wen) ? bar.wen.toISOString() : bar.wen, new Date(2020, 1, 1).toISOString())
+  assert.equal('' + bar.arr, '' + [ 2, 3 ])
+  assert.deepEqual(bar.obj, {
     a: 1,
     b: [2],
     c: { d: 3 }
-  }, bar.obj)
+  })
 }
 
-
-var scratch = {}
 
 function verify (cb, tests) {
   return function (error, out) {
@@ -66,7 +64,7 @@ function clearDb (si) {
   return function clear (done) {
     async.series([
       function clearFoo (next) {
-        si.make({ name$: 'foo' }).remove$({ all$: true }, next)
+        si.make('foo').remove$({ all$: true }, next)
       },
       function clearBar (next) {
         si.make('zen', 'moon', 'bar').remove$({ all$: true }, next)
@@ -166,7 +164,7 @@ function basictest (settings) {
       })
 
       it('should support different attribute types', function (done) {
-        var bar = si.make({ name$: 'bar', base$: 'moon', zone$: 'zen' })
+        var bar = si.make('zen', 'moon', 'bar')
 
         bar.load$({ str: 'aaa' }, verify(done, function (bar1) {
 
@@ -192,7 +190,7 @@ function basictest (settings) {
 
       it('should save an entity to store (and generate an id)', function (done) {
 
-        var foo = si.make({ name$: 'foo' })
+        var foo = si.make('foo')
         foo.p1 = 'v1'
         foo.p2 = 'v2'
 
@@ -213,7 +211,7 @@ function basictest (settings) {
 
       it('should save an entity to store (with provided id)', function (done) {
 
-        var foo = si.make({ name$: 'foo' })
+        var foo = si.make('foo')
         foo.id$ = 'existing'
         foo.p1 = 'v1'
         foo.p2 = 'v2'
@@ -235,7 +233,7 @@ function basictest (settings) {
 
       it('should update an entity if id provided', function (done) {
 
-        var foo = si.make({ name$: 'foo' })
+        var foo = si.make('foo')
         foo.id = 'to-be-updated'
         foo.p1 = 'z1'
         foo.p2 = 'z2'
@@ -263,7 +261,7 @@ function basictest (settings) {
 
       it('should allow to not merge during update with merge$: false', function (done) {
 
-        var foo = si.make({ name$: 'foo' })
+        var foo = si.make('foo')
         foo.id = 'to-be-updated'
         foo.p1 = 'z1'
         foo.p2 = 'z2'
@@ -315,14 +313,14 @@ function basictest (settings) {
 
       it('should allow dublicate attributes', function (done) {
 
-        var foo = si.make({ name$: 'foo' })
+        var foo = si.make('foo')
         foo.p2 = 'v2'
 
         foo.save$(function (err, foo1) {
 
           assert.isNull(err)
           assert.isNotNull(foo1.id)
-          assert.equal('v2', foo1.p2)
+          assert.equal(foo1.p2, 'v2')
 
           foo.load$(foo1.id, verify(done, function (foo2) {
 
@@ -356,7 +354,7 @@ function basictest (settings) {
 
       it('should update an entity if id provided', function (done) {
 
-        var foo = merge.make({ name$: 'foo' })
+        var foo = merge.make('foo')
         foo.id = 'to-be-updated'
         foo.p1 = 'z1'
         foo.p2 = 'z2'
@@ -384,7 +382,7 @@ function basictest (settings) {
 
       it('should allow to merge during update with merge$: true', function (done) {
 
-        var foo = merge.make({ name$: 'foo' })
+        var foo = merge.make('foo')
         foo.id = 'to-be-updated'
         foo.p1 = 'z1'
         foo.p2 = 'z2'
@@ -461,7 +459,7 @@ function basictest (settings) {
 
         var bar = si.make('zen', 'moon', 'bar')
         bar.list$({ int: bartemplate.int }, verify(done, function (res) {
-          assert.equal(1, res.length)
+          assert.lengthOf(res, 1)
           barverify(res[0])
         }))
 
@@ -667,14 +665,14 @@ function sorttest (settings) {
 
       it('should support ascending order', function (done) {
 
-        var cl = si.make({ name$: 'foo' })
+        var cl = si.make('foo')
         cl.remove$({ sort$: { p1: 1 } }, function (err) {
 
           if (err) {
             return done(err)
           }
 
-          cl.list$({ sort$: { p1: 1 }}, verify(done, function (lst) {
+          cl.list$({ sort$: { p1: 1 } }, verify(done, function (lst) {
             assert.equal(lst.length, 2)
             assert.equal(lst[0].p1, 'v2')
             assert.equal(lst[1].p1, 'v3')
@@ -686,14 +684,14 @@ function sorttest (settings) {
 
       it('should support descending order', function (done) {
 
-        var cl = si.make({ name$: 'foo' })
+        var cl = si.make('foo')
         cl.remove$({ sort$: { p1: -1 } }, function (err) {
 
           if (err) {
             return done(err)
           }
 
-          cl.list$({ sort$: { p1: 1 }}, verify(done, function (lst) {
+          cl.list$({ sort$: { p1: 1 } }, verify(done, function (lst) {
             assert.equal(lst.length, 2)
             assert.equal(lst[0].p1, 'v1')
             assert.equal(lst[1].p1, 'v2')
@@ -729,9 +727,9 @@ function limitstest (settings) {
     ]))
 
     it('check setup correctly', function (done) {
-      var cl = si.make({ name$: 'foo' })
+      var cl = si.make('foo')
       cl.list$({}, verify(done, function (lst) {
-        assert.equal(3, lst.length)
+        assert.lengthOf(lst, 3)
       }))
     })
 
@@ -768,7 +766,7 @@ function limitstest (settings) {
       it('should support limit, skip and sort', function (done) {
         var cl = si.make('foo')
         cl.list$({ limit$: 1, skip$: 1, sort$: { p1: 1 } }, verify(done, function (lst) {
-          assert.equal(1, lst.length)
+          assert.lengthOf(lst, 1)
           assert.equal(lst[0].p1, 'v2')
         }))
       }),
@@ -800,7 +798,7 @@ function limitstest (settings) {
             return done(err)
           }
 
-          cl.list$({ sort$: { p1: 1 }}, verify(done, function (lst) {
+          cl.list$({ sort$: { p1: 1 } }, verify(done, function (lst) {
 
             assert.lengthOf(lst, 2)
             assert.equal(lst[0].p1, 'v1')
@@ -819,7 +817,7 @@ function limitstest (settings) {
             return done(err)
           }
 
-          cl.list$({ sort$: { p1: 1 }}, verify(done, function (lst) {
+          cl.list$({ sort$: { p1: 1 } }, verify(done, function (lst) {
 
             assert.lengthOf(lst, 2)
             assert.equal(lst[0].p1, 'v2')
@@ -838,7 +836,7 @@ function limitstest (settings) {
             return done(err)
           }
 
-          cl.list$({ sort$: { p1: 1 }}, verify(done, function (lst) {
+          cl.list$({ sort$: { p1: 1 } }, verify(done, function (lst) {
 
             assert.lengthOf(lst, 1)
             assert.equal(lst[0].p1, 'v1')
@@ -855,7 +853,7 @@ function limitstest (settings) {
             return done(err)
           }
 
-          cl.list$({ sort$: { p1: 1 }}, verify(done, function (lst) {
+          cl.list$({ sort$: { p1: 1 } }, verify(done, function (lst) {
             assert.lengthOf(lst, 3)
           }))
 
@@ -869,7 +867,7 @@ function limitstest (settings) {
             return done(err)
           }
 
-          cl.list$({ sort$: { p1: 1 }}, verify(done, function (lst) {
+          cl.list$({ sort$: { p1: 1 } }, verify(done, function (lst) {
             assert.lengthOf(lst, 2)
             assert.equal(lst[0].p1, 'v1')
             assert.equal(lst[1].p1, 'v2')
@@ -908,15 +906,15 @@ function sqltest (settings) {
     it('should accept a string query', function (done) {
       Product.list$({ native$: 'SELECT * FROM product ORDER BY price' }, verify(done, function (list) {
 
-        assert.lengthOf(list)
+        assert.lengthOf(list, 2)
 
-        assert.equal('-/-/product', list[0].entity$)
-        assert.equal('apple', list[0].name)
-        assert.equal(100, list[0].price)
+        assert.equal(list[0].entity$, '-/-/product')
+        assert.equal(list[0].name, 'apple')
+        assert.equal(list[0].price, 100)
 
-        assert.equal('-/-/product', list[1].entity$)
-        assert.equal('pear', list[1].name)
-        assert.equal(200, list[1].price)
+        assert.equal(list[1].entity$, '-/-/product')
+        assert.equal(list[1].name, 'pear')
+        assert.equal(list[1].price, 200)
       }))
     })
 
@@ -925,13 +923,14 @@ function sqltest (settings) {
 
         assert.lengthOf(list, 2)
 
-        assert.equal('-/-/product', list[0].entity$)
-        assert.equal('apple', list[0].name)
-        assert.equal(100, list[0].price)
+        assert.equal(list[0].entity$, '-/-/product')
+        assert.equal(list[0].name, 'apple')
+        assert.equal(list[0].price, 100)
 
-        assert.equal('-/-/product', list[1].entity$)
-        assert.equal('pear', list[1].name)
-        assert.equal(200, list[1].price)
+        assert.equal(list[1].entity$, '-/-/product')
+        assert.equal(list[1].name, 'pear')
+        assert.equal(list[1].price, 200)
+
       }))
     })
   })
