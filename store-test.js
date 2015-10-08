@@ -329,8 +329,8 @@ function basictest (settings) {
             assert.isNotNull(foo2)
             assert.equal(foo2.id, foo1.id)
             assert.equal(foo2.p2, 'v2')
-            assert.isUndefined(foo2.p1)
-            assert.isUndefined(foo2.p3)
+            assert.notOk(foo2.p1)
+            assert.notOk(foo2.p3)
 
           }))
 
@@ -451,8 +451,8 @@ function basictest (settings) {
         foo.list$({ id: 'foo1' }, verify(done, function (res) {
           assert.lengthOf(res, 1)
           assert.equal(res[0].p1, 'v1')
-          assert.isUndefined(res[0].p2)
-          assert.isUndefined(res[0].p3)
+          assert.notOk(res[0].p2)
+          assert.notOk(res[0].p3)
         }))
 
       })
