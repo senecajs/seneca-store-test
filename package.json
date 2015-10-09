@@ -4,7 +4,7 @@
   "description": "Standard test cases for seneca stores",
   "main": "store-test.js",
   "scripts": {
-    "test": "lab test/*.test.js -r console -v -L -m 3000 -t 80",
+    "test": "lab test/*.test.js -r console -v -L -t 80",
     "annotate": "docco store-test.js -o doc"
   },
   "repository": {
@@ -24,9 +24,8 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "async": "^1.5.0",
-    "chai": "^3.4.1",
-    "nid": "^0.3.2",
+    "async": "^0.9.2",
+    "chai": "^1.9.2",
     "lodash": "^3.10.1"
   },
   "files": [
@@ -35,11 +34,10 @@
     "store-test.js"
   ],
   "devDependencies": {
-    "lab": "^7.3.0",
+    "lab": "^5.16.0",
+    "docco": "0.6.3",
     "eslint-config-seneca": "1.x.x",
     "eslint-plugin-hapi": "2.x.x",
-    "eslint-plugin-standard": "1.x.x",
-    "docco": "0.7.0",
-    "seneca": "~0.7.0"
+    "eslint-plugin-standard": "1.x.x"
   }
 }
