@@ -605,6 +605,15 @@ function basictest (settings) {
         }))
       })
     })
+
+    describe('Native', function () {
+      it('should prived direct access to the driver', function (done) {
+        var foo = si.make('foo')
+        foo.native$(verify(done, function (driver) {
+          assert.isObject(driver)
+        }))
+      })
+    })
   })
 
   return script
