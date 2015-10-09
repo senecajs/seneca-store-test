@@ -311,6 +311,57 @@ function basictest (settings) {
           }))
         })
       })
+
+      it('should not save modifications to entity after save completes', function (done) {
+        var foo = si.make('foo')
+        foo.p3 = [ 'a' ]
+        foo.save$(verify(done, function (foo1) {
+          assert.deepEqual(foo1.p3, [ 'a' ])
+          // now that foo is in the database, modify the original data
+          foo.p3.push('b')
+          assert.deepEqual(foo1.p3, [ 'a' ])
+        }))
+      })
+
+      it('should not backport modification to saved entity to the original one', function (done) {
+        var foo = si.make('foo')
+        foo.p3 = [ 'a' ]
+        foo.save$(verify(done, function (foo1) {
+          assert.deepEqual(foo1.p3, [ 'a' ])
+          // now that foo is in the database, modify the original data
+          foo1.p3.push('b')
+          assert.deepEqual(foo.p3, [ 'a' ])
+        }))
+      })
+
+      it('should clear an attribute if = null', function (done) {
+        var foo = si.make('foo')
+        foo.p1 = 'v1'
+        foo.p2 = 'v2'
+
+        foo.save$(function (err, foo1) {
+          if (err) {
+            return done(err)
+          }
+
+          foo1.p1 = null
+          foo1.p2 = undefined
+          foo1.save$(function (err, foo2) {
+            if (err) {
+              return done(err)
+            }
+
+            assert.notOk(foo2.p1)
+            assert.notOk(foo2.p2)
+
+            foo.load$(foo1.id, verify(done, function (foo3) {
+              assert.ok(foo3)
+              assert.notOk(foo3.p1)
+              assert.notOk(foo3.p2)
+            }))
+          })
+        })
+      })
     })
 
     describe('With Option marge:false', function () {
