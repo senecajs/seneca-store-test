@@ -439,6 +439,39 @@ function basictest (settings) {
         }))
       })
 
+      it('should support opaque ids (array)', function (done) {
+        var foo = si.make('foo')
+        foo.list$([ 'foo1', 'foo2' ], verify(done, function (res) {
+          assert.lengthOf(res, 2)
+          assert.equal(res[0].p1, 'v1')
+          assert.notOk(res[0].p2)
+          assert.notOk(res[0].p3)
+          assert.equal(res[1].p1, 'v2')
+          assert.equal(res[1].p2, 'z2')
+          assert.equal(res[1].p3)
+        }))
+      })
+
+      it('should support opaque ids (single id)', function (done) {
+        var foo = si.make('foo')
+        foo.list$([ 'foo2' ], verify(done, function (res) {
+          assert.lengthOf(res, 1)
+          assert.equal(res[0].p1, 'v2')
+          assert.equal(res[0].p2, 'z2')
+          assert.equal(res[0].p3)
+        }))
+      })
+
+      it('should support opaque ids (string)', function (done) {
+        var foo = si.make('foo')
+        foo.list$('foo2', verify(done, function (res) {
+          assert.lengthOf(res, 1)
+          assert.equal(res[0].p1, 'v2')
+          assert.equal(res[0].p2, 'z2')
+          assert.equal(res[0].p3)
+        }))
+      })
+
       it('should filter with AND', function (done) {
         var foo = si.make('foo')
         foo.list$({ p2: 'z2', p1: 'v1' }, verify(done, function (res) {
