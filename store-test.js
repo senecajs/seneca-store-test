@@ -224,6 +224,31 @@ function basictest (settings) {
         })
       })
 
+      it('should save an entity if id provided but original doesn\'t exist', function (done) {
+        var foo = si.make('foo')
+        foo.id = 'will-be-inserted'
+        foo.p1 = 'z1'
+        foo.p2 = 'z2'
+        foo.p3 = 'z3'
+
+        foo.save$(function (err, foo1) {
+          assert.isNull(err)
+          assert.isNotNull(foo1.id)
+          assert.equal(foo1.id, 'will-be-inserted')
+          assert.equal(foo1.p1, 'z1')
+          assert.equal(foo1.p2, 'z2')
+          assert.equal(foo1.p3, 'z3')
+
+          foo1.load$('to-be-updated', verify(done, function (foo2) {
+            assert.isNotNull(foo2)
+            assert.equal(foo2.id, 'will-be-inserted')
+            assert.equal(foo2.p1, 'z1')
+            assert.equal(foo2.p2, 'z2')
+            assert.equal(foo2.p3, 'z3')
+          }))
+        })
+      })
+
       it('should allow to not merge during update with merge$: false', function (done) {
         var foo = si.make('foo')
         foo.id = 'to-be-updated'
