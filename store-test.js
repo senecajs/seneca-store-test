@@ -151,6 +151,17 @@ function basictest (settings) {
           barverify(bar1)
         }))
       })
+
+      it('should not mix attributes from entity to query for filtering', function (done) {
+        var foo = si.make('foo')
+        foo.p1 = 'v1'
+        foo.load$({ p2: 'z2' }, verify(done, function (foo1) {
+          assert.ok(foo1)
+          assert.equal(foo1.id, 'foo2')
+          assert.equal(foo1.p1, 'v2')
+          assert.equal(foo1.p2, 'z2')
+        }))
+      })
     })
 
     describe('Save', function () {
@@ -529,6 +540,17 @@ function basictest (settings) {
           assert.lengthOf(res, 0)
         }))
       })
+
+      it('should not mix attributes from entity to query for filtering', function (done) {
+        var foo = si.make('foo')
+        foo.p1 = 'v1'
+        foo.list$({ p2: 'z2' }, verify(done, function (res) {
+          assert.lengthOf(res, 1)
+          assert.equal(res[0].id, 'foo2')
+          assert.equal(res[0].p1, 'v2')
+          assert.equal(res[0].p2, 'z2')
+        }))
+      })
     })
 
     describe('Remove', function () {
@@ -603,6 +625,21 @@ function basictest (settings) {
         foo.remove$({ all$: true, load$: true }, verify(done, function (res) {
           assert.notOk(res)
         }))
+      })
+
+      it('should not delete current env (only uses query)', function (done) {
+        var foo = si.make('foo')
+        foo.id = 'foo2'
+        foo.remove$({ p1: 'v1' }, function (err) {
+          if (err) {
+            return done(err)
+          }
+
+          foo.list$(verify(done, function (res) {
+            assert.lengthOf(res, 1)
+            assert.equal(res[0].id, 'foo2')
+          }))
+        })
       })
     })
 
