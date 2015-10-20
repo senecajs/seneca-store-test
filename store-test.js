@@ -250,7 +250,7 @@ function basictest (settings) {
           assert.equal(foo1.p2, 'z2')
           assert.equal(foo1.p3, 'z3')
 
-          foo1.load$('to-be-updated', verify(done, function (foo2) {
+          foo1.load$('will-be-inserted', verify(done, function (foo2) {
             assert.isNotNull(foo2)
             assert.equal(foo2.id, 'will-be-inserted')
             assert.equal(foo2.p1, 'z1')
