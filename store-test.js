@@ -163,14 +163,22 @@ function basictest (settings) {
         }))
       })
 
-      it('should reload current entity if no query provided', function (done) {
+      it('should reload current entity if no query provided and id present', function (done) {
         var foo = si.make('foo')
-        foo.p1 = 'v2'
+        foo.id = 'foo2'
         foo.load$(verify(done, function (foo1) {
           assert.ok(foo1)
           assert.equal(foo1.id, 'foo2')
           assert.equal(foo1.p1, 'v2')
           assert.equal(foo1.p2, 'z2')
+        }))
+      })
+
+      it('should do nothing if no query provided and id not present', function (done) {
+        var foo = si.make('foo')
+        foo.p1 = 'v2'
+        foo.load$(verify(done, function (foo1) {
+          assert.notOk(foo1)
         }))
       })
     })
