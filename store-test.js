@@ -162,6 +162,17 @@ function basictest (settings) {
           assert.equal(foo1.p2, 'z2')
         }))
       })
+
+      it('should reload current entity if no query provided', function (done) {
+        var foo = si.make('foo')
+        foo.p1 = 'v2'
+        foo.load$(verify(done, function (foo1) {
+          assert.ok(foo1)
+          assert.equal(foo1.id, 'foo2')
+          assert.equal(foo1.p1, 'v2')
+          assert.equal(foo1.p2, 'z2')
+        }))
+      })
     })
 
     describe('Save', function () {
@@ -465,6 +476,13 @@ function basictest (settings) {
         }))
       })
 
+      it('should load all elements if no query provided', function (done) {
+        var foo = si.make('foo')
+        foo.list$(verify(done, function (res) {
+          assert.lengthOf(res, 2)
+        }))
+      })
+
       it('should list entities by id', function (done) {
         var foo = si.make('foo')
         foo.list$({ id: 'foo1' }, verify(done, function (res) {
@@ -627,7 +645,7 @@ function basictest (settings) {
         }))
       })
 
-      it('should not delete current env (only uses query)', function (done) {
+      it('should not delete current ent (only uses query)', function (done) {
         var foo = si.make('foo')
         foo.id = 'foo2'
         foo.remove$({ p1: 'v1' }, function (err) {
@@ -639,6 +657,24 @@ function basictest (settings) {
             assert.lengthOf(res, 1)
             assert.equal(res[0].id, 'foo2')
           }))
+        })
+      })
+
+      it('should delete current entity if no query present', function (done) {
+        var foo = si.make$('foo')
+        foo.load$('foo2', function (err, foo2) {
+          if (err) {
+            return done(err)
+          }
+          foo2.remove$(function (err) {
+            if (err) {
+              return done(err)
+            }
+            foo.list$({}, verify(done, function (res) {
+              assert.lengthOf(res, 1)
+              assert.equal(res[0].id, 'foo1')
+            }))
+          })
         })
       })
     })
