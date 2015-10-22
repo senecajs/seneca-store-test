@@ -394,7 +394,7 @@ function basictest (settings) {
       })
     })
 
-    describe('With Option marge:false', function () {
+    describe('With Option merge:false', function () {
       beforeEach(clearDb(si))
       beforeEach(createEntities(si, 'foo', [{
         id$: 'to-be-updated',
