@@ -1,38 +1,61 @@
-seneca-store-test - a [Seneca](http://senecajs.org) plugin
-======================================================
+![Seneca](http://senecajs.org/files/assets/seneca-logo.png)
+> A [Seneca.js][] plugin
+
+#seneca-store-test
+[![Build Status][travis-badge]][travis-url]
+[![Gitter chat][gitter-badge]][gitter-url]
+
+[![js-standard-style][standard-badge]][standard-style]
 
 ## Seneca Store-Test Plugin
 
-This module provides a standard set of tests for Seneca data stores. It is used to verify that a store meets the minimum requirements needed for the Seneca data message patterns. See the [Seneca Data Entities](http://senecajs.org/data-entities.html) article for more information.
+This module provides a standard set of tests for Seneca data stores. It is used to verify that a store meets the minimum requirements needed for the Seneca data message patterns. 
+See the [Seneca Data Entities](http://senecajs.org/data-entities.html) article for more information.
 
 [![Build Status](https://travis-ci.org/rjrodger/seneca-store-test.png?branch=master)](https://travis-ci.org/rjrodger/seneca-store-test)
 
 [![NPM](https://nodei.co/npm/seneca-store-test.png)](https://nodei.co/npm/seneca-store-test/)
 [![NPM](https://nodei.co/npm-dl/seneca-store-test.png)](https://nodei.co/npm-dl/seneca-store-test/)
 
-For a gentle introduction to Seneca itself, see the
-[senecajs.org](http://senecajs.org) site.
+This module is included as a development dependency by Seneca data store plugins. For a simple example, see the [seneca-mem-store](https://github.com/senecajs/seneca-mem-store) plugin test cases.
 
-If you're using this plugin module, feel free to contact me on twitter if you
-have any questions! :) [@rjrodger](http://twitter.com/rjrodger)
+- __Version__: 1.0.0
+- __Tested on__: [Seneca][seneca-github] 0.7
+- __Node__: 0.10, 0.12, 4
+- __License__: [MIT][]
 
-Current Version: 1.0.0
+If you're using this module, and need help, you can:
 
-Tested on: Seneca 0.6.5, Node 0.12.5 / 4.0.0
+- Post a [github issue](https://github.com/rjrodger/seneca-store-test/issues)
+- Tweet to [@senecajs](http://twitter.com/senecajs)
+- Ask on the [Gitter][gitter-url]
 
+seneca-basic's source can be read in an annotated fashion by,
+- running `npm run annotate`
+- viewing [online](http://rjrodger.github.io/seneca-basic/doc/basic.html)
 
-### Usage
+The annotated source can be found locally at [./doc/seneca-basic.html]().
 
-This module is included as a development dependency by Seneca data store plugins. For a simple example, see the [seneca-mem-store](https://github.com/rjrodger/seneca-mem-store) plugin test cases.
-
-
-## Testing
-
-This module itself does not contain any direct reference to Seneca, as
-it is a Seneca store plugin dependency. However, Seneca is needed to test it, so
-the test script will perform an _npm install seneca_ (if needed). This is not
-saved to _package.json_.
+## Install
 
 ```sh
-npm test
+npm install seneca-store-test
 ```
+
+## Test
+
+```sh
+npm run test
+```
+
+## License
+Copyright Richard Rodger and other contributors 2015, Licensed under [MIT][].
+
+[travis-badge]: https://travis-ci.org/rjrodger/seneca-store-test.svg?branch=master
+[travis-url]: https://travis-ci.org/rjrodger/seneca-store-test
+[gitter-badge]: https://badges.gitter.im/Join%20Chat.svg
+[gitter-url]: https://gitter.im/senecajs/seneca
+[standard-badge]: https://raw.githubusercontent.com/feross/standard/master/badge.png
+[standard-style]: https://github.com/feross/standard
+[MIT]: ./LICENSE
+[seneca-github]: https://github.com/senecajs/seneca
