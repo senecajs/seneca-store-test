@@ -12,11 +12,6 @@
 This module provides a standard set of tests for Seneca data stores. It is used to verify that a store meets the minimum requirements needed for the Seneca data message patterns. 
 See the [Seneca Data Entities](http://senecajs.org/data-entities.html) article for more information.
 
-[![Build Status](https://travis-ci.org/rjrodger/seneca-store-test.png?branch=master)](https://travis-ci.org/rjrodger/seneca-store-test)
-
-[![NPM](https://nodei.co/npm/seneca-store-test.png)](https://nodei.co/npm/seneca-store-test/)
-[![NPM](https://nodei.co/npm-dl/seneca-store-test.png)](https://nodei.co/npm-dl/seneca-store-test/)
-
 This module is included as a development dependency by Seneca data store plugins. For a simple example, see the [seneca-mem-store](https://github.com/senecajs/seneca-mem-store) plugin test cases.
 
 - __Version__: 1.0.0
@@ -59,3 +54,5 @@ Copyright Richard Rodger and other contributors 2015, Licensed under [MIT][].
 [standard-style]: https://github.com/feross/standard
 [MIT]: ./LICENSE
 [seneca-github]: https://github.com/senecajs/seneca
+[Senecajs org]: https://github.com/senecajs/
+[Seneca.js]: https://www.npmjs.com/package/seneca
