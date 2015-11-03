@@ -4,7 +4,8 @@
   "description": "Standard test cases for seneca stores",
   "main": "store-test.js",
   "scripts": {
-    "test": "./test.sh"
+    "test": "./test.sh",
+    "annotate": "docco store-test.js -o doc"
   },
   "repository": {
     "type": "git",
@@ -34,6 +35,7 @@
     "store-test.js"
   ],
   "devDependencies": {
-    "lab": "^5.16.0"
+    "lab": "^5.16.0",
+    "docco": "0.6.3"
   }
 }

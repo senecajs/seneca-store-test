@@ -1,16 +1,14 @@
 ![Seneca](http://senecajs.org/files/assets/seneca-logo.png)
 > A [Seneca.js][] plugin
 
-#seneca-store-test
+# seneca-store-test
 [![Build Status][travis-badge]][travis-url]
 [![Gitter chat][gitter-badge]][gitter-url]
 
 [![js-standard-style][standard-badge]][standard-style]
 
-## Seneca Store-Test Plugin
-
 This module provides a standard set of tests for Seneca data stores. It is used to verify that a store meets the minimum requirements needed for the Seneca data message patterns. 
-See the [Seneca Data Entities](http://senecajs.org/data-entities.html) article for more information.
+See the [Seneca Data Entities](http://senecajs.org/tutorials/understanding-data-entities.html) article for more information.
 
 This module is included as a development dependency by Seneca data store plugins. For a simple example, see the [seneca-mem-store](https://github.com/senecajs/seneca-mem-store) plugin test cases.
 
@@ -25,11 +23,11 @@ If you're using this module, and need help, you can:
 - Tweet to [@senecajs](http://twitter.com/senecajs)
 - Ask on the [Gitter][gitter-url]
 
-seneca-basic's source can be read in an annotated fashion by,
+seneca-store-test's source can be read in an annotated fashion by,
 - running `npm run annotate`
-- viewing [online](http://rjrodger.github.io/seneca-basic/doc/basic.html)
+- viewing [online](http://rjrodger.github.io/seneca-store-test/doc/store-test.html)
 
-The annotated source can be found locally at [./doc/seneca-basic.html]().
+The annotated source can be found locally at [./doc/store-test.html]().
 
 ## Install
 
