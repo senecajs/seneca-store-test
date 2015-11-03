@@ -10,7 +10,7 @@
 This module provides a standard set of tests for Seneca data stores. It is used to verify that a store meets the minimum requirements needed for the Seneca data message patterns. 
 See the [Seneca Data Entities](http://senecajs.org/tutorials/understanding-data-entities.html) article for more information.
 
-This module is included as a development dependency by Seneca data store plugins. For a simple example, see the [seneca-mem-store](https://github.com/senecajs/seneca-mem-store) plugin test cases.
+This module is included as a development dependency by Seneca data store plugins. For a simple example, see the [seneca-mem-store](https://github.com/senecajs/seneca-mem-store/blob/master/test/mem.test.js) plugin test cases.
 
 - __Version__: 1.0.0
 - __Tested on__: [Seneca][seneca-github] 0.7
@@ -25,7 +25,6 @@ If you're using this module, and need help, you can:
 
 seneca-store-test's source can be read in an annotated fashion by,
 - running `npm run annotate`
-- viewing [online](http://rjrodger.github.io/seneca-store-test/doc/store-test.html)
 
 The annotated source can be found locally at [./doc/store-test.html]().
 
