@@ -274,8 +274,62 @@ function basictest (settings) {
 
     })
 
-  })
+    it('should not save modifications to entity after save completes', function (done) {
 
+      scratch.foo2 = si.make({ name$: 'foo' })
+      scratch.foo2.p3 = ['a']
+      scratch.foo2.save$(verify(done, function (saved_foo) {
+        assert.deepEqual(saved_foo.p3, ['a'])
+        // now that foo is in the database, modify the original data
+        scratch.foo2.p3.push('b')
+        assert.deepEqual(saved_foo.p3, ['a'])
+      }))
+
+    })
+
+    it('should not backport modification to saved entity to the original one', function (done) {
+
+      scratch.foo2 = si.make({ name$: 'foo' })
+      scratch.foo2.p3 = ['a']
+      scratch.foo2.save$(verify(done, function (saved_foo) {
+        assert.deepEqual(saved_foo.p3, ['a'])
+        // now that foo is in the database, modify the original data
+        saved_foo.p3.push('b')
+        assert.deepEqual(scratch.foo2.p3, ['a'])
+      }))
+
+    })
+
+    it('should be able to delete a field', function (done) {
+
+      scratch.foo3 = si.make({ name$: 'foo' })
+      scratch.foo3.bar = 'baz'
+
+      scratch.foo3.save$(function (err, saved_foo) {
+
+        if (err) { return done(err) }
+        var id = saved_foo.id
+        var req = si.make({ name$: 'foo' })
+        req.load$({ id: id }, function (err, el) {
+          if (err) { return done(err) }
+
+          assert.deepEqual(el.bar, 'baz')
+
+          delete saved_foo.bar
+
+          saved_foo.save$(function (err, saved_foo) {
+            if (err) { return done(err) }
+            // now that foo is in the database, modify the original data
+            req.load$({ id: id }, function (err, el) {
+              if (err) { return done(err) }
+              assert.deepEqual(el.bar, undefined)
+              done()
+            })
+          })
+        })
+      })
+    })
+  })
   return script
 }
 
