@@ -445,6 +445,7 @@ function basictest (settings) {
           assert.equal(foo1.p1, 'z1')
           assert.equal(foo1.p2, 'z2')
           assert.equal(foo1.p3, 'v3')
+          assert.notOk(foo1.merge$)
 
           foo1.load$('to-be-updated', verify(done, function (foo2) {
             assert.isNotNull(foo2)
@@ -452,6 +453,7 @@ function basictest (settings) {
             assert.equal(foo2.p1, 'z1')
             assert.equal(foo2.p2, 'z2')
             assert.equal(foo1.p3, 'v3')
+            assert.notOk(foo1.merge$)
           }))
         })
       })
