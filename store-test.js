@@ -622,7 +622,7 @@ function basictest (settings) {
         foo.remove$({ p1: 'v1' }, function (err, res) {
           assert.isNull(err)
 
-          foo.list$({  }, verify(done, function (res) {
+          foo.list$({}, verify(done, function (res) {
             assert.lengthOf(res, 1)
             assert.equal('v2', res[0].p1)
           }))
@@ -1104,5 +1104,6 @@ module.exports = {
   sorttest: sorttest,
   limitstest: limitstest,
   sqltest: sqltest,
+  apiv2: require('./lib/store-test-v2'),
   verify: verify
 }
