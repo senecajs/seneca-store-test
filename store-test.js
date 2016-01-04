@@ -2,9 +2,9 @@
 'use strict'
 
 var assert = require('chai').assert
-var async = require('async')
+var Async = require('async')
 var _ = require('lodash')
-var lab = require('lab')
+var Lab = require('lab')
 
 var bartemplate = {
   name$: 'bar',
@@ -57,7 +57,7 @@ function verify (cb, tests) {
 
 function clearDb (si) {
   return function clear (done) {
-    async.series([
+    Async.series([
       function clearFoo (next) {
         si.make('foo').remove$({ all$: true }, next)
       },
@@ -70,7 +70,7 @@ function clearDb (si) {
 
 function createEntities (si, name, data) {
   return function create (done) {
-    async.each(data, function (el, next) {
+    Async.each(data, function (el, next) {
       si.make$(name, el).save$(next)
     }, done)
   }
@@ -79,7 +79,7 @@ function createEntities (si, name, data) {
 function basictest (settings) {
   var si = settings.seneca
   var merge = settings.senecaMerge
-  var script = settings.script || lab.script()
+  var script = settings.script || Lab.script()
 
   var describe = script.describe
   var it = script.it
@@ -705,7 +705,7 @@ function basictest (settings) {
 
 function sorttest (settings) {
   var si = settings.seneca
-  var script = settings.script || lab.script()
+  var script = settings.script || Lab.script()
 
   var describe = script.describe
   var it = script.it
@@ -800,7 +800,7 @@ function sorttest (settings) {
 
 function limitstest (settings) {
   var si = settings.seneca
-  var script = settings.script || lab.script()
+  var script = settings.script || Lab.script()
 
   var describe = script.describe
   var it = script.it
@@ -1051,7 +1051,7 @@ function limitstest (settings) {
 
 function sqltest (settings) {
   var si = settings.seneca
-  var script = settings.script || lab.script()
+  var script = settings.script || Lab.script()
 
   var describe = script.describe
   var before = script.before
