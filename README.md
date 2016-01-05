@@ -2,8 +2,12 @@
 > A [Seneca.js][] plugin
 
 # seneca-store-test
+
+[![npm version][npm-badge]][npm-url]
 [![Build Status][travis-badge]][travis-url]
 [![Gitter chat][gitter-badge]][gitter-url]
+[![Dependency Status][david-badge]][david-url]
+
 
 [![js-standard-style][standard-badge]][standard-style]
 
@@ -19,7 +23,7 @@ This module is included as a development dependency by Seneca data store plugins
 
 If you're using this module, and need help, you can:
 
-- Post a [github issue](https://github.com/rjrodger/seneca-store-test/issues)
+- Post a [github issue](https://github.com/senecajs/seneca-store-test/issues)
 - Tweet to [@senecajs](http://twitter.com/senecajs)
 - Ask on the [Gitter][gitter-url]
 
@@ -43,6 +47,8 @@ npm run test
 ## License
 Copyright Richard Rodger and other contributors 2015, Licensed under [MIT][].
 
+[npm-badge]: https://badge.fury.io/js/seneca-store-test.svg
+[npm-url]: https://badge.fury.io/js/seneca-store-test
 [travis-badge]: https://travis-ci.org/senecajs/seneca-store-test.svg?branch=master
 [travis-url]: https://travis-ci.org/senecajs/seneca-store-test
 [gitter-badge]: https://badges.gitter.im/Join%20Chat.svg
@@ -53,3 +59,5 @@ Copyright Richard Rodger and other contributors 2015, Licensed under [MIT][].
 [seneca-github]: https://github.com/senecajs/seneca
 [Senecajs org]: https://github.com/senecajs/
 [Seneca.js]: https://www.npmjs.com/package/seneca
+[david-badge]: https://david-dm.org/senecajs/seneca-store-test.svg
+[david-url]: https://david-dm.org/senecajs/seneca-store-test
