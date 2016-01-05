@@ -17,8 +17,8 @@ See the [Seneca Data Entities](http://senecajs.org/tutorials/understanding-data-
 This module is included as a development dependency by Seneca data store plugins. For a simple example, see the [seneca-mem-store](https://github.com/senecajs/seneca-mem-store/blob/master/test/mem.test.js) plugin test cases.
 
 - __Version__: 1.0.0
-- __Tested on__: [Seneca][seneca-github] 0.7
-- __Node__: 0.10, 0.12, 4
+- __Tested on__: [Seneca][seneca-github] 0.9
+- __Node__: 0.10, 0.12, 4, 5
 - __License__: [MIT][]
 
 If you're using this module, and need help, you can:
