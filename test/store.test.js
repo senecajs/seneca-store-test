@@ -1,37 +1,37 @@
 /* Copyright (c) 2014 Richard Rodger, MIT License */
 'use strict'
 
-var seneca = require('seneca')
-var memStore = require('seneca-mem-store')
-var shared = require('..')
+var Seneca = require('seneca')
+var MemStore = require('seneca-mem-store')
+var Shared = require('..')
 
 var Lab = require('lab')
 var lab = exports.lab = Lab.script()
 
-var si = seneca({
+var si = Seneca({
   log: 'silent',
   default_plugins: { 'mem-store': false }
 })
-si.use(memStore)
+si.use(MemStore)
 
-var merge = seneca({
+var merge = Seneca({
   log: 'silent',
   default_plugins: { 'mem-store': false }
 })
-merge.use(memStore, { merge: false })
+merge.use(MemStore, { merge: false })
 
-shared.basictest({
+Shared.basictest({
   seneca: si,
   senecaMerge: merge,
   script: lab
 })
 
-shared.sorttest({
+Shared.sorttest({
   seneca: si,
   script: lab
 })
 
-shared.limitstest({
+Shared.limitstest({
   seneca: si,
   script: lab
 })
