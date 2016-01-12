@@ -29,7 +29,7 @@
     "LICENSE.txt",
     "store-test.js"
   ],
-  "engines":{
+  "engines": {
     "node": ">=0.10.0"
   },
   "dependencies": {
@@ -42,8 +42,9 @@
   },
   "devDependencies": {
     "docco": "0.6.3",
+    "eslint-config-hapi": "^8.0.1",
     "eslint-config-seneca": "1.x.x",
-    "eslint-plugin-hapi": "2.x.x",
+    "eslint-plugin-hapi": "4.x.x",
     "eslint-plugin-standard": "1.x.x",
     "lab": "^6.2.0",
     "seneca": "plugin",
