@@ -6,6 +6,8 @@ var Async = require('async')
 var _ = require('lodash')
 var Lab = require('lab')
 
+var ExtendedTests = require('./lib/store-test-extended')
+
 var bartemplate = {
   name$: 'bar',
   base$: 'moon',
@@ -1104,6 +1106,6 @@ module.exports = {
   sorttest: sorttest,
   limitstest: limitstest,
   sqltest: sqltest,
-  apiv2: require('./lib/store-test-v2'),
+  extended: ExtendedTests,
   verify: verify
 }
