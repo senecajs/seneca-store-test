@@ -5,7 +5,6 @@ var Assert = require('chai').assert
 var Async = require('async')
 var _ = require('lodash')
 var Lab = require('lab')
-var Lab = require('lab')
 
 var ExtendedTests = require('./lib/store-test-extended')
 
@@ -623,11 +622,11 @@ function basictest (settings) {
       it('should delete an entity by property', function (done) {
         var foo = si.make('foo')
         foo.remove$({ p1: 'v1' }, function (err, res) {
-          assert.isNull(err)
+          Assert.isNull(err)
 
           foo.list$({}, verify(done, function (res) {
-            assert.lengthOf(res, 1)
-            assert.equal('v2', res[0].p1)
+            Assert.lengthOf(res, 1)
+            Assert.equal('v2', res[0].p1)
           }))
         })
       })
