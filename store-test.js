@@ -6,6 +6,8 @@ var Async = require('async')
 var _ = require('lodash')
 var Lab = require('lab')
 
+var ExtendedTests = require('./lib/store-test-extended')
+
 var bartemplate = {
   name$: 'bar',
   base$: 'moon',
@@ -618,12 +620,13 @@ function basictest (settings) {
       })
 
       it('should delete an entity by property', function (done) {
-        var bar = si.make('bar')
-        bar.remove$({ int: bartemplate.int }, function (err, res) {
+        var foo = si.make('foo')
+        foo.remove$({ p1: 'v1' }, function (err, res) {
           Assert.isNull(err)
 
-          bar.list$({ int: bartemplate.int }, verify(done, function (res) {
-            Assert.lengthOf(res, 0)
+          foo.list$({}, verify(done, function (res) {
+            Assert.lengthOf(res, 1)
+            Assert.equal('v2', res[0].p1)
           }))
         })
       })
@@ -1103,5 +1106,6 @@ module.exports = {
   sorttest: sorttest,
   limitstest: limitstest,
   sqltest: sqltest,
+  extended: ExtendedTests,
   verify: verify
 }
