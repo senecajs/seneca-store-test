@@ -1,3 +1,6 @@
+## [WIP] 1.1.1
+Fixed the native$ tests
+
 ## 1.1.0: 2016-04-01
 
 Better behavior definition through tests 
