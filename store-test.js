@@ -1064,8 +1064,8 @@ function sqltest (settings) {
     before(function before (done) {
       before(clearDb(si))
       before(createEntities, 'product', [
-        { name: 'apple', price: 100 },
-        { name: 'pear', price: 200 }
+        { name: 'apple', price: 200 },
+        { name: 'pear', price: 100 }
       ])
     })
 
@@ -1074,26 +1074,22 @@ function sqltest (settings) {
         Assert.lengthOf(list, 2)
 
         Assert.equal(list[0].entity$, '-/-/product')
-        Assert.equal(list[0].name, 'apple')
+        Assert.equal(list[0].name, 'pear')
         Assert.equal(list[0].price, 100)
 
         Assert.equal(list[1].entity$, '-/-/product')
-        Assert.equal(list[1].name, 'pear')
+        Assert.equal(list[1].name, 'apple')
         Assert.equal(list[1].price, 200)
       }))
     })
 
     it('should accept and array with query and parameters', function (done) {
-      Product.list$({ native$: [ 'SELECT * FROM product WHERE price >= ? AND price <= ?', 0, 1000 ] }, verify(done, function (list) {
-        Assert.lengthOf(list, 2)
+      Product.list$({ native$: [ 'SELECT * FROM product WHERE price >= ? AND price <= ?', 0, 150 ] }, verify(done, function (list) {
+        Assert.lengthOf(list, 1)
 
         Assert.equal(list[0].entity$, '-/-/product')
-        Assert.equal(list[0].name, 'apple')
+        Assert.equal(list[0].name, 'pear')
         Assert.equal(list[0].price, 100)
-
-        Assert.equal(list[1].entity$, '-/-/product')
-        Assert.equal(list[1].name, 'pear')
-        Assert.equal(list[1].price, 200)
       }))
     })
   })
