@@ -10,7 +10,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/rjrodger/seneca-store-test.git"
+    "url": "git://github.com/senecajs/seneca-store-test.git"
   },
   "keywords": [
     "seneca",
