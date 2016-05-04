@@ -20,6 +20,10 @@ var merge = Seneca({
 })
 merge.use(MemStore, { merge: false })
 
+if (si.version >= '2.0.0') {
+  si.use('entity')
+}
+
 Shared.basictest({
   seneca: si,
   senecaMerge: merge,
