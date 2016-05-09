@@ -1,5 +1,7 @@
-## [WIP] 1.1.1
+## 1.1.1 2016-05-09
+
 Fixed the native$ tests
+Removed peerDependencies from package.json
 
 ## 1.1.0: 2016-04-01
 
