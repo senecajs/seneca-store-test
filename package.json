@@ -38,9 +38,6 @@
     "chai": "^3.3.0",
     "lodash": "^3.10.1"
   },
-  "peerDependencies": {
-    "seneca": ">=0.8.0 <=1.x.x"
-  },
   "devDependencies": {
     "docco": "0.6.3",
     "eslint-config-hapi": "^8.0.1",
