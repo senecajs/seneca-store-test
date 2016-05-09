@@ -7,6 +7,7 @@ var Shared = require('..')
 
 var Lab = require('lab')
 var lab = exports.lab = Lab.script()
+var before = lab.before
 
 var si = Seneca({
   log: 'silent',
@@ -19,6 +20,15 @@ var merge = Seneca({
   default_plugins: { 'mem-store': false }
 })
 merge.use(MemStore, { merge: false })
+
+if (si.version >= '2.0.0') {
+  si.use('entity')
+  merge.use('entity')
+}
+
+before({}, function (done) {
+  si.ready(done)
+})
 
 Shared.basictest({
   seneca: si,

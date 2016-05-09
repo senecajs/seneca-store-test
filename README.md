@@ -9,6 +9,8 @@
 
 [![js-standard-style][standard-badge]][standard-style]
 
+## Description
+
 This module provides a standard set of tests for Seneca data stores.
 
 It is used to verify that a store meets the minimum requirements needed for the Seneca data message patterns.
@@ -21,20 +23,28 @@ For a simple example, see the [seneca-mem-store](https://github.com/senecajs/sen
 
 If you're using this module, and need help, you can:
 
-- Post a [github issue](https://github.com/rjrodger/seneca-store-test/issues)
+- Post a [github issue](https://github.com/senecajs/seneca-store-test/issues)
 - Tweet to [@senecajs](http://twitter.com/senecajs)
 - Ask on the [Gitter][gitter-url]
 
 *seneca-store-test*'s source can be read in an annotated fashion by,
 - running `npm run annotate`
 
-The annotated source can be found locally at [./doc/store-test.html]().
+The annotated source can be found locally at [./doc/store-test.html](./doc/store-test.html).
+
+### Seneca compatibility
+
+Supports Seneca versions **1.x** and **2.x**
 
 ## Install
 
 ```sh
 npm install seneca-store-test
 ```
+
+## Contributing
+The [Senecajs org][] encourage open participation. If you feel you can help in any way, be it with
+documentation, examples, extra testing, or new features please get in touch.
 
 ## Test
 
@@ -43,7 +53,9 @@ npm run test
 ```
 
 ## License
-Copyright Richard Rodger and other contributors 2015, Licensed under [MIT][].
+
+Copyright (c) 2013-2016, Richard Rodger and other contributors.
+Licensed under [MIT][].
 
 [npm-badge]: https://img.shields.io/npm/v/seneca-store-test.svg
 [npm-url]: https://npmjs.com/package/seneca-store-test
@@ -53,7 +65,6 @@ Copyright Richard Rodger and other contributors 2015, Licensed under [MIT][].
 [david-url]: https://david-dm.org/senecajs/seneca-store-test
 [gitter-badge]: https://badges.gitter.im/Join%20Chat.svg
 [gitter-url]: https://gitter.im/senecajs/seneca
-
 [standard-badge]: https://raw.githubusercontent.com/feross/standard/master/badge.png
 [standard-style]: https://github.com/feross/standard
 [MIT]: ./LICENSE
