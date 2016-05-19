@@ -71,3 +71,5 @@ Licensed under [MIT][].
 [seneca-github]: https://github.com/senecajs/seneca
 [Senecajs org]: https://github.com/senecajs/
 [Seneca.js]: https://www.npmjs.com/package/seneca
+[Coveralls]: https://coveralls.io/github/senecajs/seneca-store-test?branch=master
+[BadgeCoveralls]: https://coveralls.io/repos/github/senecajs/seneca-store-test/badge.svg?branch=master
