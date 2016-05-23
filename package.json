@@ -36,20 +36,20 @@
     "node": ">=0.10.0"
   },
   "dependencies": {
-    "async": "^1.4.0",
-    "chai": "^3.3.0",
-    "lodash": "^3.10.1"
+    "async": "1.x.x",
+    "chai": "3.x.x",
+    "lodash": "4.x.x"
   },
   "devDependencies": {
     "docco": "0.6.3",
-    "eslint-config-hapi": "^8.0.1",
+    "eslint-config-hapi": "8.0.1",
     "eslint-config-seneca": "1.x.x",
     "eslint-plugin-hapi": "4.x.x",
     "eslint-plugin-standard": "1.x.x",
     "lab": "6.x.x",
-    "seneca": "1.3.x",
+    "seneca": "plugin",
     "seneca-entity": "0.0.1",
-    "seneca-mem-store": "~0.4.0",
+    "seneca-mem-store": "0.4.0",
     "coveralls": "2.11.x"
   }
 }
