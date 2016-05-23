@@ -1,3 +1,7 @@
+## [WIP]
+
+Updated dependencies
+
 ## 1.1.1 2016-05-09
 
 Fixed the native$ tests
