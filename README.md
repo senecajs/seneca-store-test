@@ -35,7 +35,7 @@ The annotated source can be found locally at [./doc/store-test.html](./doc/store
 
 ### Seneca compatibility
 
-Supports Seneca versions **1.x** and **2.x**
+Supports Seneca versions **1.x** - **3.x**
 
 ## Install
 
