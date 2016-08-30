@@ -4,10 +4,10 @@
   "description": "Standard test cases for seneca stores",
   "main": "store-test.js",
   "scripts": {
-    "test": "lab -v -P test -L -t 80 -I Reflect",
-     "coveralls": "lab -s -P test -r lcov | coveralls",
-     "coverage": "lab -v -P test  -t 80 -r html > coverage.html",
-     "annotate": "docco store-test.js -o docs/annotated"
+    "test": "lab -v -P test -L -t 80 -I Reflect -c",
+    "coveralls": "lab -s -P test -r lcov | coveralls",
+    "coverage": "lab -v -P test  -t 80 -r html > docs/coverage.html",
+    "annotate": "docco store-test.js -o docs/annotated"
   },
   "repository": {
     "type": "git",
@@ -23,12 +23,19 @@
     "Paolo Chiodi (https://github.com/paolochiodi)",
     "Michele Capra (https://github.com/piccoloaiutante)",
     "Mircea Alexandru (https://www.alexandrumircea.ro/)",
-    "Mihai Dima (https://github.com//mihaidma)"
+    "Mihai Dima (https://github.com//mihaidma)",
+    "Shane Lacey (https://github.com/shanel262)",
+    "Adrien Becchis (https://github.com/AdrieanKhisbe)",
+    "David Mark Clements (https://github.com/davidmarkclements)",
+    "Maxence Dalmais (https://github.com/maxired)",
+    "Guy Ellis (https://github.com/guyellis",
+    "Kilian Ciuffolo (https://github.com/kilianc)",
+    "Emer Rutherford (https://github.com/eeswr)"
   ],
   "license": "MIT",
   "files": [
     "README.md",
-    "LICENSE.txt",
+    "LICENSE",
     "store-test.js",
     "lib"
   ],
@@ -53,7 +60,6 @@
     "seneca-mem-store": "0.5.x",
     "coveralls": "2.11.x"
   },
-
   "pre-commit": [
    "test"
  ]
