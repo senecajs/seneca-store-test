@@ -620,7 +620,7 @@ function basictest(settings) {
         var foo = si.make('foo')
         foo.list$(
           { p2: 'z2' },
-          verify(done, function() {
+          verify(done, function(res) {
             Assert.lengthOf(res, 1)
             Assert.equal(res[0].p1, 'v2')
             Assert.equal(res[0].p2, 'z2')
