@@ -7,7 +7,8 @@
     "test": "lab -v -P test -L -t 80 -I Reflect -c",
     "coveralls": "lab -s -P test -r lcov | coveralls",
     "coverage": "lab -v -P test  -t 80 -r html > docs/coverage.html",
-    "annotate": "docco store-test.js -o docs/annotated"
+    "annotate": "docco store-test.js -o docs/annotated",
+    "prettier": "prettier --write --no-semi --single-quote store-test.js test/*.js lib/*.js"
   },
   "repository": {
     "type": "git",
@@ -48,19 +49,16 @@
     "lodash": "4.x.x"
   },
   "devDependencies": {
+    "coveralls": "2.11.x",
     "docco": "0.7.0",
     "eslint-config-hapi": "10.0.0",
     "eslint-config-seneca": "3.x.x",
     "eslint-plugin-hapi": "4.x.x",
     "eslint-plugin-standard": "2.x.x",
     "lab": "11.0.x",
+    "prettier": "^1.10.2",
     "seneca": "plugin",
     "seneca-entity": "1.2.x",
-    "pre-commit": "1.1.x",
-    "seneca-mem-store": "0.5.x",
-    "coveralls": "2.11.x"
-  },
-  "pre-commit": [
-   "test"
- ]
+    "seneca-mem-store": "0.5.x"
+  }
 }
