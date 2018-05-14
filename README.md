@@ -55,7 +55,7 @@ npm run test
 
 ## License
 
-Copyright (c) 2013-2016, Richard Rodger and other contributors.
+Copyright (c) 2013-2018, Richard Rodger and other contributors.
 Licensed under [MIT][].
 
 [npm-badge]: https://img.shields.io/npm/v/seneca-store-test.svg
