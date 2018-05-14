@@ -19,7 +19,6 @@ install:
 
 script:
   - npm test
-  - if [ ${NODE_VERSION:1:2} -ge 10 ]; then npm audit; fi
 
 before_script:
   - npm uninstall seneca
