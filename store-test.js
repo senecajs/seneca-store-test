@@ -292,6 +292,7 @@ function basictest(settings) {
         foo.id = 'to-be-updated'
         foo.p1 = 'z1'
         foo.p2 = 'z2'
+        foo.p3 = 'v3'
 
         foo.save$(function(err, foo1) {
           Assert.isNull(err)
@@ -300,7 +301,7 @@ function basictest(settings) {
           Assert.equal(foo1.p1, 'z1')
           Assert.equal(foo1.p2, 'z2')
           Assert.equal(foo1.p3, 'v3')
-
+            
           foo1.load$(
             'to-be-updated',
             verify(done, function(foo2) {
@@ -536,6 +537,7 @@ function basictest(settings) {
         foo.id = 'to-be-updated'
         foo.p1 = 'z1'
         foo.p2 = 'z2'
+        foo.p3 = 'v3'
 
         foo.save$({ merge$: true }, function(err, foo1) {
           Assert.isNull(err)
@@ -744,9 +746,8 @@ function basictest(settings) {
 
       it('should delete only an entity', function(done) {
         var foo = si.make('foo')
-        foo.remove$({}, function(err, res) {
+        foo.remove$('foo1', function(err, res) {
           Assert.isNull(err)
-          Assert.notOk(res)
 
           foo.list$(
             {},
