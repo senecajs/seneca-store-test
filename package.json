@@ -1,6 +1,6 @@
 {
   "name": "seneca-store-test",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "description": "Standard test cases for seneca stores",
   "main": "store-test.js",
   "scripts": {
@@ -43,18 +43,17 @@
     "lib"
   ],
   "engines": {
-    "node": ">=4"
+    "node": ">=8"
   },
   "dependencies": {
-    "async": "2.6",
-    "chai": "4.2",
-    "lodash": "4"
+    "async": "^3.1.0",
+    "chai": "^4.2.0"
   },
   "devDependencies": {
-    "lab": "14",
+    "@hapi/lab": "^20.2.2",
+    "coveralls": "^3.0.6",
     "seneca": "plugin",
-    "seneca-entity": "2",
-    "seneca-mem-store": "1",
-    "coveralls": "3"
+    "seneca-entity": "^5.1.0",
+    "seneca-mem-store": "^1.5.1"
   }
 }

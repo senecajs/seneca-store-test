@@ -1,10 +1,11 @@
-/* Copyright (c) 2014 Richard Rodger, MIT License */
+/* Copyright (c) 2014-2019 Richard Rodger, MIT License */
 'use strict'
+
+var Util = require('util')
 
 var Assert = require('chai').assert
 var Async = require('async')
-var _ = require('lodash')
-var Lab = require('lab')
+var Lab = require('@hapi/lab')
 
 var ExtendedTests = require('./lib/store-test-extended')
 
@@ -32,7 +33,7 @@ var barverify = function(bar) {
   Assert.equal(bar.dec, 33.33)
   Assert.equal(bar.bol, false)
   Assert.equal(
-    _.isDate(bar.wen) ? bar.wen.toISOString() : bar.wen,
+    isDate(bar.wen) ? bar.wen.toISOString() : bar.wen,
     new Date(2020, 1, 1).toISOString()
   )
   Assert.equal('' + bar.arr, '' + [2, 3])
@@ -60,40 +61,47 @@ function verify(cb, tests) {
 }
 
 function clearDb(si) {
-  return function clear(done) {
-    Async.series(
-      [
-        function clearFoo(next) {
-          si.make('foo').remove$({ all$: true }, next)
-        },
-        function clearBar(next) {
-          si.make('zen', 'moon', 'bar').remove$({ all$: true }, next)
-        }
-      ],
-      done
-    )
+  return () => {
+    return new Promise((done) => {
+      si.ready(function(){
+        Async.series(
+          [
+            function clearFoo(next) {
+              si.make('foo').remove$({ all$: true }, next)
+            },
+          function clearBar(next) {
+            si.make('zen', 'moon', 'bar').remove$({ all$: true }, next)
+          }
+          ],
+          done
+      )
+      })
+    })
   }
 }
 
 function createEntities(si, name, data) {
-  return function create(done) {
-    Async.each(
-      data,
-      function(el, next) {
-        si.make$(name, el).save$(next)
-      },
-      done
-    )
+  return () => {
+    return new Promise((done) => {
+      Async.each(
+        data,
+        function(el, next) {
+          si.make$(name, el).save$(next)
+        },
+        done
+      )
+    })
   }
 }
 
 function basictest(settings) {
   var si = settings.seneca
+  
   var merge = settings.senecaMerge
   var script = settings.script || Lab.script()
 
   var describe = script.describe
-  var it = script.it
+  var it = make_it(script)
   var before = script.before
   var beforeEach = script.beforeEach
 
@@ -115,7 +123,8 @@ function basictest(settings) {
       )
       before(createEntities(si, 'bar', [bartemplate]))
 
-      it('should load an entity', function(done) {
+      
+      it('should load an entity qqq', function(done) {
         var foo = si.make('foo')
         foo.load$(
           'foo1',
@@ -126,7 +135,7 @@ function basictest(settings) {
           })
         )
       })
-
+      
       it('should return null for non existing entity', function(done) {
         var foo = si.make('foo')
         foo.load$(
@@ -883,7 +892,7 @@ function sorttest(settings) {
   var script = settings.script || Lab.script()
 
   var describe = script.describe
-  var it = script.it
+  var it = make_it(script)
   var beforeEach = script.beforeEach
 
   describe('Sorting', function() {
@@ -998,7 +1007,7 @@ function limitstest(settings) {
   var script = settings.script || Lab.script()
 
   var describe = script.describe
-  var it = script.it
+  var it = make_it(script)
   var beforeEach = script.beforeEach
 
   describe('Limits', function() {
@@ -1333,7 +1342,7 @@ function sqltest(settings) {
 
   var describe = script.describe
   var before = script.before
-  var it = script.it
+  var it = make_it(script)
 
   var Product = si.make('product')
   describe('Sql support', function() {
@@ -1392,4 +1401,27 @@ module.exports = {
   sqltest: sqltest,
   extended: ExtendedTests,
   verify: verify
+}
+
+
+function isDate(x) {
+  return 'object' === typeof(x) && '[object Date]' === Object.prototype.toString.call(x)
+}
+
+
+function make_it(lab) {
+  return function it(name, opts, func) {
+    if ('function' === typeof opts) {
+      func = opts
+      opts = {}
+    }
+    
+    lab.it(
+      name,
+      opts,
+      Util.promisify(function(x, fin) {
+        func(fin)
+      })
+    )
+  }
 }

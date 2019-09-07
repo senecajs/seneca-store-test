@@ -5,30 +5,26 @@ var Seneca = require('seneca')
 var MemStore = require('seneca-mem-store')
 var Shared = require('..')
 
-var Lab = require('lab')
+var Lab = require('@hapi/lab')
 var lab = (exports.lab = Lab.script())
 var before = lab.before
 
 var si = Seneca({
-  log: 'silent',
   default_plugins: { 'mem-store': false }
-})
+}).test()
+
 si.use(MemStore)
 
 var merge = Seneca({
-  log: 'silent',
   default_plugins: { 'mem-store': false }
-})
+}).test()
+
 merge.use(MemStore, { merge: false })
 
 if (si.version >= '2.0.0') {
   si.use('entity')
   merge.use('entity')
 }
-
-before({}, function(done) {
-  si.ready(done)
-})
 
 Shared.basictest({
   seneca: si,
