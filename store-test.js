@@ -62,19 +62,19 @@ function verify(cb, tests) {
 
 function clearDb(si) {
   return () => {
-    return new Promise((done) => {
-      si.ready(function(){
+    return new Promise(done => {
+      si.ready(function() {
         Async.series(
           [
             function clearFoo(next) {
               si.make('foo').remove$({ all$: true }, next)
             },
-          function clearBar(next) {
-            si.make('zen', 'moon', 'bar').remove$({ all$: true }, next)
-          }
+            function clearBar(next) {
+              si.make('zen', 'moon', 'bar').remove$({ all$: true }, next)
+            }
           ],
           done
-      )
+        )
       })
     })
   }
@@ -82,7 +82,7 @@ function clearDb(si) {
 
 function createEntities(si, name, data) {
   return () => {
-    return new Promise((done) => {
+    return new Promise(done => {
       Async.each(
         data,
         function(el, next) {
@@ -96,7 +96,7 @@ function createEntities(si, name, data) {
 
 function basictest(settings) {
   var si = settings.seneca
-  
+
   var merge = settings.senecaMerge
   var script = settings.script || Lab.script()
 
@@ -123,7 +123,6 @@ function basictest(settings) {
       )
       before(createEntities(si, 'bar', [bartemplate]))
 
-      
       it('should load an entity qqq', function(done) {
         var foo = si.make('foo')
         foo.load$(
@@ -135,7 +134,7 @@ function basictest(settings) {
           })
         )
       })
-      
+
       it('should return null for non existing entity', function(done) {
         var foo = si.make('foo')
         foo.load$(
@@ -195,9 +194,7 @@ function basictest(settings) {
         )
       })
 
-      it('should not mix attributes from entity to query for filtering', function(
-        done
-      ) {
+      it('should not mix attributes from entity to query for filtering', function(done) {
         var foo = si.make('foo')
         foo.p1 = 'v1'
         foo.load$(
@@ -211,9 +208,7 @@ function basictest(settings) {
         )
       })
 
-      it('should reload current entity if no query provided and id present', function(
-        done
-      ) {
+      it('should reload current entity if no query provided and id present', function(done) {
         var foo = si.make('foo')
         foo.id = 'foo2'
         foo.load$(
@@ -226,9 +221,7 @@ function basictest(settings) {
         )
       })
 
-      it('should do nothing if no query provided and id not present', function(
-        done
-      ) {
+      it('should do nothing if no query provided and id not present', function(done) {
         var foo = si.make('foo')
         foo.p1 = 'v2'
         foo.load$(
@@ -310,7 +303,7 @@ function basictest(settings) {
           Assert.equal(foo1.p1, 'z1')
           Assert.equal(foo1.p2, 'z2')
           Assert.equal(foo1.p3, 'v3')
-            
+
           foo1.load$(
             'to-be-updated',
             verify(done, function(foo2) {
@@ -324,9 +317,7 @@ function basictest(settings) {
         })
       })
 
-      it("should save an entity if id provided but original doesn't exist", function(
-        done
-      ) {
+      it("should save an entity if id provided but original doesn't exist", function(done) {
         var foo = si.make('foo')
         foo.id = 'will-be-inserted'
         foo.p1 = 'z1'
@@ -354,9 +345,7 @@ function basictest(settings) {
         })
       })
 
-      it('should allow to not merge during update with merge$: false', function(
-        done
-      ) {
+      it('should allow to not merge during update with merge$: false', function(done) {
         var foo = si.make('foo')
         foo.id = 'to-be-updated'
         foo.p1 = 'z1'
@@ -428,9 +417,7 @@ function basictest(settings) {
         })
       })
 
-      it('should not save modifications to entity after save completes', function(
-        done
-      ) {
+      it('should not save modifications to entity after save completes', function(done) {
         var foo = si.make('foo')
         foo.p3 = ['a']
         foo.save$(
@@ -443,9 +430,7 @@ function basictest(settings) {
         )
       })
 
-      it('should not backport modification to saved entity to the original one', function(
-        done
-      ) {
+      it('should not backport modification to saved entity to the original one', function(done) {
         var foo = si.make('foo')
         foo.p3 = ['a']
         foo.save$(
@@ -539,9 +524,7 @@ function basictest(settings) {
         })
       })
 
-      it('should allow to merge during update with merge$: true', function(
-        done
-      ) {
+      it('should allow to merge during update with merge$: true', function(done) {
         var foo = merge.make('foo')
         foo.id = 'to-be-updated'
         foo.p1 = 'z1'
@@ -719,9 +702,7 @@ function basictest(settings) {
         )
       })
 
-      it('should not mix attributes from entity to query for filtering', function(
-        done
-      ) {
+      it('should not mix attributes from entity to query for filtering', function(done) {
         var foo = si.make('foo')
         foo.p1 = 'v1'
         foo.list$(
@@ -1045,9 +1026,7 @@ function limitstest(settings) {
         )
       })
 
-      it('should return empty array when skipping all the records', function(
-        done
-      ) {
+      it('should return empty array when skipping all the records', function(done) {
         var cl = si.make('foo')
         cl.load$(
           { skip$: 3 },
@@ -1114,9 +1093,7 @@ function limitstest(settings) {
         )
       })
 
-      it('should return empty array when skipping all the records', function(
-        done
-      ) {
+      it('should return empty array when skipping all the records', function(done) {
         var cl = si.make('foo')
         cl.list$(
           { limit$: 2, skip$: 3 },
@@ -1126,9 +1103,7 @@ function limitstest(settings) {
         )
       })
 
-      it('should return correct number of records if limit is too high', function(
-        done
-      ) {
+      it('should return correct number of records if limit is too high', function(done) {
         var cl = si.make('foo')
         cl.list$(
           { limit$: 5, skip$: 2, sort$: { p1: 1 } },
@@ -1236,9 +1211,7 @@ function limitstest(settings) {
         )
       })
 
-      it('should not delete anyithing when skipping all the records', function(
-        done
-      ) {
+      it('should not delete anyithing when skipping all the records', function(done) {
         var cl = si.make('foo')
         cl.remove$({ all$: true, limit$: 2, skip$: 3 }, function(err) {
           if (err) {
@@ -1254,9 +1227,7 @@ function limitstest(settings) {
         })
       })
 
-      it('should delete correct number of records if limit is too high', function(
-        done
-      ) {
+      it('should delete correct number of records if limit is too high', function(done) {
         var cl = si.make('foo')
         cl.remove$(
           { all$: true, limit$: 5, skip$: 2, sort$: { p1: 1 } },
@@ -1403,11 +1374,12 @@ module.exports = {
   verify: verify
 }
 
-
 function isDate(x) {
-  return 'object' === typeof(x) && '[object Date]' === Object.prototype.toString.call(x)
+  return (
+    'object' === typeof x &&
+    '[object Date]' === Object.prototype.toString.call(x)
+  )
 }
-
 
 function make_it(lab) {
   return function it(name, opts, func) {
@@ -1415,7 +1387,7 @@ function make_it(lab) {
       func = opts
       opts = {}
     }
-    
+
     lab.it(
       name,
       opts,
