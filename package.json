@@ -8,9 +8,10 @@
     "coveralls": "lab -s -P test -r lcov | coveralls",
     "coverage": "lab -v -P test  -t 80 -r html > docs/coverage.html",
     "prettier": "prettier --write --no-semi --single-quote *.js lib/*.js test/*.js",
-    "clean-npm": "rm -rf node_modules package-lock.json",
-    "repo-tag": "REPO_VERSION=`node -e \"console.log(require('./package').version)\"`; echo TAG: v$REPO_VERSION; git commit -a -m v$REPO_VERSION; git tag v$REPO_VERSION; git push --tags;",
-    "repo-publish": "npm run repo-tag; npm publish --access public"
+    "reset": "npm run clean && npm i && npm test",
+    "clean": "rm -rf node_modules package-lock.json yarn.lock",
+    "repo-tag": "REPO_VERSION=`node -e \"console.log(require('./package').version)\"` && echo TAG: v$REPO_VERSION && git commit -a -m v$REPO_VERSION && git push && git tag v$REPO_VERSION && git push --tags;",
+    "repo-publish": "npm run clean && npm i --registry=http://registry.npmjs.org && npm run prettier && npm test && npm run repo-tag && npm publish --access public --registry=http://registry.npmjs.org"
   },
   "repository": {
     "type": "git",
@@ -46,14 +47,14 @@
     "node": ">=8"
   },
   "dependencies": {
-    "async": "^3.1.0",
+    "async": "^3.1.1",
     "chai": "^4.2.0"
   },
   "devDependencies": {
-    "@hapi/lab": "^20.2.2",
-    "coveralls": "^3.0.6",
+    "@hapi/lab": "^22.0.3",
+    "coveralls": "^3.0.9",
     "seneca": "plugin",
-    "seneca-entity": "^5.1.0",
-    "seneca-mem-store": "^1.5.1"
+    "seneca-entity": "^7.0.0",
+    "seneca-mem-store": "^1.6.0"
   }
 }
