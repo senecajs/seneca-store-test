@@ -32,10 +32,12 @@ var barverify = function(bar) {
   Assert.equal(bar.int, 11)
   Assert.equal(bar.dec, 33.33)
   Assert.equal(bar.bol, false)
+
   Assert.equal(
     isDate(bar.wen) ? bar.wen.toISOString() : bar.wen,
     new Date(2020, 1, 1).toISOString()
   )
+
   Assert.equal('' + bar.arr, '' + [2, 3])
   Assert.deepEqual(bar.obj, {
     a: 1,
@@ -232,8 +234,11 @@ function basictest(settings) {
       })
     })
 
+
+    
     describe('Save', function() {
       beforeEach(clearDb(si))
+
       beforeEach(
         createEntities(si, 'foo', [
           {
@@ -244,7 +249,7 @@ function basictest(settings) {
           }
         ])
       )
-
+      
       it('should save an entity to store (and generate an id)', function(done) {
         var foo = si.make('foo')
         foo.p1 = 'v1'
@@ -296,6 +301,7 @@ function basictest(settings) {
         foo.p2 = 'z2'
         foo.p3 = 'v3'
 
+        
         foo.save$(function(err, foo1) {
           Assert.isNull(err)
           Assert.isNotNull(foo1.id)
@@ -345,6 +351,7 @@ function basictest(settings) {
         })
       })
 
+      
       it('should allow to not merge during update with merge$: false', function(done) {
         var foo = si.make('foo')
         foo.id = 'to-be-updated'
@@ -371,6 +378,7 @@ function basictest(settings) {
           )
         })
       })
+      
 
       it('should support different attribute types', function(done) {
         var bar = si.make(bartemplate)
@@ -395,6 +403,7 @@ function basictest(settings) {
         })
       })
 
+
       it('should allow dublicate attributes', function(done) {
         var foo = si.make('foo')
         foo.p2 = 'v2'
@@ -416,6 +425,7 @@ function basictest(settings) {
           )
         })
       })
+
 
       it('should not save modifications to entity after save completes', function(done) {
         var foo = si.make('foo')
@@ -454,26 +464,30 @@ function basictest(settings) {
           }
 
           foo1.p1 = null
+
+          // NOTE: undefined has no effect
           foo1.p2 = undefined
+
           foo1.save$(function(err, foo2) {
             if (err) {
               return done(err)
             }
 
             Assert.notOk(foo2.p1)
-            Assert.notOk(foo2.p2)
+            Assert.ok(foo2.p2)
 
             foo.load$(
               foo1.id,
               verify(done, function(foo3) {
                 Assert.ok(foo3)
                 Assert.notOk(foo3.p1)
-                Assert.notOk(foo3.p2)
+                Assert.ok(foo3.p2)
               })
             )
           })
         })
       })
+
     })
 
     describe('With Option merge:false', function() {
@@ -497,6 +511,7 @@ function basictest(settings) {
         done()
       })
 
+      /*
       it('should update an entity if id provided', function(done) {
         var foo = merge.make('foo')
         foo.id = 'to-be-updated'
@@ -523,7 +538,8 @@ function basictest(settings) {
           )
         })
       })
-
+      */
+      
       it('should allow to merge during update with merge$: true', function(done) {
         var foo = merge.make('foo')
         foo.id = 'to-be-updated'
@@ -1361,6 +1377,7 @@ function sqltest(settings) {
       )
     })
   })
+
 
   return script
 }
