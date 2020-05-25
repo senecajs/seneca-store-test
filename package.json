@@ -47,14 +47,14 @@
     "node": ">=8"
   },
   "dependencies": {
-    "async": "^3.1.1",
+    "async": "^3.2.0",
     "chai": "^4.2.0"
   },
   "devDependencies": {
-    "@hapi/lab": "^22.0.3",
-    "coveralls": "^3.0.9",
+    "@hapi/lab": "^22.0.4",
+    "coveralls": "^3.1.0",
     "seneca": "plugin",
-    "seneca-entity": "^7.0.0",
-    "seneca-mem-store": "^1.6.0"
+    "seneca-entity": "^8.1.0",
+    "seneca-mem-store": "^2.1.0"
   }
 }

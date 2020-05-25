@@ -511,7 +511,6 @@ function basictest(settings) {
         done()
       })
 
-      /*
       it('should update an entity if id provided', function(done) {
         var foo = merge.make('foo')
         foo.id = 'to-be-updated'
@@ -538,7 +537,6 @@ function basictest(settings) {
           )
         })
       })
-      */
       
       it('should allow to merge during update with merge$: true', function(done) {
         var foo = merge.make('foo')
