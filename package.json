@@ -51,10 +51,11 @@
     "chai": "^4.2.0"
   },
   "devDependencies": {
-    "@hapi/lab": "^22.0.4",
+    "@hapi/code": "^8.0.2",
+    "@hapi/lab": "^24.0.0",
     "coveralls": "^3.1.0",
     "seneca": "plugin",
-    "seneca-entity": "^9.0.0",
-    "seneca-mem-store": "^2.1.0"
+    "seneca-entity": "^10.1.0",
+    "seneca-mem-store": "^4.0.0"
   }
 }

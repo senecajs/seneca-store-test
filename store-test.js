@@ -6,8 +6,12 @@ var Util = require('util')
 var Assert = require('chai').assert
 var Async = require('async')
 var Lab = require('@hapi/lab')
+const Code = require('@hapi/code')
 
 var ExtendedTests = require('./lib/store-test-extended')
+
+
+const expect = Code.expect
 
 var bartemplate = {
   name$: 'bar',
@@ -1380,6 +1384,37 @@ module.exports = {
   sqltest: sqltest,
   extended: ExtendedTests,
   verify: verify,
+
+  test: {
+    init: async (lab,opts)=>{
+      opts.ent0 = opts.ent0 || 'test0'
+
+      lab.describe('store-init',()=>{
+
+        lab.it('load-store-plugin', async()=>{
+          expect(opts.name).string()
+
+          let seneca = opts.seneca
+          seneca.use(opts.name)
+          await seneca.ready()
+          
+          expect(seneca.has_plugin(opts.name),'has_plugin').true()
+        })
+
+        
+        lab.it('clear-data', async()=>{
+          let seneca = opts.seneca
+
+          let ent0 = seneca.make(opts.ent0)
+          await ent0.remove$({ all$: true })
+
+          let list = await ent0.list$()
+          expect(list.length,'empty-list').equal(0)
+        })
+
+      })
+    }
+  }
 }
 
 function isDate(x) {
