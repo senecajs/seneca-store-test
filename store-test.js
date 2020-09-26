@@ -10,7 +10,6 @@ const Code = require('@hapi/code')
 
 var ExtendedTests = require('./lib/store-test-extended')
 
-
 const expect = Code.expect
 
 var bartemplate = {
@@ -1386,148 +1385,144 @@ module.exports = {
   verify: verify,
 
   test: {
-    init: (lab,opts)=>{
+    init: (lab, opts) => {
       opts.ent0 = opts.ent0 || 'test0'
 
-      lab.describe('store-init',()=>{
-
-        lab.it('load-store-plugin', async()=>{
+      lab.describe('store-init', () => {
+        lab.it('load-store-plugin', async () => {
           expect(opts.name).string()
 
           let seneca = opts.seneca
           seneca.use(opts.name)
           await seneca.ready()
-          
-          expect(seneca.has_plugin(opts.name),'has_plugin').true()
+
+          expect(seneca.has_plugin(opts.name), 'has_plugin').true()
         })
 
-        
-        lab.it('clear-data', async()=>{
+        lab.it('clear-data', async () => {
           let seneca = opts.seneca
 
           let ent0 = seneca.make(opts.ent0)
           await ent0.remove$({ all$: true })
 
           let list = await ent0.list$()
-          expect(list.length,'empty-list').equal(0)
+          expect(list.length, 'empty-list').equal(0)
         })
-
       })
     },
 
-    keyvalue: (lab,opts)=>{
-      lab.describe('store-keyvalue',()=>{
-        lab.it('save-load-auto-id', async()=>{
+    keyvalue: (lab, opts) => {
+      lab.describe('store-keyvalue', () => {
+        lab.it('save-load-auto-id', async () => {
           let seneca = opts.seneca
           let ent0 = seneca.make(opts.ent0)
 
           // load non-existent
           let n0 = await ent0.make$().load$('not-an-id')
-          expect(n0,'not-exists').not.exists()
-          
+          expect(n0, 'not-exists').not.exists()
+
           // basic save and load for single entity
-          let a0 = await ent0.make$({a:0}).save$()
+          let a0 = await ent0.make$({ a: 0 }).save$()
           let a0o = await ent0.make$().load$(a0.id)
-          expect(a0===ent0,'new object').false()
-          expect(a0o===ent0,'new object').false()
-          expect(a0o===a0,'new object').false()
-          expect(a0.id,'same id').equal(a0o.id)
-          expect(a0.a,'same field').equal(a0o.a)
+          expect(a0 === ent0, 'new object').false()
+          expect(a0o === ent0, 'new object').false()
+          expect(a0o === a0, 'new object').false()
+          expect(a0.id, 'same id').equal(a0o.id)
+          expect(a0.a, 'same field').equal(a0o.a)
 
           // basic save and load for another entity
-          let a1 = await ent0.make$({a:1}).save$()
+          let a1 = await ent0.make$({ a: 1 }).save$()
           let a1o = await ent0.make$().load$(a1.id)
-          expect(a1===ent0,'new object').false()
-          expect(a1o===ent0,'new object').false()
-          expect(a1o===a1,'new object').false()
-          expect(a1o!==a0o,'different object').true()
-          expect(a1.id,'same id').equal(a1o.id)
-          expect(a1.a,'same field').equal(a1o.a)
-          expect(a1.id,'different ids').not.equal(a0.id)
-          
+          expect(a1 === ent0, 'new object').false()
+          expect(a1o === ent0, 'new object').false()
+          expect(a1o === a1, 'new object').false()
+          expect(a1o !== a0o, 'different object').true()
+          expect(a1.id, 'same id').equal(a1o.id)
+          expect(a1.a, 'same field').equal(a1o.a)
+          expect(a1.id, 'different ids').not.equal(a0.id)
+
           // basic update
-          let a0u = await a0o.data$({a:10,b:'b0'}).save$()
-          expect(a0u.data$(),'update data').includes({a:10,b:'b0'})
-          expect(a0u.id,'same id').equal(a0.id)
+          let a0u = await a0o.data$({ a: 10, b: 'b0' }).save$()
+          expect(a0u.data$(), 'update data').includes({ a: 10, b: 'b0' })
+          expect(a0u.id, 'same id').equal(a0.id)
           let a0uo = await ent0.make$().load$(a0.id)
-          expect(a0uo.data$(),'update data').includes({a:10,b:'b0'})
-          expect(a0uo.id,'same id').equal(a0.id)
+          expect(a0uo.data$(), 'update data').includes({ a: 10, b: 'b0' })
+          expect(a0uo.id, 'same id').equal(a0.id)
 
           // basic update on another entity
-          let a1u = await a1o.data$({a:11,b:'b1'}).save$()
-          expect(a1u.data$(),'update data').includes({a:11,b:'b1'})
-          expect(a1u.id,'same id').equal(a1.id)
+          let a1u = await a1o.data$({ a: 11, b: 'b1' }).save$()
+          expect(a1u.data$(), 'update data').includes({ a: 11, b: 'b1' })
+          expect(a1u.id, 'same id').equal(a1.id)
           let a1uo = await ent0.make$().load$(a1.id)
-          expect(a1uo.data$(),'update data').includes({a:11,b:'b1'})
-          expect(a1uo.id,'same id').equal(a1.id)
+          expect(a1uo.data$(), 'update data').includes({ a: 11, b: 'b1' })
+          expect(a1uo.id, 'same id').equal(a1.id)
 
           // sanity
           n0 = await ent0.make$().load$('not-an-id')
-          expect(n0,'not-exists').not.exists()
+          expect(n0, 'not-exists').not.exists()
           let a0s = await ent0.make$().load$(a0.id)
-          expect(a0s.data$(),'expected data').contains({a:10,b:'b0'})
+          expect(a0s.data$(), 'expected data').contains({ a: 10, b: 'b0' })
           let a1s = await ent0.make$().load$(a1.id)
-          expect(a1s.data$(),'expected data').contains({a:11,b:'b1'})
+          expect(a1s.data$(), 'expected data').contains({ a: 11, b: 'b1' })
         })
 
-        lab.it('save-load-given-id', async()=>{
+        lab.it('save-load-given-id', async () => {
           let seneca = opts.seneca
           let ent0 = seneca.make(opts.ent0)
 
           // load non-existent
           let n0 = await ent0.make$().load$('not-an-id')
-          expect(n0,'not-exists').not.exists()
+          expect(n0, 'not-exists').not.exists()
 
-          let b0 = await ent0.make$({id$:0,b:0}).save$()
+          let b0 = await ent0.make$({ id$: 0, b: 0 }).save$()
           let b0o = await ent0.make$().load$(0)
-          expect(b0===ent0,'new object').false()
-          expect(b0o===ent0,'new object').false()
-          expect(b0o===b0,'new object').false()
-          expect(b0.a,'same field').equal(b0o.a)
-          
-          let b1 = await ent0.make$({id$:1,b:1}).save$()
+          expect(b0 === ent0, 'new object').false()
+          expect(b0o === ent0, 'new object').false()
+          expect(b0o === b0, 'new object').false()
+          expect(b0.a, 'same field').equal(b0o.a)
+
+          let b1 = await ent0.make$({ id$: 1, b: 1 }).save$()
           let b1o = await ent0.make$().load$(1)
-          expect(b1===ent0,'new object').false()
-          expect(b1o===ent0,'new object').false()
-          expect(b1o===b1,'new object').false()
-          expect(b1o!==b0o,'different object').true()
-          expect(b1.a,'same field').equal(b1o.a)
+          expect(b1 === ent0, 'new object').false()
+          expect(b1o === ent0, 'new object').false()
+          expect(b1o === b1, 'new object').false()
+          expect(b1o !== b0o, 'different object').true()
+          expect(b1.a, 'same field').equal(b1o.a)
 
           // basic update
-          let b0u = await b0o.data$({b:10,c:'c0'}).save$()
-          expect(b0u.data$(),'update data').includes({b:10,c:'c0'})
-          expect(b0u.id,'same id').equal(b0.id)
+          let b0u = await b0o.data$({ b: 10, c: 'c0' }).save$()
+          expect(b0u.data$(), 'update data').includes({ b: 10, c: 'c0' })
+          expect(b0u.id, 'same id').equal(b0.id)
           let b0uo = await ent0.make$().load$(b0.id)
-          expect(b0uo.data$(),'update data').includes({b:10,c:'c0'})
-          expect(b0uo.id,'same id').equal(b0.id)
+          expect(b0uo.data$(), 'update data').includes({ b: 10, c: 'c0' })
+          expect(b0uo.id, 'same id').equal(b0.id)
 
           // basic update on another entity
-          let b1u = await b1o.data$({b:11,c:'c1'}).save$()
-          expect(b1u.data$(),'update data').includes({b:11,c:'c1'})
-          expect(b1u.id,'same id').equal(b1.id)
+          let b1u = await b1o.data$({ b: 11, c: 'c1' }).save$()
+          expect(b1u.data$(), 'update data').includes({ b: 11, c: 'c1' })
+          expect(b1u.id, 'same id').equal(b1.id)
           let b1uo = await ent0.make$().load$(b1.id)
-          expect(b1uo.data$(),'update data').includes({b:11,c:'c1'})
-          expect(b1uo.id,'same id').equal(b1.id)
+          expect(b1uo.data$(), 'update data').includes({ b: 11, c: 'c1' })
+          expect(b1uo.id, 'same id').equal(b1.id)
 
           // sanity
           n0 = await ent0.make$().load$('not-an-id')
-          expect(n0,'not-exists').not.exists()
+          expect(n0, 'not-exists').not.exists()
           let b0s = await ent0.make$().load$(b0.id)
-          expect(b0s.data$(),'expected data').contains({b:10,c:'c0'})
+          expect(b0s.data$(), 'expected data').contains({ b: 10, c: 'c0' })
           let b1s = await ent0.make$().load$(b1.id)
-          expect(b1s.data$(),'expected data').contains({b:11,c:'c1'})
-
+          expect(b1s.data$(), 'expected data').contains({ b: 11, c: 'c1' })
         })
 
-        lab.it('remove', async()=>{
+        lab.it('remove', async () => {
           let seneca = opts.seneca
           let ent0 = seneca.make(opts.ent0)
 
-          let c0 = await ent0.make$({c:0}).save$()
+          let c0 = await ent0.make$({ c: 0 }).save$()
           let c0o = await ent0.make$().load$(c0.id)
           expect(c0o.id).equals(c0.id)
-          
-          let c1 = await ent0.make$({c:1}).save$()
+
+          let c1 = await ent0.make$({ c: 1 }).save$()
           let c1o = await ent0.make$().load$(c1.id)
           expect(c1o.id).equals(c1.id)
 
@@ -1543,8 +1538,8 @@ module.exports = {
           expect(c1r.c).equal(c1.c)
         })
       })
-    }
-  }
+    },
+  },
 }
 
 function isDate(x) {
