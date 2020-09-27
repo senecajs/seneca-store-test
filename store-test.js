@@ -7,6 +7,7 @@ var Assert = require('chai').assert
 var Async = require('async')
 var Lab = require('@hapi/lab')
 const Code = require('@hapi/code')
+const Nid = require('nid')
 
 var ExtendedTests = require('./lib/store-test-extended')
 
@@ -1388,12 +1389,13 @@ module.exports = {
     init: (lab, opts) => {
       opts.ent0 = opts.ent0 || 'test0'
 
+      // NOTE: pass require to Seneca instance
       lab.describe('store-init', () => {
         lab.it('load-store-plugin', async () => {
           expect(opts.name).string()
 
           let seneca = opts.seneca
-          seneca.use(opts.name)
+          seneca.use('..', opts.options)
           await seneca.ready()
 
           expect(seneca.has_plugin(opts.name), 'has_plugin').true()
@@ -1474,20 +1476,23 @@ module.exports = {
           let n0 = await ent0.make$().load$('not-an-id')
           expect(n0, 'not-exists').not.exists()
 
-          let b0 = await ent0.make$({ id$: 0, b: 0 }).save$()
-          let b0o = await ent0.make$().load$(0)
+          let id0 = Nid()
+          let id1 = Nid()
+
+          let b0 = await ent0.make$({ id$: id0, b: 0 }).save$()
+          let b0o = await ent0.make$().load$(id0)
           expect(b0 === ent0, 'new object').false()
           expect(b0o === ent0, 'new object').false()
           expect(b0o === b0, 'new object').false()
-          expect(b0.a, 'same field').equal(b0o.a)
+          expect(b0.b, 'same field').equal(b0o.b)
 
-          let b1 = await ent0.make$({ id$: 1, b: 1 }).save$()
-          let b1o = await ent0.make$().load$(1)
+          let b1 = await ent0.make$({ id$: id1, b: 1 }).save$()
+          let b1o = await ent0.make$().load$(id1)
           expect(b1 === ent0, 'new object').false()
           expect(b1o === ent0, 'new object').false()
           expect(b1o === b1, 'new object').false()
           expect(b1o !== b0o, 'different object').true()
-          expect(b1.a, 'same field').equal(b1o.a)
+          expect(b1.b, 'same field').equal(b1o.b)
 
           // basic update
           let b0u = await b0o.data$({ b: 10, c: 'c0' }).save$()
@@ -1526,6 +1531,8 @@ module.exports = {
           let c1o = await ent0.make$().load$(c1.id)
           expect(c1o.id).equals(c1.id)
 
+          // should be idempotent
+          await ent0.make$().remove$(c0o.id)
           await ent0.make$().remove$(c0o.id)
 
           let c0r = await ent0.make$().load$(c0.id)
