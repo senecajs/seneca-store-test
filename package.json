@@ -58,6 +58,6 @@
     "coveralls": "^3.1.0",
     "seneca": "plugin",
     "seneca-entity": "^10.1.0",
-    "seneca-mem-store": "^4.0.0"
+    "seneca-mem-store": "5.0.0"
   }
 }
