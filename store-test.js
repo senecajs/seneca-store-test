@@ -10,6 +10,7 @@ const Code = require('@hapi/code')
 const Nid = require('nid')
 
 var ExtendedTests = require('./lib/store-test-extended')
+const { fetchProp } = require('./lib/common')
 
 const expect = Code.expect
 
@@ -1347,16 +1348,45 @@ function upserttest(settings) {
     describe('save$ invoked on a new entity instance', () => {
       describe('matching entity exists', () => {
         describe('matches on 1 upsert$ field', () => {
+          let id_of_richard
+
           beforeEach(() => new Promise(fin => {
             si.make('user')
               .data$({ username: 'richard', points: 0 })
-              .save$(fin)
+              .save$((err, user) => {
+                if (err) {
+                  return fin(err)
+                }
+
+                try {
+                  id_of_richard = fetchProp(user, 'id')
+
+                  return fin()
+                } catch (err) {
+                  return fin(err)
+                }
+              })
           }))
+
+
+          let id_of_bob
 
           beforeEach(fin => new Promise(fin => {
             si.make('user')
               .data$({ username: 'bob', points: 0 })
-              .save$(fin)
+              .save$((err, user) => {
+                if (err) {
+                  return fin(err)
+                }
+
+                try {
+                  id_of_bob = fetchProp(user, 'id')
+
+                  return fin()
+                } catch (err) {
+                  return fin(err)
+                }
+              })
           }))
 
           it('updates the entity', fin => {
@@ -1379,12 +1409,14 @@ function upserttest(settings) {
 
 
                     expect(users[0]).to.contain({
+                      id: id_of_richard,
                       username: 'richard',
                       points: 9999
                     })
 
 
                     expect(users[1]).to.contain({
+                      id: id_of_bob,
                       username: 'bob',
                       points: 0
                     })
@@ -1575,11 +1607,26 @@ function upserttest(settings) {
 
       describe('no matching entity exists', () => {
         describe('1 upsert$ field', () => {
+          let id_of_macchiato
+
           beforeEach(() => new Promise(fin => {
             si.make('product')
               .data$({ label: 'a macchiato espressionado', price: '3.40' })
-              .save$(fin)
+              .save$((err, product) => {
+                if (err) {
+                  return fin(err)
+                }
+
+                try {
+                  id_of_macchiato = fetchProp(product, 'id')
+
+                  return fin()
+                } catch (err) {
+                  return fin(err)
+                }
+              })
           }))
+
 
           it('creates a new entity', fin => {
             si.test(fin)
@@ -1599,6 +1646,7 @@ function upserttest(settings) {
                   expect(products.length).to.equal(2)
 
                   expect(products[0]).to.contain({
+                    id: id_of_macchiato,
                     label: 'a macchiato espressionado',
                     price: '3.40'
                   })
@@ -1607,6 +1655,8 @@ function upserttest(settings) {
                     label: 'b toothbrush',
                     price: '3.40'
                   })
+
+                  expect(products[1].id).not.to.equal(id_of_macchiato)
 
                   return fin()
                 })
