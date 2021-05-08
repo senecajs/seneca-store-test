@@ -1348,82 +1348,167 @@ function upserttest(settings) {
     describe('save$ invoked on a new entity instance', () => {
       describe('matching entity exists', () => {
         describe('matches on 1 upsert$ field', () => {
-          let id_of_richard
+          describe('all entity fields are also present in data$', () => {
+            let id_of_richard
 
-          beforeEach(() => new Promise(fin => {
-            si.make('user')
-              .data$({ username: 'richard', points: 0 })
-              .save$((err, user) => {
-                if (err) {
-                  return fin(err)
-                }
-
-                try {
-                  id_of_richard = fetchProp(user, 'id')
-
-                  return fin()
-                } catch (err) {
-                  return fin(err)
-                }
-              })
-          }))
-
-
-          let id_of_bob
-
-          beforeEach(fin => new Promise(fin => {
-            si.make('user')
-              .data$({ username: 'bob', points: 0 })
-              .save$((err, user) => {
-                if (err) {
-                  return fin(err)
-                }
-
-                try {
-                  id_of_bob = fetchProp(user, 'id')
-
-                  return fin()
-                } catch (err) {
-                  return fin(err)
-                }
-              })
-          }))
-
-          it('updates the entity', fin => {
-            si.test(fin)
-
-            si.ready(() => {
+            beforeEach(() => new Promise(fin => {
               si.make('user')
-                .data$({ username: 'richard', points: 9999 })
-                .save$({ upsert$: ['username'] }, err => {
+                .data$({ username: 'richard', points: 0 })
+                .save$((err, user) => {
                   if (err) {
                     return fin(err)
                   }
 
-                  si.make('user').list$({}, (err, users) => {
+                  try {
+                    id_of_richard = fetchProp(user, 'id')
+
+                    return fin()
+                  } catch (err) {
+                    return fin(err)
+                  }
+                })
+            }))
+
+
+            let id_of_bob
+
+            beforeEach(fin => new Promise(fin => {
+              si.make('user')
+                .data$({ username: 'bob', points: 0 })
+                .save$((err, user) => {
+                  if (err) {
+                    return fin(err)
+                  }
+
+                  try {
+                    id_of_bob = fetchProp(user, 'id')
+
+                    return fin()
+                  } catch (err) {
+                    return fin(err)
+                  }
+                })
+            }))
+
+            it('updates the entity', fin => {
+              si.test(fin)
+
+              si.ready(() => {
+                si.make('user')
+                  .data$({ username: 'richard', points: 9999 })
+                  .save$({ upsert$: ['username'] }, err => {
                     if (err) {
                       return fin(err)
                     }
 
-                    expect(users.length).to.equal(2)
+                    si.make('user').list$({}, (err, users) => {
+                      if (err) {
+                        return fin(err)
+                      }
+
+                      expect(users.length).to.equal(2)
 
 
-                    expect(users[0]).to.contain({
-                      id: id_of_richard,
-                      username: 'richard',
-                      points: 9999
+                      expect(users[0]).to.contain({
+                        id: id_of_richard,
+                        username: 'richard',
+                        points: 9999
+                      })
+
+
+                      expect(users[1]).to.contain({
+                        id: id_of_bob,
+                        username: 'bob',
+                        points: 0
+                      })
+
+                      return fin()
                     })
+                  })
+              })
+            })
+          })
 
+          describe('some entity fields are missing from data$', () => {
+            let id_of_richard
 
-                    expect(users[1]).to.contain({
-                      id: id_of_bob,
-                      username: 'bob',
-                      points: 0
-                    })
+            beforeEach(() => new Promise(fin => {
+              si.make('user')
+                .data$({ username: 'richard', points: 37, favorite_car: 'land rover' })
+                .save$((err, user) => {
+                  if (err) {
+                    return fin(err)
+                  }
+
+                  try {
+                    id_of_richard = fetchProp(user, 'id')
 
                     return fin()
-                  })
+                  } catch (err) {
+                    return fin(err)
+                  }
                 })
+            }))
+
+
+            let id_of_bob
+
+            beforeEach(fin => new Promise(fin => {
+              si.make('user')
+                .data$({ username: 'bob', points: 20, favorite_car: 'peugeot 307' })
+                .save$((err, user) => {
+                  if (err) {
+                    return fin(err)
+                  }
+
+                  try {
+                    id_of_bob = fetchProp(user, 'id')
+
+                    return fin()
+                  } catch (err) {
+                    return fin(err)
+                  }
+                })
+            }))
+
+            it('retains the entity fields missing from data$', fin => {
+              si.test(fin)
+
+              si.ready(() => {
+                si.make('user')
+                  .data$({ username: 'richard', favorite_car: 'bmw m3 e46' })
+                  .save$({ upsert$: ['username'] }, err => {
+                    if (err) {
+                      return fin(err)
+                    }
+
+                    si.make('user').list$({}, (err, users) => {
+                      if (err) {
+                        return fin(err)
+                      }
+
+                      expect(users.length).to.equal(2)
+
+
+                      expect(users[0]).to.contain({
+                        id: id_of_richard,
+                        username: 'richard',
+                        points: 37,
+                        favorite_car: 'bmw m3 e46'
+                      })
+
+
+                      expect(users[1]).to.contain({
+                        id: id_of_bob,
+                        username: 'bob',
+                        points: 20,
+                        favorite_car: 'peugeot 307'
+                      })
+
+                      return fin()
+                    })
+                  })
+              })
             })
           })
         })
