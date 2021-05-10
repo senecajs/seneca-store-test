@@ -391,7 +391,7 @@ function basictest(settings) {
 
       it('should support different attribute types', function (done) {
         var bar = si.make(bartemplate)
-        var mark = (bar.mark = Math.random())
+        var mark = (bar.mark = Math.random().toString())
 
         bar.save$(function (err, bar) {
           Assert.isNull(err)
@@ -480,15 +480,15 @@ function basictest(settings) {
               return done(err)
             }
 
-            Assert.notOk(foo2.p1)
-            Assert.ok(foo2.p2)
+            expect(foo2.p1).to.equal(null)
+            expect(foo2.p2).to.equal('v2')
 
             foo.load$(
               foo1.id,
               verify(done, function (foo3) {
-                Assert.ok(foo3)
-                Assert.notOk(foo3.p1)
-                Assert.ok(foo3.p2)
+                expect(foo3).to.be.instanceof(Object)
+                expect(foo3.p1).to.equal(null)
+                expect(foo3.p2).to.equal('v2')
               })
             )
           })
@@ -878,7 +878,7 @@ function basictest(settings) {
         var foo = si.make('foo')
         foo.native$(
           verify(done, function (driver) {
-            Assert.isObject(driver)
+            Assert.ok(driver)
           })
         )
       })
