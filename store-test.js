@@ -82,11 +82,11 @@ function clearDb(si) {
             },
 
             function clearUser(next) {
-              si.make('user').remove$({ all$: true }, next)
+              si.make('users').remove$({ all$: true }, next)
             },
 
             function clearProduct(next) {
-              si.make('product').remove$({ all$: true }, next)
+              si.make('products').remove$({ all$: true }, next)
             }
           ],
           done
@@ -1352,7 +1352,7 @@ function upserttest(settings) {
             let id_of_richard
 
             beforeEach(() => new Promise(fin => {
-              si.make('user')
+              si.make('users')
                 .data$({ username: 'richard', points: 0 })
                 .save$((err, user) => {
                   if (err) {
@@ -1373,7 +1373,7 @@ function upserttest(settings) {
             let id_of_bob
 
             beforeEach(fin => new Promise(fin => {
-              si.make('user')
+              si.make('users')
                 .data$({ username: 'bob', points: 0 })
                 .save$((err, user) => {
                   if (err) {
@@ -1394,14 +1394,14 @@ function upserttest(settings) {
               si.test(fin)
 
               si.ready(() => {
-                si.make('user')
+                si.make('users')
                   .data$({ username: 'richard', points: 9999 })
                   .save$({ upsert$: ['username'] }, err => {
                     if (err) {
                       return fin(err)
                     }
 
-                    si.make('user').list$({}, (err, users) => {
+                    si.make('users').list$({}, (err, users) => {
                       if (err) {
                         return fin(err)
                       }
@@ -1433,7 +1433,7 @@ function upserttest(settings) {
             let id_of_richard
 
             beforeEach(() => new Promise(fin => {
-              si.make('user')
+              si.make('users')
                 .data$({ username: 'richard', points: 37, favorite_car: 'land rover' })
                 .save$((err, user) => {
                   if (err) {
@@ -1454,7 +1454,7 @@ function upserttest(settings) {
             let id_of_bob
 
             beforeEach(fin => new Promise(fin => {
-              si.make('user')
+              si.make('users')
                 .data$({ username: 'bob', points: 20, favorite_car: 'peugeot 307' })
                 .save$((err, user) => {
                   if (err) {
@@ -1475,14 +1475,14 @@ function upserttest(settings) {
               si.test(fin)
 
               si.ready(() => {
-                si.make('user')
+                si.make('users')
                   .data$({ username: 'richard', favorite_car: 'bmw m3 e46' })
                   .save$({ upsert$: ['username'] }, err => {
                     if (err) {
                       return fin(err)
                     }
 
-                    si.make('user').list$({}, (err, users) => {
+                    si.make('users').list$({}, (err, users) => {
                       if (err) {
                         return fin(err)
                       }
@@ -1519,7 +1519,7 @@ function upserttest(settings) {
             let target_user_id
 
             beforeEach(() => new Promise((resolve, reject) => {
-              si.make('user')
+              si.make('users')
                 .data$({ first_name: 'Elvis', last_name: 'Presley' })
                 .save$((err, user) => {
                   if (err) {
@@ -1539,7 +1539,7 @@ function upserttest(settings) {
             beforeEach(() => new Promise((resolve, reject) => {
               // Do a fresh fetch from the db.
               //
-              si.make('user')
+              si.make('users')
                 .load$(target_user_id, (err, user) => {
                   if (err) {
                     return reject(err)
@@ -1561,14 +1561,14 @@ function upserttest(settings) {
 
               const new_id = 'bbbba6f73a861890cc1f4e23'
 
-              si.make('user')
+              si.make('users')
                 .data$({ first_name: 'Elvis', last_name: 'PRESLEY' })
                 .save$({ id$: new_id, upsert$: ['first_name'] }, err => {
                   if (err) {
                     return fin(err)
                   }
 
-                  si.make('user').list$({}, (err, users) => {
+                  si.make('users').list$({}, (err, users) => {
                     if (err) {
                       return fin(err)
                     }
@@ -1591,13 +1591,13 @@ function upserttest(settings) {
 
         describe('matches on 2 upsert$ fields', () => {
           beforeEach(() => new Promise(fin => {
-            si.make('user')
+            si.make('users')
               .data$({ username: 'richard', skill: 9999, points: 0 })
               .save$(fin)
           }))
 
           beforeEach(() => new Promise(fin => {
-            si.make('user')
+            si.make('users')
               .data$({ username: 'bob', skill: 9999, points: 0 })
               .save$(fin)
           }))
@@ -1606,14 +1606,14 @@ function upserttest(settings) {
             si.test(fin)
 
             si.ready(() => {
-              si.make('user')
+              si.make('users')
                 .data$({ username: 'richard', skill: 9999, points: 1234 })
                 .save$({ upsert$: ['username', 'skill'] }, err => {
                   if (err) {
                     return fin(err)
                   }
 
-                  si.make('user').list$({}, (err, users) => {
+                  si.make('users').list$({}, (err, users) => {
                     if (err) {
                       return fin(err)
                     }
@@ -1646,19 +1646,19 @@ function upserttest(settings) {
       describe('many matching entities exist', () => {
         describe('matches on 1 upsert$ field', () => {
           beforeEach(() => new Promise(fin => {
-            si.make('product')
+            si.make('products')
               .data$({ label: 'a toothbrush', price: '3.95' })
               .save$(fin)
           }))
 
           beforeEach(() => new Promise(fin => {
-            si.make('product')
+            si.make('products')
               .data$({ label: 'a toothbrush', price: '3.70' })
               .save$(fin)
           }))
 
           beforeEach(() => new Promise(fin => {
-            si.make('product')
+            si.make('products')
               .data$({ label: 'bbs tires', price: '4.10' })
               .save$(fin)
           }))
@@ -1667,14 +1667,14 @@ function upserttest(settings) {
             si.test(fin)
 
             si.ready(() => {
-              si.make('product')
+              si.make('products')
                 .data$({ label: 'a toothbrush', price: '4.95' })
                 .save$({ upsert$: ['label'] }, err => {
                   if (err) {
                     return fin(err)
                   }
 
-                  si.make('product').list$({}, (err, products) => {
+                  si.make('products').list$({}, (err, products) => {
                     if (err) {
                       return fin(err)
                     }
@@ -1705,19 +1705,19 @@ function upserttest(settings) {
 
         describe('matches on 2 upsert$ fields', () => {
           beforeEach(() => new Promise(fin => {
-            si.make('product')
+            si.make('products')
               .data$({ label: 'a toothbrush', price: '3.95', coolness_factor: 2 })
               .save$(fin)
           }))
 
           beforeEach(() => new Promise(fin => {
-            si.make('product')
+            si.make('products')
               .data$({ label: 'a toothbrush', price: '3.70', coolness_factor: 3 })
               .save$(fin)
           }))
 
           beforeEach(() => new Promise(fin => {
-            si.make('product')
+            si.make('products')
               .data$({ label: 'bbs tires', price: '4.10', coolness_factor: 7 })
               .save$(fin)
           }))
@@ -1726,14 +1726,14 @@ function upserttest(settings) {
             si.test(fin)
 
             si.ready(() => {
-              si.make('product')
+              si.make('products')
                 .data$({ label: 'a toothbrush', price: '3.95', coolness_factor: 4 })
                 .save$({ upsert$: ['label', 'price'] }, err => {
                   if (err) {
                     return fin(err)
                   }
 
-                  si.make('product').list$({}, (err, products) => {
+                  si.make('products').list$({}, (err, products) => {
                     if (err) {
                       return fin(err)
                     }
@@ -1772,7 +1772,7 @@ function upserttest(settings) {
             let id_of_macchiato
 
             beforeEach(() => new Promise(fin => {
-              si.make('product')
+              si.make('products')
                 .data$({ label: 'a macchiato espressionado', price: '3.40' })
                 .save$((err, product) => {
                   if (err) {
@@ -1793,14 +1793,14 @@ function upserttest(settings) {
             it('creates a new entity', fin => {
               si.test(fin)
 
-              si.make('product')
+              si.make('products')
                 .data$({ label: 'b toothbrush', price: '3.40' })
                 .save$({ upsert$: ['label'] }, err => {
                   if (err) {
                     return fin(err)
                   }
 
-                  si.make('product').list$({}, (err, products) => {
+                  si.make('products').list$({}, (err, products) => {
                     if (err) {
                       return fin(err)
                     }
@@ -1837,14 +1837,14 @@ function upserttest(settings) {
 
               const new_id = '6095a6f73a861890cc1f4e23'
 
-              si.make('user')
+              si.make('users')
                 .data$({ first_name: 'Frank', last_name: 'Sinatra' })
                 .save$({ id$: new_id, upsert$: ['first_name'] }, err => {
                   if (err) {
                     return fin(err)
                   }
 
-                  si.make('user').list$({}, (err, users) => {
+                  si.make('users').list$({}, (err, users) => {
                     if (err) {
                       return fin(err)
                     }
@@ -1864,7 +1864,7 @@ function upserttest(settings) {
 
         describe('2 upsert$ fields', () => {
           beforeEach(() => new Promise(fin => {
-            si.make('product')
+            si.make('products')
               .data$({ label: 'frapuccino', price: '2.40', coolness_factor: 5 })
               .save$(fin)
           }))
@@ -1872,14 +1872,14 @@ function upserttest(settings) {
           it('creates a new entity', fin => {
             si.test(fin)
 
-            si.make('product')
+            si.make('products')
               .data$({ label: 'frapuccino', price: '3.40', coolness_factor: 7 })
               .save$({ upsert$: ['label', 'price'] }, err => {
                 if (err) {
                   return fin(err)
                 }
 
-                si.make('product').list$({}, (err, products) => {
+                si.make('products').list$({}, (err, products) => {
                   if (err) {
                     return fin(err)
                   }
@@ -1953,7 +1953,7 @@ function upserttest(settings) {
       describe('edge cases', () => {
         describe('entity matches on a private field', () => {
           beforeEach(() => new Promise(fin => {
-            si.make('product')
+            si.make('products')
               .data$({ label: 'toothbrush', price: '3.95', psst$: 'private' })
               .save$(fin)
           }))
@@ -1962,14 +1962,14 @@ function upserttest(settings) {
             si.test(fin)
 
             si.ready(() => {
-              si.make('product')
+              si.make('products')
                 .data$({ label: 'a new toothbrush', price: '5.95', psst$: 'private' })
                 .save$({ upsert$: ['psst$'] }, err => {
                   if (err) {
                     return fin(err)
                   }
 
-                  si.make('product').list$({}, (err, products) => {
+                  si.make('products').list$({}, (err, products) => {
                     if (err) {
                       return fin(err)
                     }
@@ -1995,7 +1995,7 @@ function upserttest(settings) {
 
         describe('empty upsert$ array', () => {
           beforeEach(() => new Promise(fin => {
-            si.make('product')
+            si.make('products')
               .data$({ label: 'toothbrush', price: '3.95' })
               .save$(fin)
           }))
@@ -2004,14 +2004,14 @@ function upserttest(settings) {
             si.test(fin)
 
             si.ready(() => {
-              si.make('product')
+              si.make('products')
                 .data$({ label: 'toothbrush', price: '5.95' })
                 .save$({ upsert$: [] }, err => {
                   if (err) {
                     return fin(err)
                   }
 
-                  si.make('product').list$({}, (err, products) => {
+                  si.make('products').list$({}, (err, products) => {
                     if (err) {
                       return fin(err)
                     }
@@ -2037,7 +2037,7 @@ function upserttest(settings) {
 
         describe('entity matches on a field with the `undefined` value', () => {
           beforeEach(() => new Promise(fin => {
-            si.make('product')
+            si.make('products')
               .data$({ label: undefined, price: '3.95' })
               .save$(fin)
           }))
@@ -2046,14 +2046,14 @@ function upserttest(settings) {
             si.test(fin)
 
             si.ready(() => {
-              si.make('product')
+              si.make('products')
                 .data$({ label: undefined, price: '5.95' })
                 .save$({ upsert$: ['label'] }, err => {
                   if (err) {
                     return fin(err)
                   }
 
-                  si.make('product').list$({}, (err, products) => {
+                  si.make('products').list$({}, (err, products) => {
                     if (err) {
                       return fin(err)
                     }
@@ -2087,13 +2087,13 @@ function upserttest(settings) {
 
         describe('entity matches on a field with the null value', () => {
           beforeEach(() => new Promise(fin => {
-            si.make('product')
+            si.make('products')
               .data$({ label: null, price: '3.95' })
               .save$(fin)
           }))
 
           beforeEach(() => new Promise(fin => {
-            si.make('product')
+            si.make('products')
               .data$({ label: 'CS101 textbook', price: '134.95' })
               .save$(fin)
           }))
@@ -2102,14 +2102,14 @@ function upserttest(settings) {
             si.test(fin)
 
             si.ready(() => {
-              si.make('product')
+              si.make('products')
                 .data$({ label: null, price: '5.95' })
                 .save$({ upsert$: ['label'] }, err => {
                   if (err) {
                     return fin(err)
                   }
 
-                  si.make('product').list$({}, (err, products) => {
+                  si.make('products').list$({}, (err, products) => {
                     if (err) {
                       return fin(err)
                     }
@@ -2135,7 +2135,7 @@ function upserttest(settings) {
 
         describe('some fields in data$/upsert$ are not present in existing entities', () => {
           beforeEach(() => new Promise(fin => {
-            si.make('product')
+            si.make('products')
               .data$({ label: 'a toothbrush', price: '3.40' })
               .save$(fin)
           }))
@@ -2143,14 +2143,14 @@ function upserttest(settings) {
           it('creates a new entity', fin => {
             si.test(fin)
 
-            si.make('product')
+            si.make('products')
               .data$({ label: 'a toothbrush', price: '2.95', coolness_factor: '0.95' })
               .save$({ upsert$: ['label', 'coolness_factor'] }, err => {
                 if (err) {
                   return fin(err)
                 }
 
-                si.make('product').list$({}, (err, products) => {
+                si.make('products').list$({}, (err, products) => {
                   if (err) {
                     return fin(err)
                   }
@@ -2172,7 +2172,7 @@ function upserttest(settings) {
 
         describe('fields in upsert$ are not present in the data$ object', () => {
           beforeEach(() => new Promise(fin => {
-            si.make('product')
+            si.make('products')
               .data$({ label: 'a toothbrush', price: '3.40' })
               .save$(fin)
           }))
@@ -2180,14 +2180,14 @@ function upserttest(settings) {
           it('creates a new entity because it can never match', fin => {
             si.test(fin)
 
-            si.make('product')
+            si.make('products')
               .data$({ label: 'a toothbrush', price: '2.95' })
               .save$({ upsert$: ['label', 'coolness_factor'] }, err => {
                 if (err) {
                   return fin(err)
                 }
 
-                si.make('product').list$({}, (err, products) => {
+                si.make('products').list$({}, (err, products) => {
                   if (err) {
                     return fin(err)
                   }
@@ -2215,14 +2215,14 @@ function upserttest(settings) {
             const id_of_richard = 'some_id'
 
             beforeEach(() => new Promise(fin => {
-              si.make('user')
+              si.make('users')
                 .data$({ id: id_of_richard, username: 'richard', points: 8000 })
                 .save$(fin)
             }))
 
 
             beforeEach(() => new Promise(fin => {
-              si.make('user')
+              si.make('users')
                 .data$({ username: 'bob', points: 1000 })
                 .save$(fin)
             }))
@@ -2230,14 +2230,14 @@ function upserttest(settings) {
             it('updates the matching entity', fin => {
               si.test(fin)
 
-              si.make('user')
+              si.make('users')
                 .data$({ id: id_of_richard, username: 'richard', points: 9999 })
                 .save$({ upsert$: ['id'] }, err => {
                   if (err) {
                     return fin(err)
                   }
 
-                  si.make('user').list$({}, (err, users) => {
+                  si.make('users').list$({}, (err, users) => {
                     if (err) {
                       return fin(err)
                     }
@@ -2263,14 +2263,14 @@ function upserttest(settings) {
             it('works with load$ after the update', fin => {
               si.test(fin)
 
-              si.make('user')
+              si.make('users')
                 .data$({ id: id_of_richard, username: 'richard', points: 9999 })
                 .save$({ upsert$: ['id'] }, err => {
                   if (err) {
                     return fin(err)
                   }
 
-                  si.make('user').load$(id_of_richard, (err, user) => {
+                  si.make('users').load$(id_of_richard, (err, user) => {
                     if (err) {
                       return fin(err)
                     }
@@ -2291,7 +2291,7 @@ function upserttest(settings) {
             const some_id = 'some_id'
 
             beforeEach(() => new Promise(fin => {
-              si.make('user')
+              si.make('users')
                 .data$({ username: 'richard' })
                 .save$(fin)
             }))
@@ -2299,14 +2299,14 @@ function upserttest(settings) {
             it('creates a new document with that id', fin => {
               si.test(fin)
 
-              si.make('user')
+              si.make('users')
                 .data$({ id: some_id, username: 'jim' })
                 .save$({ upsert$: ['id'] }, err => {
                   if (err) {
                     return fin(err)
                   }
 
-                  si.make('user').list$({}, (err, users) => {
+                  si.make('users').list$({}, (err, users) => {
                     if (err) {
                       return fin(err)
                     }
@@ -2330,14 +2330,14 @@ function upserttest(settings) {
             it('works with load$ after the creation', fin => {
               si.test(fin)
 
-              si.make('user')
+              si.make('users')
                 .data$({ id: some_id, username: 'jim' })
                 .save$({ upsert$: ['id'] }, err => {
                   if (err) {
                     return fin(err)
                   }
 
-                  si.make('user').load$(some_id, (err, user) => {
+                  si.make('users').load$(some_id, (err, user) => {
                     if (err) {
                       return fin(err)
                     }
@@ -2361,7 +2361,7 @@ function upserttest(settings) {
         let existing_product
 
         beforeEach(() => new Promise(fin => {
-          si.make('product')
+          si.make('products')
             .data$({ label: 'a macchiato espressionado', price: '3.40' })
             .save$((err, new_product) => {
               if (err) {
@@ -2376,7 +2376,7 @@ function upserttest(settings) {
 
 
         beforeEach(() => new Promise(fin => {
-          si.make('product')
+          si.make('products')
             .data$({ label: 'a macchiato espressionado', price: '7.99' })
             .save$(fin)
         }))
@@ -2392,7 +2392,7 @@ function upserttest(settings) {
                 return fin(err)
               }
 
-              si.make('product').list$({}, (err, products) => {
+              si.make('products').list$({}, (err, products) => {
                 if (err) {
                   return fin(err)
                 }
@@ -2428,7 +2428,7 @@ function sqltest(settings) {
   var before = script.before
   var it = make_it(script)
 
-  var Product = si.make('product')
+  var Product = si.make('products')
   describe('Sql support', function () {
     before(function before(done) {
       before(clearDb(si))
