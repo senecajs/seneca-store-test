@@ -1335,7 +1335,7 @@ function upserttest(settings) {
 
   const script = settings.script || Lab.script()
 
-  const { describe, before, beforeEach } = script
+  const { describe, before, beforeEach, afterEach } = script
   const it = make_it(script)
 
   describe('Upserts', () => {
@@ -1509,6 +1509,82 @@ function upserttest(settings) {
                     })
                   })
               })
+            })
+          })
+
+          describe('the save$ query includes the id$ field', () => {
+            beforeEach(clearDb)
+
+
+            let target_user_id
+
+            beforeEach(() => new Promise((resolve, reject) => {
+              si.make('user')
+                .data$({ first_name: 'Elvis', last_name: 'Presley' })
+                .save$((err, user) => {
+                  if (err) {
+                    return reject(err)
+                  }
+
+                  Assert.ok(user, 'user')
+                  target_user_id = fetchProp(user, 'id')
+
+                  return resolve()
+                })
+            }))
+
+
+            let target_user
+
+            beforeEach(() => new Promise((resolve, reject) => {
+              // Do a fresh fetch from the db.
+              //
+              si.make('user')
+                .load$(target_user_id, (err, user) => {
+                  if (err) {
+                    return reject(err)
+                  }
+
+                  Assert.ok(user, 'user')
+                  target_user = user
+
+                  return resolve()
+                })
+            }))
+
+
+            afterEach(clearDb)
+
+            it('updates the fields and ignores the id$ qualifier', fin => {
+              si.test(fin)
+
+
+              const new_id = 'bbbba6f73a861890cc1f4e23'
+
+              si.make('user')
+                .data$({ first_name: 'Elvis', last_name: 'PRESLEY' })
+                .save$({ id$: new_id, upsert$: ['first_name'] }, err => {
+                  if (err) {
+                    return fin(err)
+                  }
+
+                  si.make('user').list$({}, (err, users) => {
+                    if (err) {
+                      return fin(err)
+                    }
+
+                    expect(users.length).to.equal(1)
+
+                    expect(users[0]).to.contain({
+                      first_name: 'Elvis',
+                      last_name: 'PRESLEY'
+                    })
+
+                    expect(users[0].id).not.to.equal(new_id)
+
+                    return fin()
+                  })
+                })
             })
           })
         })
@@ -1692,60 +1768,97 @@ function upserttest(settings) {
 
       describe('no matching entity exists', () => {
         describe('1 upsert$ field', () => {
-          let id_of_macchiato
+          describe('normally', () => {
+            let id_of_macchiato
 
-          beforeEach(() => new Promise(fin => {
-            si.make('product')
-              .data$({ label: 'a macchiato espressionado', price: '3.40' })
-              .save$((err, product) => {
-                if (err) {
-                  return fin(err)
-                }
-
-                try {
-                  id_of_macchiato = fetchProp(product, 'id')
-
-                  return fin()
-                } catch (err) {
-                  return fin(err)
-                }
-              })
-          }))
-
-
-          it('creates a new entity', fin => {
-            si.test(fin)
-
-            si.make('product')
-              .data$({ label: 'b toothbrush', price: '3.40' })
-              .save$({ upsert$: ['label'] }, err => {
-                if (err) {
-                  return fin(err)
-                }
-
-                si.make('product').list$({}, (err, products) => {
+            beforeEach(() => new Promise(fin => {
+              si.make('product')
+                .data$({ label: 'a macchiato espressionado', price: '3.40' })
+                .save$((err, product) => {
                   if (err) {
                     return fin(err)
                   }
 
-                  expect(products.length).to.equal(2)
+                  try {
+                    id_of_macchiato = fetchProp(product, 'id')
 
-                  expect(products[0]).to.contain({
-                    id: id_of_macchiato,
-                    label: 'a macchiato espressionado',
-                    price: '3.40'
-                  })
-
-                  expect(products[1]).to.contain({
-                    label: 'b toothbrush',
-                    price: '3.40'
-                  })
-
-                  expect(products[1].id).not.to.equal(id_of_macchiato)
-
-                  return fin()
+                    return fin()
+                  } catch (err) {
+                    return fin(err)
+                  }
                 })
-              })
+            }))
+
+
+            it('creates a new entity', fin => {
+              si.test(fin)
+
+              si.make('product')
+                .data$({ label: 'b toothbrush', price: '3.40' })
+                .save$({ upsert$: ['label'] }, err => {
+                  if (err) {
+                    return fin(err)
+                  }
+
+                  si.make('product').list$({}, (err, products) => {
+                    if (err) {
+                      return fin(err)
+                    }
+
+                    expect(products.length).to.equal(2)
+
+                    expect(products[0]).to.contain({
+                      id: id_of_macchiato,
+                      label: 'a macchiato espressionado',
+                      price: '3.40'
+                    })
+
+                    expect(products[1]).to.contain({
+                      label: 'b toothbrush',
+                      price: '3.40'
+                    })
+
+                    expect(products[1].id).not.to.equal(id_of_macchiato)
+
+                    return fin()
+                  })
+                })
+            })
+          })
+
+          describe('the save$ query includes the id$ field', () => {
+            beforeEach(clearDb)
+
+            afterEach(clearDb)
+
+            it('creates a new entity with the given id', fin => {
+              si.test(fin)
+
+
+              const new_id = '6095a6f73a861890cc1f4e23'
+
+              si.make('user')
+                .data$({ first_name: 'Frank', last_name: 'Sinatra' })
+                .save$({ id$: new_id, upsert$: ['first_name'] }, err => {
+                  if (err) {
+                    return fin(err)
+                  }
+
+                  si.make('user').list$({}, (err, users) => {
+                    if (err) {
+                      return fin(err)
+                    }
+
+                    expect(users.length).to.equal(1)
+
+                    const user = users[0]
+
+                    expect(user.id).to.equal(new_id)
+
+                    return fin()
+                  })
+                })
+            })
           })
         })
 
