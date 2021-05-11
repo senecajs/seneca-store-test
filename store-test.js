@@ -81,11 +81,23 @@ function clearDb(si) {
               si.make('zen', 'moon', 'bar').remove$({ all$: true }, next)
             },
 
-            function clearUser(next) {
+            function clearPlayers(next) {
+              si.make('players').remove$({ all$: true }, next)
+            },
+
+            function clearRacers(next) {
+              si.make('racers').remove$({ all$: true }, next)
+            },
+
+            function clearUsers(next) {
               si.make('users').remove$({ all$: true }, next)
             },
 
-            function clearProduct(next) {
+            function clearCustomers(next) {
+              si.make('customers').remove$({ all$: true }, next)
+            },
+
+            function clearProducts(next) {
               si.make('products').remove$({ all$: true }, next)
             }
           ],
@@ -1345,6 +1357,8 @@ function upserttest(settings) {
 
     beforeEach(clearDb(si))
 
+    afterEach(clearDb(si))
+
     describe('save$ invoked on a new entity instance', () => {
       describe('matching entity exists', () => {
         describe('matches on 1 upsert$ field', () => {
@@ -1352,7 +1366,7 @@ function upserttest(settings) {
             let id_of_richard
 
             beforeEach(() => new Promise(fin => {
-              si.make('users')
+              si.make('players')
                 .data$({ username: 'richard', points: 0 })
                 .save$((err, user) => {
                   if (err) {
@@ -1373,7 +1387,7 @@ function upserttest(settings) {
             let id_of_bob
 
             beforeEach(fin => new Promise(fin => {
-              si.make('users')
+              si.make('players')
                 .data$({ username: 'bob', points: 0 })
                 .save$((err, user) => {
                   if (err) {
@@ -1394,29 +1408,29 @@ function upserttest(settings) {
               si.test(fin)
 
               si.ready(() => {
-                si.make('users')
+                si.make('players')
                   .data$({ username: 'richard', points: 9999 })
                   .save$({ upsert$: ['username'] }, err => {
                     if (err) {
                       return fin(err)
                     }
 
-                    si.make('users').list$({}, (err, users) => {
+                    si.make('players').list$({}, (err, players) => {
                       if (err) {
                         return fin(err)
                       }
 
-                      expect(users.length).to.equal(2)
+                      expect(players.length).to.equal(2)
 
 
-                      expect(users[0]).to.contain({
+                      expect(players[0]).to.contain({
                         id: id_of_richard,
                         username: 'richard',
                         points: 9999
                       })
 
 
-                      expect(users[1]).to.contain({
+                      expect(players[1]).to.contain({
                         id: id_of_bob,
                         username: 'bob',
                         points: 0
@@ -1433,15 +1447,15 @@ function upserttest(settings) {
             let id_of_richard
 
             beforeEach(() => new Promise(fin => {
-              si.make('users')
+              si.make('racers')
                 .data$({ username: 'richard', points: 37, favorite_car: 'land rover' })
-                .save$((err, user) => {
+                .save$((err, racer) => {
                   if (err) {
                     return fin(err)
                   }
 
                   try {
-                    id_of_richard = fetchProp(user, 'id')
+                    id_of_richard = fetchProp(racer, 'id')
 
                     return fin()
                   } catch (err) {
@@ -1454,15 +1468,15 @@ function upserttest(settings) {
             let id_of_bob
 
             beforeEach(fin => new Promise(fin => {
-              si.make('users')
+              si.make('racers')
                 .data$({ username: 'bob', points: 20, favorite_car: 'peugeot 307' })
-                .save$((err, user) => {
+                .save$((err, racer) => {
                   if (err) {
                     return fin(err)
                   }
 
                   try {
-                    id_of_bob = fetchProp(user, 'id')
+                    id_of_bob = fetchProp(racer, 'id')
 
                     return fin()
                   } catch (err) {
@@ -1475,22 +1489,22 @@ function upserttest(settings) {
               si.test(fin)
 
               si.ready(() => {
-                si.make('users')
+                si.make('racers')
                   .data$({ username: 'richard', favorite_car: 'bmw m3 e46' })
                   .save$({ upsert$: ['username'] }, err => {
                     if (err) {
                       return fin(err)
                     }
 
-                    si.make('users').list$({}, (err, users) => {
+                    si.make('racers').list$({}, (err, racers) => {
                       if (err) {
                         return fin(err)
                       }
 
-                      expect(users.length).to.equal(2)
+                      expect(racers.length).to.equal(2)
 
 
-                      expect(users[0]).to.contain({
+                      expect(racers[0]).to.contain({
                         id: id_of_richard,
                         username: 'richard',
                         points: 37,
@@ -1498,7 +1512,7 @@ function upserttest(settings) {
                       })
 
 
-                      expect(users[1]).to.contain({
+                      expect(racers[1]).to.contain({
                         id: id_of_bob,
                         username: 'bob',
                         points: 20,
@@ -1520,7 +1534,7 @@ function upserttest(settings) {
 
             beforeEach(() => new Promise((resolve, reject) => {
               si.make('users')
-                .data$({ first_name: 'Elvis', last_name: 'Presley' })
+                .data$({ email: 'elvis@no1.com', username: 'elvispresley' })
                 .save$((err, user) => {
                   if (err) {
                     return reject(err)
@@ -1562,8 +1576,8 @@ function upserttest(settings) {
               const new_id = 'bbbba6f73a861890cc1f4e23'
 
               si.make('users')
-                .data$({ first_name: 'Elvis', last_name: 'PRESLEY' })
-                .save$({ id$: new_id, upsert$: ['first_name'] }, err => {
+                .data$({ email: 'elvis@no1.com', username: 'theking' })
+                .save$({ id$: new_id, upsert$: ['email'] }, err => {
                   if (err) {
                     return fin(err)
                   }
@@ -1576,8 +1590,8 @@ function upserttest(settings) {
                     expect(users.length).to.equal(1)
 
                     expect(users[0]).to.contain({
-                      first_name: 'Elvis',
-                      last_name: 'PRESLEY'
+                      email: 'elvis@no1.com',
+                      username: 'theking'
                     })
 
                     expect(users[0].id).not.to.equal(new_id)
@@ -1591,14 +1605,14 @@ function upserttest(settings) {
 
         describe('matches on 2 upsert$ fields', () => {
           beforeEach(() => new Promise(fin => {
-            si.make('users')
-              .data$({ username: 'richard', skill: 9999, points: 0 })
+            si.make('customers')
+              .data$({ first_name: 'richard', last_name: 'gear', credits: 0 })
               .save$(fin)
           }))
 
           beforeEach(() => new Promise(fin => {
-            si.make('users')
-              .data$({ username: 'bob', skill: 9999, points: 0 })
+            si.make('customers')
+              .data$({ first_name: 'richard', last_name: 'sinatra', credits: 0 })
               .save$(fin)
           }))
 
@@ -1606,32 +1620,32 @@ function upserttest(settings) {
             si.test(fin)
 
             si.ready(() => {
-              si.make('users')
-                .data$({ username: 'richard', skill: 9999, points: 1234 })
-                .save$({ upsert$: ['username', 'skill'] }, err => {
+              si.make('customers')
+                .data$({ first_name: 'richard', last_name: 'gear', credits: 1234 })
+                .save$({ upsert$: ['first_name', 'last_name'] }, err => {
                   if (err) {
                     return fin(err)
                   }
 
-                  si.make('users').list$({}, (err, users) => {
+                  si.make('customers').list$({}, (err, customers) => {
                     if (err) {
                       return fin(err)
                     }
 
-                    expect(users.length).to.equal(2)
+                    expect(customers.length).to.equal(2)
 
 
-                    expect(users[0]).to.contain({
-                      username: 'richard',
-                      skill: 9999,
-                      points: 1234
+                    expect(customers[0]).to.contain({
+                      first_name: 'richard',
+                      last_name: 'gear',
+                      credits: 1234
                     })
 
 
-                    expect(users[1]).to.contain({
-                      username: 'bob',
-                      skill: 9999,
-                      points: 0
+                    expect(customers[1]).to.contain({
+                      first_name: 'richard',
+                      last_name: 'sinatra',
+                      credits: 0
                     })
 
 
@@ -1838,8 +1852,8 @@ function upserttest(settings) {
               const new_id = '6095a6f73a861890cc1f4e23'
 
               si.make('users')
-                .data$({ first_name: 'Frank', last_name: 'Sinatra' })
-                .save$({ id$: new_id, upsert$: ['first_name'] }, err => {
+                .data$({ email: 'frank.sinatra@gmail.com', username: 'ididitmyway' })
+                .save$({ id$: new_id, upsert$: ['email'] }, err => {
                   if (err) {
                     return fin(err)
                   }
@@ -1914,8 +1928,8 @@ function upserttest(settings) {
 
                 const upsertProduct = cb => 
                   product_entity
-                    .data$({ name: 'pencil', price: '1.95' })
-                    .save$({ upsert$: ['name'] }, cb)
+                    .data$({ label: 'pencil', price: '1.95' })
+                    .save$({ upsert$: ['label'] }, cb)
 
 
                 Async.parallel([
@@ -1935,7 +1949,7 @@ function upserttest(settings) {
                     expect(products.length).to.equal(1)
 
                     expect(products[0]).to.contain({
-                      name: 'pencil',
+                      label: 'pencil',
                       price: '1.95'
                     })
 
@@ -2144,7 +2158,7 @@ function upserttest(settings) {
             si.test(fin)
 
             si.make('products')
-              .data$({ label: 'a toothbrush', price: '2.95', coolness_factor: '0.95' })
+              .data$({ label: 'a toothbrush', price: '2.95', coolness_factor: 11 })
               .save$({ upsert$: ['label', 'coolness_factor'] }, err => {
                 if (err) {
                   return fin(err)
@@ -2160,7 +2174,7 @@ function upserttest(settings) {
                   expect(products[1]).to.contain({
                     label: 'a toothbrush',
                     price: '2.95',
-                    coolness_factor: '0.95'
+                    coolness_factor: 11
                   })
 
 
@@ -2215,14 +2229,14 @@ function upserttest(settings) {
             const id_of_richard = 'some_id'
 
             beforeEach(() => new Promise(fin => {
-              si.make('users')
+              si.make('players')
                 .data$({ id: id_of_richard, username: 'richard', points: 8000 })
                 .save$(fin)
             }))
 
 
             beforeEach(() => new Promise(fin => {
-              si.make('users')
+              si.make('players')
                 .data$({ username: 'bob', points: 1000 })
                 .save$(fin)
             }))
@@ -2230,27 +2244,27 @@ function upserttest(settings) {
             it('updates the matching entity', fin => {
               si.test(fin)
 
-              si.make('users')
+              si.make('players')
                 .data$({ id: id_of_richard, username: 'richard', points: 9999 })
                 .save$({ upsert$: ['id'] }, err => {
                   if (err) {
                     return fin(err)
                   }
 
-                  si.make('users').list$({}, (err, users) => {
+                  si.make('players').list$({}, (err, players) => {
                     if (err) {
                       return fin(err)
                     }
 
-                    expect(users.length).to.equal(2)
+                    expect(players.length).to.equal(2)
 
-                    expect(users[0]).to.contain({
+                    expect(players[0]).to.contain({
                       id: id_of_richard,
                       username: 'richard',
                       points: 9999
                     })
 
-                    expect(users[1]).to.contain({
+                    expect(players[1]).to.contain({
                       username: 'bob',
                       points: 1000
                     })
@@ -2292,7 +2306,7 @@ function upserttest(settings) {
 
             beforeEach(() => new Promise(fin => {
               si.make('users')
-                .data$({ username: 'richard' })
+                .data$({ username: 'richard', email: 'rr@example.com' })
                 .save$(fin)
             }))
 
@@ -2300,7 +2314,7 @@ function upserttest(settings) {
               si.test(fin)
 
               si.make('users')
-                .data$({ id: some_id, username: 'jim' })
+                .data$({ id: some_id, username: 'jim', email: 'jhendrix@example.com' })
                 .save$({ upsert$: ['id'] }, err => {
                   if (err) {
                     return fin(err)
@@ -2311,16 +2325,24 @@ function upserttest(settings) {
                       return fin(err)
                     }
 
+
                     expect(users.length).to.equal(2)
 
+
+                    expect(users[0].id).not.to.equal(some_id)
+
                     expect(users[0]).to.contain({
-                      username: 'richard'
+                      username: 'richard',
+                      email: 'rr@example.com'
                     })
+
 
                     expect(users[1]).to.contain({
                       id: some_id,
-                      username: 'jim'
+                      username: 'jim',
+                      email: 'jhendrix@example.com'
                     })
+
 
                     return fin()
                   })
@@ -2331,7 +2353,7 @@ function upserttest(settings) {
               si.test(fin)
 
               si.make('users')
-                .data$({ id: some_id, username: 'jim' })
+                .data$({ id: some_id, username: 'jim', email: 'jhendrix@example.com' })
                 .save$({ upsert$: ['id'] }, err => {
                   if (err) {
                     return fin(err)
@@ -2344,7 +2366,8 @@ function upserttest(settings) {
 
                     expect(user).to.contain({
                       id: some_id,
-                      username: 'jim'
+                      username: 'jim',
+                      email: 'jhendrix@example.com'
                     })
 
                     return fin()
