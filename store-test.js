@@ -1924,33 +1924,33 @@ function upserttest(settings) {
               it('does not result in a race condition - creates a single new entity', fin => {
                 si.test(fin)
 
-                const product_entity = si.entity('product')
+                const user_entity = si.entity('users')
 
-                const upsertProduct = cb => 
-                  product_entity
-                    .data$({ label: 'pencil', price: '1.95' })
-                    .save$({ upsert$: ['label'] }, cb)
+                const upsertUser = cb => 
+                  user_entity
+                    .data$({ username: 'jimihendrix', email: 'jimi@experience.com' })
+                    .save$({ upsert$: ['email'] }, cb)
 
 
                 Async.parallel([
-                  upsertProduct,
-                  upsertProduct,
-                  upsertProduct
+                  upsertUser,
+                  upsertUser,
+                  upsertUser
                 ], err => {
                   if (err) {
                     return fin(err)
                   }
 
-                  product_entity.list$((err, products) => {
+                  user_entity.list$((err, users) => {
                     if (err) {
                       return fin(err)
                     }
 
-                    expect(products.length).to.equal(1)
+                    expect(users.length).to.equal(1)
 
-                    expect(products[0]).to.contain({
-                      label: 'pencil',
-                      price: '1.95'
+                    expect(users[0]).to.contain({
+                      username: 'jimihendrix',
+                      email: 'jimi@experience.com'
                     })
 
                     return fin()
