@@ -2277,19 +2277,19 @@ function upserttest(settings) {
             it('works with load$ after the update', fin => {
               si.test(fin)
 
-              si.make('users')
+              si.make('players')
                 .data$({ id: id_of_richard, username: 'richard', points: 9999 })
                 .save$({ upsert$: ['id'] }, err => {
                   if (err) {
                     return fin(err)
                   }
 
-                  si.make('users').load$(id_of_richard, (err, user) => {
+                  si.make('players').load$(id_of_richard, (err, player) => {
                     if (err) {
                       return fin(err)
                     }
 
-                    expect(user).to.contain({
+                    expect(player).to.contain({
                       id: id_of_richard,
                       username: 'richard',
                       points: 9999
