@@ -2019,7 +2019,7 @@ function upserttest(settings) {
 
             si.ready(() => {
               si.make('products')
-                .data$({ label: 'toothbrush', price: '5.95' })
+                .data$({ label: 'banana', price: '3.95' })
                 .save$({ upsert$: [] }, err => {
                   if (err) {
                     return fin(err)
@@ -2038,8 +2038,8 @@ function upserttest(settings) {
                     })
 
                     expect(products[1]).to.contain({
-                      label: 'toothbrush',
-                      price: '5.95'
+                      label: 'banana',
+                      price: '3.95'
                     })
 
                     return fin()
