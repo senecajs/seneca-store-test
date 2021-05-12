@@ -38,17 +38,51 @@ var barverify = function (bar) {
   Assert.equal(bar.dec, 33.33)
   Assert.equal(bar.bol, false)
 
-  Assert.equal(
-    isDate(bar.wen) ? bar.wen.toISOString() : bar.wen,
-    new Date(2020, 1, 1).toISOString()
-  )
 
-  Assert.equal('' + bar.arr, '' + [2, 3])
-  Assert.deepEqual(bar.obj, {
+  const base_date = new Date(2020, 1, 1)
+  const areDatesEqual = (d1, d2) => !(d1 < d2) && !(d1 > d2)
+
+  if (isDate(bar.wen)) {
+    Assert(areDatesEqual(bar.wen, base_date))
+  } else if (typeof bar.wen === 'number') {
+    Assert(areDatesEqual(new Date(bar.wen), base_date))
+  } else {
+    Assert.fail('Expected bar.wen to be either a Unix timestamp or a date.')
+  }
+
+
+  const isJsonMaybe = x => typeof x === 'string' 
+
+
+  // NOTE: Please consider making this test (entire `barverify`) specific to
+  // the store plugin you are testing. The problem here is that SQL databases
+  // normally auto-cast to JSON upon insert and return such arrays and objects
+  // as, well, JSON,
+  // 
+  // On the other hand, NoSQL databases do not need to cast objects and arrays
+  // to JSON, and will both accept and return such objects and arrays as they
+  // are - no JSON involved.
+
+  const expected_arr = [2, 3]
+
+  if (isJsonMaybe(bar.arr)) {
+    expect(JSON.parse(bar.arr)).to.equal(expected_arr)
+  } else {
+    expect(bar.arr).to.equal(expected_arr)
+  }
+
+
+  const expected_obj = {
     a: 1,
     b: [2],
     c: { d: 3 },
-  })
+  }
+
+  if (isJsonMaybe(bar.obj)) {
+    expect(JSON.parse(bar.obj)).to.equal(expected_obj)
+  } else {
+    expect(bar.obj).to.equal(expected_obj)
+  }
 }
 
 function verify(cb, tests) {
