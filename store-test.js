@@ -1657,129 +1657,6 @@ function upserttest(settings) {
         })
       })
 
-      describe('many matching entities exist', () => {
-        describe('matches on 1 upsert$ field', () => {
-          beforeEach(() => new Promise(fin => {
-            si.make('products')
-              .data$({ label: 'a toothbrush', price: '3.95' })
-              .save$(fin)
-          }))
-
-          beforeEach(() => new Promise(fin => {
-            si.make('products')
-              .data$({ label: 'a toothbrush', price: '3.70' })
-              .save$(fin)
-          }))
-
-          beforeEach(() => new Promise(fin => {
-            si.make('products')
-              .data$({ label: 'bbs tires', price: '4.10' })
-              .save$(fin)
-          }))
-
-          it('updates a single matching entity', fin => {
-            si.test(fin)
-
-            si.ready(() => {
-              si.make('products')
-                .data$({ label: 'a toothbrush', price: '4.95' })
-                .save$({ upsert$: ['label'] }, err => {
-                  if (err) {
-                    return fin(err)
-                  }
-
-                  si.make('products').list$({}, (err, products) => {
-                    if (err) {
-                      return fin(err)
-                    }
-
-                    expect(products.length).to.equal(3)
-
-                    expect(products[0]).to.contain({
-                      label: 'a toothbrush',
-                      price: '4.95'
-                    })
-
-                    expect(products[1]).to.contain({
-                      label: 'a toothbrush',
-                      price: '3.70'
-                    })
-
-                    expect(products[2]).to.contain({
-                      label: 'bbs tires',
-                      price: '4.10'
-                    })
-
-                    return fin()
-                  })
-                })
-            })
-          })
-        })
-
-        describe('matches on 2 upsert$ fields', () => {
-          beforeEach(() => new Promise(fin => {
-            si.make('products')
-              .data$({ label: 'a toothbrush', price: '3.95', coolness_factor: 2 })
-              .save$(fin)
-          }))
-
-          beforeEach(() => new Promise(fin => {
-            si.make('products')
-              .data$({ label: 'a toothbrush', price: '3.70', coolness_factor: 3 })
-              .save$(fin)
-          }))
-
-          beforeEach(() => new Promise(fin => {
-            si.make('products')
-              .data$({ label: 'bbs tires', price: '4.10', coolness_factor: 7 })
-              .save$(fin)
-          }))
-
-          it('updates a single matching entity', fin => {
-            si.test(fin)
-
-            si.ready(() => {
-              si.make('products')
-                .data$({ label: 'a toothbrush', price: '3.95', coolness_factor: 4 })
-                .save$({ upsert$: ['label', 'price'] }, err => {
-                  if (err) {
-                    return fin(err)
-                  }
-
-                  si.make('products').list$({}, (err, products) => {
-                    if (err) {
-                      return fin(err)
-                    }
-
-                    expect(products.length).to.equal(3)
-
-                    expect(products[0]).to.contain({
-                      label: 'a toothbrush',
-                      price: '3.95',
-                      coolness_factor: 4
-                    })
-
-                    expect(products[1]).to.contain({
-                      label: 'a toothbrush',
-                      price: '3.70',
-                      coolness_factor: 3
-                    })
-
-                    expect(products[2]).to.contain({
-                      label: 'bbs tires',
-                      price: '4.10',
-                      coolness_factor: 7
-                    })
-
-                    return fin()
-                  })
-                })
-            })
-          })
-        })
-      })
-
       describe('no matching entity exists', () => {
         describe('1 upsert$ field', () => {
           describe('normally', () => {
@@ -2099,58 +1976,10 @@ function upserttest(settings) {
           })
         })
 
-        describe('entity matches on a field with the null value', () => {
+        describe('some fields in data$/upsert$ are blank in existing entities', () => {
           beforeEach(() => new Promise(fin => {
             si.make('products')
-              .data$({ label: null, price: '3.95' })
-              .save$(fin)
-          }))
-
-          beforeEach(() => new Promise(fin => {
-            si.make('products')
-              .data$({ label: 'CS101 textbook', price: '134.95' })
-              .save$(fin)
-          }))
-
-          it('updates the existing entity', fin => {
-            si.test(fin)
-
-            si.ready(() => {
-              si.make('products')
-                .data$({ label: null, price: '5.95' })
-                .save$({ upsert$: ['label'] }, err => {
-                  if (err) {
-                    return fin(err)
-                  }
-
-                  si.make('products').list$({}, (err, products) => {
-                    if (err) {
-                      return fin(err)
-                    }
-
-                    expect(products.length).to.equal(2)
-
-                    expect(products[0]).to.contain({
-                      label: null,
-                      price: '5.95'
-                    })
-
-                    expect(products[1]).to.contain({
-                      label: 'CS101 textbook',
-                      price: '134.95'
-                    })
-
-                    return fin()
-                  })
-                })
-            })
-          })
-        })
-
-        describe('some fields in data$/upsert$ are not present in existing entities', () => {
-          beforeEach(() => new Promise(fin => {
-            si.make('products')
-              .data$({ price: '3.40' })
+              .data$({ price: '3.40', label: null })
               .save$(fin)
           }))
 
@@ -2199,8 +2028,8 @@ function upserttest(settings) {
             si.test(fin)
 
             si.make('products')
-              .data$({ label: 'a toothbrush', price: '2.95' })
-              .save$({ upsert$: ['label', 'coolness_factor'] }, err => {
+              .data$({ price: '2.95', label: null })
+              .save$({ upsert$: ['label'] }, err => {
                 if (err) {
                   return fin(err)
                 }
@@ -2218,7 +2047,7 @@ function upserttest(settings) {
                   })
 
                   expect(products[1]).to.contain({
-                    label: 'a toothbrush',
+                    label: null,
                     price: '2.95'
                   })
 
