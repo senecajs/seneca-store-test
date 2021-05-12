@@ -2150,7 +2150,7 @@ function upserttest(settings) {
         describe('some fields in data$/upsert$ are not present in existing entities', () => {
           beforeEach(() => new Promise(fin => {
             si.make('products')
-              .data$({ label: 'a toothbrush', price: '3.40' })
+              .data$({ price: '3.40' })
               .save$(fin)
           }))
 
@@ -2158,8 +2158,8 @@ function upserttest(settings) {
             si.test(fin)
 
             si.make('products')
-              .data$({ label: 'a toothbrush', price: '2.95', coolness_factor: 11 })
-              .save$({ upsert$: ['label', 'coolness_factor'] }, err => {
+              .data$({ price: '3.40', label: 'a toothbrush' })
+              .save$({ upsert$: ['price', 'label'] }, err => {
                 if (err) {
                   return fin(err)
                 }
@@ -2171,10 +2171,14 @@ function upserttest(settings) {
 
                   expect(products.length).to.equal(2)
 
+                  expect(products[0]).to.contain({
+                    label: null,
+                    price: '3.40'
+                  })
+
                   expect(products[1]).to.contain({
                     label: 'a toothbrush',
-                    price: '2.95',
-                    coolness_factor: 11
+                    price: '3.40'
                   })
 
 
