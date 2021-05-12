@@ -2400,7 +2400,7 @@ function upserttest(settings) {
 
         beforeEach(() => new Promise(fin => {
           si.make('products')
-            .data$({ label: 'a macchiato espressionado', price: '7.99' })
+            .data$({ label: 'capuccino', price: '7.99' })
             .save$(fin)
         }))
 
@@ -2428,7 +2428,7 @@ function upserttest(settings) {
                 })
 
                 expect(products[1]).to.contain({
-                  label: 'a macchiato espressionado',
+                  label: 'capuccino',
                   price: '7.99'
                 })
 
