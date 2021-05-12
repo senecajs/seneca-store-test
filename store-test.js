@@ -1878,38 +1878,38 @@ function upserttest(settings) {
 
         describe('2 upsert$ fields', () => {
           beforeEach(() => new Promise(fin => {
-            si.make('products')
-              .data$({ label: 'frapuccino', price: '2.40', coolness_factor: 5 })
+            si.make('customers')
+              .data$({ first_name: 'frank', last_name: 'sinatra', credits: 5 })
               .save$(fin)
           }))
 
           it('creates a new entity', fin => {
             si.test(fin)
 
-            si.make('products')
-              .data$({ label: 'frapuccino', price: '3.40', coolness_factor: 7 })
-              .save$({ upsert$: ['label', 'price'] }, err => {
+            si.make('customers')
+              .data$({ first_name: 'frank', last_name: 'nixon', credits: 7 })
+              .save$({ upsert$: ['first_name', 'last_name'] }, err => {
                 if (err) {
                   return fin(err)
                 }
 
-                si.make('products').list$({}, (err, products) => {
+                si.make('customers').list$({}, (err, customers) => {
                   if (err) {
                     return fin(err)
                   }
 
-                  expect(products.length).to.equal(2)
+                  expect(customers.length).to.equal(2)
 
-                  expect(products[0]).to.contain({
-                    label: 'frapuccino',
-                    price: '2.40',
-                    coolness_factor: 5
+                  expect(customers[0]).to.contain({
+                    first_name: 'frank',
+                    last_name: 'sinatra',
+                    credits: 5
                   })
 
-                  expect(products[1]).to.contain({
-                    label: 'frapuccino',
-                    price: '3.40',
-                    coolness_factor: 7
+                  expect(customers[1]).to.contain({
+                    first_name: 'frank',
+                    last_name: 'nixon',
+                    credits: 7
                   })
 
                   return fin()
