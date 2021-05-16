@@ -448,26 +448,26 @@ function basictest(settings) {
 
       it('should not save modifications to entity after save completes', function (done) {
         var foo = si.make('foo')
-        foo.p3 = ['a']
+        foo.int_arr = [37]
         foo.save$(
           verify(done, function (foo1) {
-            Assert.deepEqual(foo1.p3, ['a'])
+            Assert.deepEqual(foo1.int_arr, [37])
             // now that foo is in the database, modify the original data
-            foo.p3.push('b')
-            Assert.deepEqual(foo1.p3, ['a'])
+            foo.int_arr.push(43)
+            Assert.deepEqual(foo1.int_arr, [37])
           })
         )
       })
 
       it('should not backport modification to saved entity to the original one', function (done) {
         var foo = si.make('foo')
-        foo.p3 = ['a']
+        foo.int_arr = [37]
         foo.save$(
           verify(done, function (foo1) {
-            Assert.deepEqual(foo1.p3, ['a'])
+            Assert.deepEqual(foo1.int_arr, [37])
             // now that foo is in the database, modify the original data
-            foo1.p3.push('b')
-            Assert.deepEqual(foo.p3, ['a'])
+            foo1.int_arr.push(43)
+            Assert.deepEqual(foo.int_arr, [37])
           })
         )
       })
