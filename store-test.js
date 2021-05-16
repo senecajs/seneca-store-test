@@ -2456,23 +2456,23 @@ function sqltest(settings) {
   describe('Sql support', function () {
     before(clearDb(si))
 
-    before(createEntities(si, 'product', [
-      { name: 'apple', price: 200 },
-      { name: 'pear', price: 100 },
+    before(createEntities(si, 'products', [
+      { label: 'apple', price: 200 },
+      { label: 'pear', price: 100 },
     ]))
 
     it('should accept a string query', function (done) {
       Product.list$(
-        { native$: 'SELECT * FROM product ORDER BY price' },
+        { native$: 'SELECT * FROM products ORDER BY price' },
         verify(done, function (list) {
           Assert.lengthOf(list, 2)
 
-          Assert.equal(list[0].entity$, '-/-/product')
-          Assert.equal(list[0].name, 'pear')
+          Assert.equal(list[0].entity$, '-/-/products')
+          Assert.equal(list[0].label, 'pear')
           Assert.equal(list[0].price, 100)
 
-          Assert.equal(list[1].entity$, '-/-/product')
-          Assert.equal(list[1].name, 'apple')
+          Assert.equal(list[1].entity$, '-/-/products')
+          Assert.equal(list[1].label, 'apple')
           Assert.equal(list[1].price, 200)
         })
       )
@@ -2482,7 +2482,7 @@ function sqltest(settings) {
       Product.list$(
         {
           native$: [
-            'SELECT * FROM product WHERE price >= ? AND price <= ?',
+            'SELECT * FROM products WHERE price >= ? AND price <= ?',
             0,
             150,
           ],
@@ -2490,8 +2490,8 @@ function sqltest(settings) {
         verify(done, function (list) {
           Assert.lengthOf(list, 1)
 
-          Assert.equal(list[0].entity$, '-/-/product')
-          Assert.equal(list[0].name, 'pear')
+          Assert.equal(list[0].entity$, '-/-/products')
+          Assert.equal(list[0].label, 'pear')
           Assert.equal(list[0].price, 100)
         })
       )
