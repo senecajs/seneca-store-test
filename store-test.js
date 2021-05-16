@@ -2452,14 +2452,14 @@ function sqltest(settings) {
   var it = make_it(script)
 
   var Product = si.make('products')
+
   describe('Sql support', function () {
-    before(function before(done) {
-      before(clearDb(si))
-      before(createEntities, 'product', [
-        { name: 'apple', price: 200 },
-        { name: 'pear', price: 100 },
-      ])
-    })
+    before(clearDb(si))
+
+    before(createEntities(si, 'product', [
+      { name: 'apple', price: 200 },
+      { name: 'pear', price: 100 },
+    ]))
 
     it('should accept a string query', function (done) {
       Product.list$(
