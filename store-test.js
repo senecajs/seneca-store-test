@@ -1831,6 +1831,26 @@ function upserttest(settings) {
 
         describe('edge cases', () => {
           describe('bombarding the store with near-parallel upserts', () => {
+            //
+            // NOTE: WARNING: Chances are, in order to pass this test, you
+            // need to create a unique index on the users.email column/field,
+            // - whether you are testing a plugin meant for a SQL or a NoSQL
+            // database/store.
+            //
+            // That's due to the way how upserts are normally implemented in
+            // databases.
+            //
+            // For example, in case of MongoDb, in order for the database to
+            // be able to avert race conditions, a field you upsert on must
+            // have a unique index created on it. Without the index, your
+            // upserts will not be atomic, and as a result your plugin will
+            // fail the race condition tests.
+            //
+            // It is a case of a leaky abstraction that test suites of client
+            // store plugins must "know" what collection and what field is
+            // being used in a race condition test in seneca-store-test. We
+            // may want to come up with a better alternative in the future.
+            //
             describe('1 upsert$ field', () => {
               it('does not result in a race condition - creates a single new entity', fin => {
                 si.test(fin)
