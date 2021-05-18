@@ -6,9 +6,11 @@
 [![Build Status][travis-badge]][travis-url]
 [![Dependency Status][david-badge]][david-url]
 [![Coveralls][BadgeCoveralls]][Coveralls]
-[![Gitter chat][gitter-badge]][gitter-url]
+<a href="https://codeclimate.com/github/senecajs/seneca-store-test/test_coverage"><img src="https://api.codeclimate.com/v1/badges/27eadf997922c38f4618/test_coverage" /></a>
+[![DeepScan grade](https://deepscan.io/api/teams/5016/projects/17224/branches/388397/badge/grade.svg)](https://deepscan.io/dashboard#view=project&tid=5016&pid=17224&bid=388397)
 
-[![js-standard-style][standard-badge]][standard-style]
+
+
 
 ## Description
 
