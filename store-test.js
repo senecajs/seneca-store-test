@@ -38,17 +38,51 @@ var barverify = function (bar) {
   Assert.equal(bar.dec, 33.33)
   Assert.equal(bar.bol, false)
 
-  Assert.equal(
-    isDate(bar.wen) ? bar.wen.toISOString() : bar.wen,
-    new Date(2020, 1, 1).toISOString()
-  )
 
-  Assert.equal('' + bar.arr, '' + [2, 3])
-  Assert.deepEqual(bar.obj, {
+  const base_date = new Date(2020, 1, 1)
+  const areDatesEqual = (d1, d2) => !(d1 < d2) && !(d1 > d2)
+
+  if (isDate(bar.wen)) {
+    Assert(areDatesEqual(bar.wen, base_date))
+  } else if (typeof bar.wen === 'number') {
+    Assert(areDatesEqual(new Date(bar.wen), base_date))
+  } else {
+    Assert.fail('Expected bar.wen to be either a Unix timestamp or a date.')
+  }
+
+
+  const isJsonMaybe = x => typeof x === 'string' 
+
+
+  // NOTE: Please consider making this test (entire `barverify`) specific to
+  // the store plugin you are testing. The problem here is that SQL databases
+  // normally auto-cast to JSON upon insert and return such arrays and objects
+  // as, well, JSON,
+  // 
+  // On the other hand, NoSQL databases do not need to cast objects and arrays
+  // to JSON, and will both accept and return such objects and arrays as they
+  // are - no JSON involved.
+
+  const expected_arr = [2, 3]
+
+  if (isJsonMaybe(bar.arr)) {
+    expect(JSON.parse(bar.arr)).to.equal(expected_arr)
+  } else {
+    expect(bar.arr).to.equal(expected_arr)
+  }
+
+
+  const expected_obj = {
     a: 1,
     b: [2],
     c: { d: 3 },
-  })
+  }
+
+  if (isJsonMaybe(bar.obj)) {
+    expect(JSON.parse(bar.obj)).to.equal(expected_obj)
+  } else {
+    expect(bar.obj).to.equal(expected_obj)
+  }
 }
 
 function verify(cb, tests) {
@@ -448,26 +482,26 @@ function basictest(settings) {
 
       it('should not save modifications to entity after save completes', function (done) {
         var foo = si.make('foo')
-        foo.p3 = ['a']
+        foo.int_arr = [37]
         foo.save$(
           verify(done, function (foo1) {
-            Assert.deepEqual(foo1.p3, ['a'])
+            Assert.deepEqual(foo1.int_arr, [37])
             // now that foo is in the database, modify the original data
-            foo.p3.push('b')
-            Assert.deepEqual(foo1.p3, ['a'])
+            foo.int_arr.push(43)
+            Assert.deepEqual(foo1.int_arr, [37])
           })
         )
       })
 
       it('should not backport modification to saved entity to the original one', function (done) {
         var foo = si.make('foo')
-        foo.p3 = ['a']
+        foo.int_arr = [37]
         foo.save$(
           verify(done, function (foo1) {
-            Assert.deepEqual(foo1.p3, ['a'])
+            Assert.deepEqual(foo1.int_arr, [37])
             // now that foo is in the database, modify the original data
-            foo1.p3.push('b')
-            Assert.deepEqual(foo.p3, ['a'])
+            foo1.int_arr.push(43)
+            Assert.deepEqual(foo.int_arr, [37])
           })
         )
       })
@@ -1657,129 +1691,6 @@ function upserttest(settings) {
         })
       })
 
-      describe('many matching entities exist', () => {
-        describe('matches on 1 upsert$ field', () => {
-          beforeEach(() => new Promise(fin => {
-            si.make('products')
-              .data$({ label: 'a toothbrush', price: '3.95' })
-              .save$(fin)
-          }))
-
-          beforeEach(() => new Promise(fin => {
-            si.make('products')
-              .data$({ label: 'a toothbrush', price: '3.70' })
-              .save$(fin)
-          }))
-
-          beforeEach(() => new Promise(fin => {
-            si.make('products')
-              .data$({ label: 'bbs tires', price: '4.10' })
-              .save$(fin)
-          }))
-
-          it('updates a single matching entity', fin => {
-            si.test(fin)
-
-            si.ready(() => {
-              si.make('products')
-                .data$({ label: 'a toothbrush', price: '4.95' })
-                .save$({ upsert$: ['label'] }, err => {
-                  if (err) {
-                    return fin(err)
-                  }
-
-                  si.make('products').list$({}, (err, products) => {
-                    if (err) {
-                      return fin(err)
-                    }
-
-                    expect(products.length).to.equal(3)
-
-                    expect(products[0]).to.contain({
-                      label: 'a toothbrush',
-                      price: '4.95'
-                    })
-
-                    expect(products[1]).to.contain({
-                      label: 'a toothbrush',
-                      price: '3.70'
-                    })
-
-                    expect(products[2]).to.contain({
-                      label: 'bbs tires',
-                      price: '4.10'
-                    })
-
-                    return fin()
-                  })
-                })
-            })
-          })
-        })
-
-        describe('matches on 2 upsert$ fields', () => {
-          beforeEach(() => new Promise(fin => {
-            si.make('products')
-              .data$({ label: 'a toothbrush', price: '3.95', coolness_factor: 2 })
-              .save$(fin)
-          }))
-
-          beforeEach(() => new Promise(fin => {
-            si.make('products')
-              .data$({ label: 'a toothbrush', price: '3.70', coolness_factor: 3 })
-              .save$(fin)
-          }))
-
-          beforeEach(() => new Promise(fin => {
-            si.make('products')
-              .data$({ label: 'bbs tires', price: '4.10', coolness_factor: 7 })
-              .save$(fin)
-          }))
-
-          it('updates a single matching entity', fin => {
-            si.test(fin)
-
-            si.ready(() => {
-              si.make('products')
-                .data$({ label: 'a toothbrush', price: '3.95', coolness_factor: 4 })
-                .save$({ upsert$: ['label', 'price'] }, err => {
-                  if (err) {
-                    return fin(err)
-                  }
-
-                  si.make('products').list$({}, (err, products) => {
-                    if (err) {
-                      return fin(err)
-                    }
-
-                    expect(products.length).to.equal(3)
-
-                    expect(products[0]).to.contain({
-                      label: 'a toothbrush',
-                      price: '3.95',
-                      coolness_factor: 4
-                    })
-
-                    expect(products[1]).to.contain({
-                      label: 'a toothbrush',
-                      price: '3.70',
-                      coolness_factor: 3
-                    })
-
-                    expect(products[2]).to.contain({
-                      label: 'bbs tires',
-                      price: '4.10',
-                      coolness_factor: 7
-                    })
-
-                    return fin()
-                  })
-                })
-            })
-          })
-        })
-      })
-
       describe('no matching entity exists', () => {
         describe('1 upsert$ field', () => {
           describe('normally', () => {
@@ -1878,38 +1789,38 @@ function upserttest(settings) {
 
         describe('2 upsert$ fields', () => {
           beforeEach(() => new Promise(fin => {
-            si.make('products')
-              .data$({ label: 'frapuccino', price: '2.40', coolness_factor: 5 })
+            si.make('customers')
+              .data$({ first_name: 'frank', last_name: 'sinatra', credits: 5 })
               .save$(fin)
           }))
 
           it('creates a new entity', fin => {
             si.test(fin)
 
-            si.make('products')
-              .data$({ label: 'frapuccino', price: '3.40', coolness_factor: 7 })
-              .save$({ upsert$: ['label', 'price'] }, err => {
+            si.make('customers')
+              .data$({ first_name: 'frank', last_name: 'nixon', credits: 7 })
+              .save$({ upsert$: ['first_name', 'last_name'] }, err => {
                 if (err) {
                   return fin(err)
                 }
 
-                si.make('products').list$({}, (err, products) => {
+                si.make('customers').list$({}, (err, customers) => {
                   if (err) {
                     return fin(err)
                   }
 
-                  expect(products.length).to.equal(2)
+                  expect(customers.length).to.equal(2)
 
-                  expect(products[0]).to.contain({
-                    label: 'frapuccino',
-                    price: '2.40',
-                    coolness_factor: 5
+                  expect(customers[0]).to.contain({
+                    first_name: 'frank',
+                    last_name: 'sinatra',
+                    credits: 5
                   })
 
-                  expect(products[1]).to.contain({
-                    label: 'frapuccino',
-                    price: '3.40',
-                    coolness_factor: 7
+                  expect(customers[1]).to.contain({
+                    first_name: 'frank',
+                    last_name: 'nixon',
+                    credits: 7
                   })
 
                   return fin()
@@ -1920,6 +1831,26 @@ function upserttest(settings) {
 
         describe('edge cases', () => {
           describe('bombarding the store with near-parallel upserts', () => {
+            //
+            // NOTE: WARNING: Chances are, in order to pass this test, you
+            // need to create a unique index on the users.email column/field,
+            // - whether you are testing a plugin meant for a SQL or a NoSQL
+            // database/store.
+            //
+            // That's due to the way how upserts are normally implemented in
+            // databases.
+            //
+            // For example, in case of MongoDb, in order for the database to
+            // be able to avert race conditions, a field you upsert on must
+            // have a unique index created on it. Without the index, your
+            // upserts will not be atomic, and as a result your plugin will
+            // fail the race condition tests.
+            //
+            // It is a case of a leaky abstraction that test suites of client
+            // store plugins must "know" what collection and what field is
+            // being used in a race condition test in seneca-store-test. We
+            // may want to come up with a better alternative in the future.
+            //
             describe('1 upsert$ field', () => {
               it('does not result in a race condition - creates a single new entity', fin => {
                 si.test(fin)
@@ -2019,7 +1950,7 @@ function upserttest(settings) {
 
             si.ready(() => {
               si.make('products')
-                .data$({ label: 'toothbrush', price: '5.95' })
+                .data$({ label: 'banana', price: '3.95' })
                 .save$({ upsert$: [] }, err => {
                   if (err) {
                     return fin(err)
@@ -2038,8 +1969,8 @@ function upserttest(settings) {
                     })
 
                     expect(products[1]).to.contain({
-                      label: 'toothbrush',
-                      price: '5.95'
+                      label: 'banana',
+                      price: '3.95'
                     })
 
                     return fin()
@@ -2099,58 +2030,10 @@ function upserttest(settings) {
           })
         })
 
-        describe('entity matches on a field with the null value', () => {
+        describe('some fields in data$/upsert$ are blank in existing entities', () => {
           beforeEach(() => new Promise(fin => {
             si.make('products')
-              .data$({ label: null, price: '3.95' })
-              .save$(fin)
-          }))
-
-          beforeEach(() => new Promise(fin => {
-            si.make('products')
-              .data$({ label: 'CS101 textbook', price: '134.95' })
-              .save$(fin)
-          }))
-
-          it('updates the existing entity', fin => {
-            si.test(fin)
-
-            si.ready(() => {
-              si.make('products')
-                .data$({ label: null, price: '5.95' })
-                .save$({ upsert$: ['label'] }, err => {
-                  if (err) {
-                    return fin(err)
-                  }
-
-                  si.make('products').list$({}, (err, products) => {
-                    if (err) {
-                      return fin(err)
-                    }
-
-                    expect(products.length).to.equal(2)
-
-                    expect(products[0]).to.contain({
-                      label: null,
-                      price: '5.95'
-                    })
-
-                    expect(products[1]).to.contain({
-                      label: 'CS101 textbook',
-                      price: '134.95'
-                    })
-
-                    return fin()
-                  })
-                })
-            })
-          })
-        })
-
-        describe('some fields in data$/upsert$ are not present in existing entities', () => {
-          beforeEach(() => new Promise(fin => {
-            si.make('products')
-              .data$({ label: 'a toothbrush', price: '3.40' })
+              .data$({ price: '3.40', label: null })
               .save$(fin)
           }))
 
@@ -2158,8 +2041,8 @@ function upserttest(settings) {
             si.test(fin)
 
             si.make('products')
-              .data$({ label: 'a toothbrush', price: '2.95', coolness_factor: 11 })
-              .save$({ upsert$: ['label', 'coolness_factor'] }, err => {
+              .data$({ price: '3.40', label: 'a toothbrush' })
+              .save$({ upsert$: ['price', 'label'] }, err => {
                 if (err) {
                   return fin(err)
                 }
@@ -2171,10 +2054,14 @@ function upserttest(settings) {
 
                   expect(products.length).to.equal(2)
 
+                  expect(products[0]).to.contain({
+                    label: null,
+                    price: '3.40'
+                  })
+
                   expect(products[1]).to.contain({
                     label: 'a toothbrush',
-                    price: '2.95',
-                    coolness_factor: 11
+                    price: '3.40'
                   })
 
 
@@ -2195,8 +2082,8 @@ function upserttest(settings) {
             si.test(fin)
 
             si.make('products')
-              .data$({ label: 'a toothbrush', price: '2.95' })
-              .save$({ upsert$: ['label', 'coolness_factor'] }, err => {
+              .data$({ price: '2.95', label: null })
+              .save$({ upsert$: ['label'] }, err => {
                 if (err) {
                   return fin(err)
                 }
@@ -2214,7 +2101,7 @@ function upserttest(settings) {
                   })
 
                   expect(products[1]).to.contain({
-                    label: 'a toothbrush',
+                    label: null,
                     price: '2.95'
                   })
 
@@ -2277,19 +2164,19 @@ function upserttest(settings) {
             it('works with load$ after the update', fin => {
               si.test(fin)
 
-              si.make('users')
+              si.make('players')
                 .data$({ id: id_of_richard, username: 'richard', points: 9999 })
                 .save$({ upsert$: ['id'] }, err => {
                   if (err) {
                     return fin(err)
                   }
 
-                  si.make('users').load$(id_of_richard, (err, user) => {
+                  si.make('players').load$(id_of_richard, (err, player) => {
                     if (err) {
                       return fin(err)
                     }
 
-                    expect(user).to.contain({
+                    expect(player).to.contain({
                       id: id_of_richard,
                       username: 'richard',
                       points: 9999
@@ -2400,7 +2287,7 @@ function upserttest(settings) {
 
         beforeEach(() => new Promise(fin => {
           si.make('products')
-            .data$({ label: 'a macchiato espressionado', price: '7.99' })
+            .data$({ label: 'capuccino', price: '7.99' })
             .save$(fin)
         }))
 
@@ -2428,7 +2315,7 @@ function upserttest(settings) {
                 })
 
                 expect(products[1]).to.contain({
-                  label: 'a macchiato espressionado',
+                  label: 'capuccino',
                   price: '7.99'
                 })
 
@@ -2452,27 +2339,27 @@ function sqltest(settings) {
   var it = make_it(script)
 
   var Product = si.make('products')
+
   describe('Sql support', function () {
-    before(function before(done) {
-      before(clearDb(si))
-      before(createEntities, 'product', [
-        { name: 'apple', price: 200 },
-        { name: 'pear', price: 100 },
-      ])
-    })
+    before(clearDb(si))
+
+    before(createEntities(si, 'products', [
+      { label: 'apple', price: 200 },
+      { label: 'pear', price: 100 },
+    ]))
 
     it('should accept a string query', function (done) {
       Product.list$(
-        { native$: 'SELECT * FROM product ORDER BY price' },
+        { native$: 'SELECT * FROM products ORDER BY price' },
         verify(done, function (list) {
           Assert.lengthOf(list, 2)
 
-          Assert.equal(list[0].entity$, '-/-/product')
-          Assert.equal(list[0].name, 'pear')
+          Assert.equal(list[0].entity$, '-/-/products')
+          Assert.equal(list[0].label, 'pear')
           Assert.equal(list[0].price, 100)
 
-          Assert.equal(list[1].entity$, '-/-/product')
-          Assert.equal(list[1].name, 'apple')
+          Assert.equal(list[1].entity$, '-/-/products')
+          Assert.equal(list[1].label, 'apple')
           Assert.equal(list[1].price, 200)
         })
       )
@@ -2482,7 +2369,7 @@ function sqltest(settings) {
       Product.list$(
         {
           native$: [
-            'SELECT * FROM product WHERE price >= ? AND price <= ?',
+            'SELECT * FROM products WHERE price >= ? AND price <= ?',
             0,
             150,
           ],
@@ -2490,8 +2377,8 @@ function sqltest(settings) {
         verify(done, function (list) {
           Assert.lengthOf(list, 1)
 
-          Assert.equal(list[0].entity$, '-/-/product')
-          Assert.equal(list[0].name, 'pear')
+          Assert.equal(list[0].entity$, '-/-/products')
+          Assert.equal(list[0].label, 'pear')
           Assert.equal(list[0].price, 100)
         })
       )
