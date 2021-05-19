@@ -348,6 +348,56 @@ function basictest(settings) {
         })
       })
 
+      describe('when the id$ arg passed to #save$ is undefined', function () {
+        it('should generate a new id and save the entity', function (done) {
+          si.make('foo')
+            .data$({ p1: 'v1', p2: 'v2' })
+            .save$({ id$: undefined }, function (err, foo1) {
+              if (err) {
+                return done(err)
+              }
+
+              expect(typeof foo1.id).to.equal('string')
+
+              foo1.load$(
+                foo1.id,
+                verify(done, function (foo2) {
+                  expect(foo2).not.to.be.null()
+                  expect(foo2).not.to.be.undefined()
+
+                  expect(foo2.p1).to.equal('v1')
+                  expect(foo2.p2).to.equal('v2')
+                })
+              )
+            })
+        })
+      })
+
+      describe('when the id$ arg passed to #save$ is null', function () {
+        it('should generate a new id and save the entity', function (done) {
+          si.make('foo')
+            .data$({ p1: 'v1', p2: 'v2' })
+            .save$({ id$: null }, function (err, foo1) {
+              if (err) {
+                return done(err)
+              }
+
+              expect(typeof foo1.id).to.equal('string')
+
+              foo1.load$(
+                foo1.id,
+                verify(done, function (foo2) {
+                  expect(foo2).not.to.be.null()
+                  expect(foo2).not.to.be.undefined()
+
+                  expect(foo2.p1).to.equal('v1')
+                  expect(foo2.p2).to.equal('v2')
+                })
+              )
+            })
+        })
+      })
+
       it('should update an entity if id provided', function (done) {
         var foo = si.make('foo')
         foo.id = 'to-be-updated'
@@ -373,6 +423,56 @@ function basictest(settings) {
               Assert.equal(foo2.p3, 'v3')
             })
           )
+        })
+      })
+
+      describe('when the provided id is null', function () {
+        it('should generate a new id and save the entity', function (done) {
+          si.make('foo')
+            .data$({ id: null, p1: 'v1', p2: 'v2' })
+            .save$(function (err, foo1) {
+              if (err) {
+                return done(err)
+              }
+
+              expect(typeof foo1.id).to.equal('string')
+
+              foo1.load$(
+                foo1.id,
+                verify(done, function (foo2) {
+                  expect(foo2).not.to.be.null()
+                  expect(foo2).not.to.be.undefined()
+
+                  expect(foo2.p1).to.equal('v1')
+                  expect(foo2.p2).to.equal('v2')
+                })
+              )
+            })
+        })
+      })
+
+      describe('when the provided id is undefined', function () {
+        it('should generate a new id and save the entity', function (done) {
+          si.make('foo')
+            .data$({ id: undefined, p1: 'v1', p2: 'v2' })
+            .save$(function (err, foo1) {
+              if (err) {
+                return done(err)
+              }
+
+              expect(typeof foo1.id).to.equal('string')
+
+              foo1.load$(
+                foo1.id,
+                verify(done, function (foo2) {
+                  expect(foo2).not.to.be.null()
+                  expect(foo2).not.to.be.undefined()
+
+                  expect(foo2.p1).to.equal('v1')
+                  expect(foo2.p2).to.equal('v2')
+                })
+              )
+            })
         })
       })
 
