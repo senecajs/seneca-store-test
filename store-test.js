@@ -1,4 +1,4 @@
-/* Copyright (c) 2014-2019 Richard Rodger, MIT License */
+/* Copyright (c) 2014-2021 Richard Rodger, MIT License */
 'use strict'
 
 var Util = require('util')
