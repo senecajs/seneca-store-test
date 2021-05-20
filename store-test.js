@@ -10,7 +10,6 @@ const Code = require('@hapi/code')
 const Nid = require('nid')
 
 var ExtendedTests = require('./lib/store-test-extended')
-const { fetchProp } = require('./lib/common')
 
 const expect = Code.expect
 
@@ -1509,7 +1508,7 @@ function upserttest(settings) {
                       }
 
                       try {
-                        id_of_richard = fetchProp(user, 'id')
+                        id_of_richard = user.id
 
                         return fin()
                       } catch (err) {
@@ -1532,7 +1531,7 @@ function upserttest(settings) {
                       }
 
                       try {
-                        id_of_bob = fetchProp(user, 'id')
+                        id_of_bob = user.id
 
                         return fin()
                       } catch (err) {
@@ -1595,7 +1594,7 @@ function upserttest(settings) {
                       }
 
                       try {
-                        id_of_richard = fetchProp(racer, 'id')
+                        id_of_richard = racer.id
 
                         return fin()
                       } catch (err) {
@@ -1622,7 +1621,7 @@ function upserttest(settings) {
                       }
 
                       try {
-                        id_of_bob = fetchProp(racer, 'id')
+                        id_of_bob = racer.id
 
                         return fin()
                       } catch (err) {
@@ -1685,7 +1684,7 @@ function upserttest(settings) {
                       }
 
                       Assert.ok(user, 'user')
-                      target_user_id = fetchProp(user, 'id')
+                      target_user_id = user.id
 
                       return resolve()
                     })
@@ -1830,7 +1829,7 @@ function upserttest(settings) {
                       }
 
                       try {
-                        id_of_macchiato = fetchProp(product, 'id')
+                        id_of_macchiato = product.id
 
                         return fin()
                       } catch (err) {
