@@ -5,7 +5,6 @@
   "main": "store-test.js",
   "scripts": {
     "test": "lab -v -P test -L -t 80 -r console -o stdout -r html -o test/coverage.html",
-    "test-some": "lab -v -P test -r console -g ",
     "coveralls": "lab -s -P test -r lcov | coveralls",
     "coverage": "lab -v -P test  -t 80 -r html > docs/coverage.html",
     "prettier": "prettier --write --no-semi --single-quote *.js lib/*.js test/*.js",
@@ -57,6 +56,6 @@
     "coveralls": "3.1.0",
     "seneca": "plugin",
     "seneca-entity": "13.0.0",
-    "seneca-mem-store": "file:../seneca-mem-store"
+    "seneca-mem-store": "6.0.0"
   }
 }
