@@ -2492,6 +2492,109 @@ function upserttest(settings) {
         })
       })
     })
+
+    describe('additional tests', () => {
+      function makeUser({ seneca }) {
+        return seneca.make('users')
+      }
+
+
+      describe('happy path', () => {
+        let frank
+
+        beforeEach(async () => new Promise((resolve, reject) => {
+          makeUser({ seneca: si })
+            .data$({ email: 'frank.sinatra@voxgig.com', username: 'Frank' })
+            .save$((err, user) => {
+              if (err) {
+                return reject(err)
+              }
+
+              frank = user
+
+              return resolve()
+            })
+        }))
+
+
+        let elvis
+
+        beforeEach(async () => new Promise((resolve, reject) => {
+          makeUser({ seneca: si })
+            .data$({ email: 'elvis@voxgig.com', username: 'Elvis' })
+            .save$((err, user) => {
+              if (err) {
+                return reject(err)
+              }
+
+              elvis = user
+
+              return resolve()
+            })
+        }))
+
+
+        let jimi
+
+        beforeEach(async () => new Promise((resolve, reject) => {
+          makeUser({ seneca: si })
+            .data$({ email: 'frank.sinatra@voxgig.com', username: 'Jimi' })
+            .save$({ upsert$: ['email'] }, (err, user) => {
+              if (err) {
+                return reject(err)
+              }
+
+              jimi = user
+
+              return resolve()
+            })
+        }))
+
+
+        it('sets the correct ids', (fin) => {
+          try {
+            expect(typeof frank.id).to.equal('string')
+            expect(typeof elvis.id).to.equal('string')
+            expect(typeof jimi.id).to.equal('string')
+
+            expect(elvis.id).not.to.equal(frank.id)
+            expect(jimi.id).not.to.equal(elvis.id)
+
+            expect(jimi.id).to.equal(frank.id)
+
+            return fin()
+          } catch (err) {
+            return fin(err)
+          }
+        })
+
+        it('returns the correct list of users', (fin) => {
+          makeUser({ seneca: si }).list$((err, users) => {
+            if (err) {
+              return fin(err)
+            }
+
+            try {
+              expect(users.length).to.equal(2)
+
+              expect(users[0]).to.contain({
+                email: 'frank.sinatra@voxgig.com',
+                username: 'Jimi'
+              })
+
+              expect(users[1]).to.contain({
+                email: 'elvis@voxgig.com',
+                username: 'Elvis'
+              })
+
+              return fin()
+            } catch (err) {
+              return fin(err)
+            }
+          })
+        })
+      })
+    })
   })
 
   return script
