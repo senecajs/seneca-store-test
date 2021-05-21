@@ -299,7 +299,16 @@ function basictest(settings) {
             p1: 'v1',
             p2: 'v2',
             p3: 'v3',
-          },
+          }
+        ])
+      )
+
+      beforeEach(
+        createEntities(si, 'products', [
+          {
+            id$: 'product-to-be-updated',
+            price: '1.95'
+          }
         ])
       )
 
@@ -420,6 +429,44 @@ function basictest(settings) {
               Assert.equal(foo2.p1, 'z1')
               Assert.equal(foo2.p2, 'z2')
               Assert.equal(foo2.p3, 'v3')
+            })
+          )
+        })
+      })
+
+      it('should update an entity if id provided', function (done) {
+        var product = si.make('products')
+        product.id = 'product-to-be-updated'
+        product.label = 'lorem ipsum'
+
+        product.save$(function (err, out) {
+          if (err) {
+            return done(err)
+          }
+
+          try {
+            expect(out).to.contain({
+              id: 'product-to-be-updated',
+              price: '1.95',
+              label: 'lorem ipsum'
+            })
+          } catch (err) {
+            return done(err)
+          }
+
+
+          return out.load$(
+            'product-to-be-updated',
+            verify(done, function (out) {
+              try {
+                expect(out).to.contain({
+                  id: 'product-to-be-updated',
+                  price: '1.95',
+                  label: 'lorem ipsum'
+                })
+              } catch (err) {
+                return done(err)
+              }
             })
           )
         })
