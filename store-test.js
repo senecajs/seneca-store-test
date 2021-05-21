@@ -2078,6 +2078,52 @@ function upserttest(settings) {
           })
         })
 
+        describe('entity matches on a private and a public field', () => {
+          beforeEach(
+            () =>
+              new Promise((fin) => {
+                si.make('products')
+                  .data$({
+                    label: 'toothbrush',
+                    price: '3.95',
+                    psst$: 'private',
+                  })
+                  .save$(fin)
+              })
+          )
+
+          it('matches by the public field and updates the entity', (fin) => {
+            si.test(fin)
+
+            si.make('products')
+              .data$({
+                label: 'toothbrush',
+                price: '5.95',
+                psst$: 'private',
+              })
+              .save$({ upsert$: ['psst$', 'label'] }, (err) => {
+                if (err) {
+                  return fin(err)
+                }
+
+                si.make('products').list$({}, (err, products) => {
+                  if (err) {
+                    return fin(err)
+                  }
+
+                  expect(products.length).to.equal(1)
+
+                  expect(products[0]).to.contain({
+                    label: 'toothbrush',
+                    price: '5.95',
+                  })
+
+                  return fin()
+                })
+              })
+          })
+        })
+
         describe('empty upsert$ array', () => {
           beforeEach(
             () =>
