@@ -444,29 +444,21 @@ function basictest(settings) {
             return done(err)
           }
 
-          try {
-            expect(out).to.contain({
-              id: 'product-to-be-updated',
-              price: '1.95',
-              label: 'lorem ipsum'
-            })
-          } catch (err) {
-            return done(err)
-          }
+          expect(out).to.contain({
+            id: 'product-to-be-updated',
+            price: '1.95',
+            label: 'lorem ipsum'
+          })
 
 
           return out.load$(
             'product-to-be-updated',
             verify(done, function (out) {
-              try {
-                expect(out).to.contain({
-                  id: 'product-to-be-updated',
-                  price: '1.95',
-                  label: 'lorem ipsum'
-                })
-              } catch (err) {
-                return done(err)
-              }
+              expect(out).to.contain({
+                id: 'product-to-be-updated',
+                price: '1.95',
+                label: 'lorem ipsum'
+              })
             })
           )
         })
@@ -1554,13 +1546,9 @@ function upserttest(settings) {
                         return fin(err)
                       }
 
-                      try {
-                        id_of_richard = user.id
+                      id_of_richard = user.id
 
-                        return fin()
-                      } catch (err) {
-                        return fin(err)
-                      }
+                      return fin()
                     })
                 })
             )
@@ -1577,13 +1565,9 @@ function upserttest(settings) {
                         return fin(err)
                       }
 
-                      try {
-                        id_of_bob = user.id
+                      id_of_bob = user.id
 
-                        return fin()
-                      } catch (err) {
-                        return fin(err)
-                      }
+                      return fin()
                     })
                 })
             )
