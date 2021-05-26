@@ -1515,7 +1515,7 @@ function upserttest(settings) {
 
   const script = settings.script || Lab.script()
 
-  const { describe, beforeEach, afterEach } = script
+  const { describe, before, beforeEach, afterEach } = script
   const it = make_it(script)
 
   describe('Upserts', () => {
@@ -1604,6 +1604,25 @@ function upserttest(settings) {
                     return fin()
                   })
                 })
+            })
+
+            it('should not save modifications to entity after save completes', (fin) => {
+              si.test(fin)
+
+              const player = si.make('players')
+                .data$({ username: 'richard', points_history: [37] })
+
+              player.save$({ upsert$: ['username'] }, verify(fin, function (out) {
+                expect(out.id).to.equal(id_of_richard)
+                expect(out.points_history).to.equal([37])
+
+                // Now that the player is in the database, we modify
+                // the original data.
+                //
+                out.points_history.push(43)
+
+                expect(player.points_history).to.equal([37])
+              }))
             })
           })
 
