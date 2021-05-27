@@ -8,6 +8,7 @@ var Async = require('async')
 var Lab = require('@hapi/lab')
 const Code = require('@hapi/code')
 const Nid = require('nid')
+const _ = require('lodash')
 
 var ExtendedTests = require('./lib/store-test-extended')
 
@@ -1587,19 +1588,23 @@ function upserttest(settings) {
                       return fin(err)
                     }
 
+                    players = _.sortBy(players, x => x.points)
+
+
                     expect(players.length).to.equal(2)
 
                     expect(players[0]).to.contain({
+                      id: id_of_bob,
+                      username: 'bob',
+                      points: 0,
+                    })
+
+                    expect(players[1]).to.contain({
                       id: id_of_richard,
                       username: 'richard',
                       points: 9999,
                     })
 
-                    expect(players[1]).to.contain({
-                      id: id_of_bob,
-                      username: 'bob',
-                      points: 0,
-                    })
 
                     return fin()
                   })
@@ -1696,20 +1701,23 @@ function upserttest(settings) {
                       return fin(err)
                     }
 
+                    racers = _.sortBy(racers, x => x.points)
+
+
                     expect(racers.length).to.equal(2)
 
                     expect(racers[0]).to.contain({
-                      id: id_of_richard,
-                      username: 'richard',
-                      points: 37,
-                      favorite_car: 'bmw m3 e46',
-                    })
-
-                    expect(racers[1]).to.contain({
                       id: id_of_bob,
                       username: 'bob',
                       points: 20,
                       favorite_car: 'peugeot 307',
+                    })
+
+                    expect(racers[1]).to.contain({
+                      id: id_of_richard,
+                      username: 'richard',
+                      points: 37,
+                      favorite_car: 'bmw m3 e46',
                     })
 
                     return fin()
@@ -1839,19 +1847,23 @@ function upserttest(settings) {
                     return fin(err)
                   }
 
+                  customers = _.sortBy(customers, x => x.credits)
+
+
                   expect(customers.length).to.equal(2)
 
                   expect(customers[0]).to.contain({
+                    first_name: 'richard',
+                    last_name: 'sinatra',
+                    credits: 0,
+                  })
+
+                  expect(customers[1]).to.contain({
                     first_name: 'richard',
                     last_name: 'gear',
                     credits: 1234,
                   })
 
-                  expect(customers[1]).to.contain({
-                    first_name: 'richard',
-                    last_name: 'sinatra',
-                    credits: 0,
-                  })
 
                   return fin()
                 })
@@ -1903,6 +1915,9 @@ function upserttest(settings) {
                     if (err) {
                       return fin(err)
                     }
+
+                    products = _.sortBy(products, x => x.label)
+
 
                     expect(products.length).to.equal(2)
 
@@ -1991,6 +2006,9 @@ function upserttest(settings) {
                   if (err) {
                     return fin(err)
                   }
+
+                  customers = _.sortBy(customers, x => x.credits)
+
 
                   expect(customers.length).to.equal(2)
 
@@ -2110,17 +2128,21 @@ function upserttest(settings) {
                     return fin(err)
                   }
 
+                  products = _.sortBy(products, x => x.label)
+
+
                   expect(products.length).to.equal(2)
 
                   expect(products[0]).to.contain({
+                    label: 'a new toothbrush',
+                    price: '5.95',
+                  })
+
+                  expect(products[1]).to.contain({
                     label: 'toothbrush',
                     price: '3.95',
                   })
 
-                  expect(products[1]).to.contain({
-                    label: 'a new toothbrush',
-                    price: '5.95',
-                  })
 
                   return fin()
                 })
@@ -2199,17 +2221,21 @@ function upserttest(settings) {
                     return fin(err)
                   }
 
+                  products = _.sortBy(products, x => x.label)
+
+
                   expect(products.length).to.equal(2)
 
                   expect(products[0]).to.contain({
-                    label: 'toothbrush',
+                    label: 'banana',
                     price: '3.95',
                   })
 
                   expect(products[1]).to.contain({
-                    label: 'banana',
+                    label: 'toothbrush',
                     price: '3.95',
                   })
+
 
                   return fin()
                 })
@@ -2241,6 +2267,9 @@ function upserttest(settings) {
                   if (err) {
                     return fin(err)
                   }
+
+                  products = _.sortBy(products, x => x.price)
+
 
                   expect(products.length).to.equal(2)
 
@@ -2293,17 +2322,21 @@ function upserttest(settings) {
                     return fin(err)
                   }
 
+                  products = _.sortBy(products, x => x.label)
+
+
                   expect(products.length).to.equal(2)
 
                   expect(products[0]).to.contain({
-                    label: null,
+                    label: 'a toothbrush',
                     price: '3.40',
                   })
 
                   expect(products[1]).to.contain({
-                    label: 'a toothbrush',
+                    label: null,
                     price: '3.40',
                   })
+
 
                   return fin()
                 })
@@ -2336,6 +2369,9 @@ function upserttest(settings) {
                     return fin(err)
                   }
 
+                  products = _.sortBy(products, x => x.label)
+
+
                   expect(products.length).to.equal(2)
 
                   expect(products[0]).to.contain({
@@ -2347,6 +2383,7 @@ function upserttest(settings) {
                     label: null,
                     price: '2.95',
                   })
+
 
                   return fin()
                 })
@@ -2395,18 +2432,22 @@ function upserttest(settings) {
                       return fin(err)
                     }
 
+                    players = _.sortBy(players, x => x.points)
+
+
                     expect(players.length).to.equal(2)
 
                     expect(players[0]).to.contain({
+                      username: 'bob',
+                      points: 1000,
+                    })
+
+                    expect(players[1]).to.contain({
                       id: id_of_richard,
                       username: 'richard',
                       points: 9999,
                     })
 
-                    expect(players[1]).to.contain({
-                      username: 'bob',
-                      points: 1000,
-                    })
 
                     return fin()
                   })
@@ -2471,20 +2512,24 @@ function upserttest(settings) {
                       return fin(err)
                     }
 
+                    users = _.sortBy(users, x => x.username)
+
+
                     expect(users.length).to.equal(2)
 
-                    expect(users[0].id).not.to.equal(some_id)
-
                     expect(users[0]).to.contain({
-                      username: 'richard',
-                      email: 'rr@example.com',
-                    })
-
-                    expect(users[1]).to.contain({
                       id: some_id,
                       username: 'jim',
                       email: 'jhendrix@example.com',
                     })
+
+                    expect(users[1].id).not.to.equal(some_id)
+
+                    expect(users[1]).to.contain({
+                      username: 'richard',
+                      email: 'rr@example.com',
+                    })
+
 
                     return fin()
                   })
@@ -2570,6 +2615,9 @@ function upserttest(settings) {
                   return fin(err)
                 }
 
+                products = _.sortBy(products, x => x.price)
+
+
                 expect(products.length).to.equal(2)
 
                 expect(products[0]).to.contain({
@@ -2581,6 +2629,7 @@ function upserttest(settings) {
                   label: 'capuccino',
                   price: '7.99',
                 })
+
 
                 return fin()
               })
@@ -2670,23 +2719,23 @@ function upserttest(settings) {
               return fin(err)
             }
 
-            try {
-              expect(users.length).to.equal(2)
+            users = _.sortBy(users, x => x.username)
 
-              expect(users[0]).to.contain({
-                email: 'frank.sinatra@voxgig.com',
-                username: 'Jimi'
-              })
 
-              expect(users[1]).to.contain({
-                email: 'elvis@voxgig.com',
-                username: 'Elvis'
-              })
+            expect(users.length).to.equal(2)
 
-              return fin()
-            } catch (err) {
-              return fin(err)
-            }
+            expect(users[0]).to.contain({
+              email: 'elvis@voxgig.com',
+              username: 'Elvis'
+            })
+
+            expect(users[1]).to.contain({
+              email: 'frank.sinatra@voxgig.com',
+              username: 'Jimi'
+            })
+
+
+            return fin()
           })
         })
       })
