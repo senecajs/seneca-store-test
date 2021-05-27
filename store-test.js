@@ -1516,7 +1516,7 @@ function upserttest(settings) {
 
   const script = settings.script || Lab.script()
 
-  const { describe, before, beforeEach, afterEach } = script
+  const { describe, beforeEach, afterEach } = script
   const it = make_it(script)
 
   describe('Upserts', () => {
