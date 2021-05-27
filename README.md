@@ -5,6 +5,7 @@
 # seneca-store-test
 [![npm version][npm-badge]][npm-url]
 [![Build Status][travis-badge]][travis-url]
+[![Build](https://github.com/senecajs/seneca-store-test/workflows/build/badge.svg)](https://github.com/senecajs/seneca-store-test/actions?query=workflow%3Abuild)
 [![Dependency Status][david-badge]][david-url]
 [![Coveralls][BadgeCoveralls]][Coveralls]
 <a href="https://codeclimate.com/github/senecajs/seneca-store-test/test_coverage"><img src="https://api.codeclimate.com/v1/badges/27eadf997922c38f4618/test_coverage" /></a>
