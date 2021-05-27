@@ -8,7 +8,6 @@ var Async = require('async')
 var Lab = require('@hapi/lab')
 const Code = require('@hapi/code')
 const Nid = require('nid')
-const _ = require('lodash')
 
 var ExtendedTests = require('./lib/store-test-extended')
 
@@ -1588,7 +1587,7 @@ function upserttest(settings) {
                       return fin(err)
                     }
 
-                    players = _.sortBy(players, x => x.points)
+                    players = sortBy(players, x => x.points)
 
 
                     expect(players.length).to.equal(2)
@@ -1701,7 +1700,7 @@ function upserttest(settings) {
                       return fin(err)
                     }
 
-                    racers = _.sortBy(racers, x => x.points)
+                    racers = sortBy(racers, x => x.points)
 
 
                     expect(racers.length).to.equal(2)
@@ -1847,7 +1846,7 @@ function upserttest(settings) {
                     return fin(err)
                   }
 
-                  customers = _.sortBy(customers, x => x.credits)
+                  customers = sortBy(customers, x => x.credits)
 
 
                   expect(customers.length).to.equal(2)
@@ -1916,7 +1915,7 @@ function upserttest(settings) {
                       return fin(err)
                     }
 
-                    products = _.sortBy(products, x => x.label)
+                    products = sortBy(products, x => x.label)
 
 
                     expect(products.length).to.equal(2)
@@ -2007,7 +2006,7 @@ function upserttest(settings) {
                     return fin(err)
                   }
 
-                  customers = _.sortBy(customers, x => x.credits)
+                  customers = sortBy(customers, x => x.credits)
 
 
                   expect(customers.length).to.equal(2)
@@ -2128,7 +2127,7 @@ function upserttest(settings) {
                     return fin(err)
                   }
 
-                  products = _.sortBy(products, x => x.label)
+                  products = sortBy(products, x => x.label)
 
 
                   expect(products.length).to.equal(2)
@@ -2221,7 +2220,7 @@ function upserttest(settings) {
                     return fin(err)
                   }
 
-                  products = _.sortBy(products, x => x.label)
+                  products = sortBy(products, x => x.label)
 
 
                   expect(products.length).to.equal(2)
@@ -2268,7 +2267,7 @@ function upserttest(settings) {
                     return fin(err)
                   }
 
-                  products = _.sortBy(products, x => x.price)
+                  products = sortBy(products, x => x.price)
 
 
                   expect(products.length).to.equal(2)
@@ -2322,18 +2321,18 @@ function upserttest(settings) {
                     return fin(err)
                   }
 
-                  products = _.sortBy(products, x => x.label)
+                  products = sortBy(products, x => x.label)
 
 
                   expect(products.length).to.equal(2)
 
                   expect(products[0]).to.contain({
-                    label: 'a toothbrush',
+                    label: null,
                     price: '3.40',
                   })
 
                   expect(products[1]).to.contain({
-                    label: null,
+                    label: 'a toothbrush',
                     price: '3.40',
                   })
 
@@ -2369,7 +2368,7 @@ function upserttest(settings) {
                     return fin(err)
                   }
 
-                  products = _.sortBy(products, x => x.label)
+                  products = sortBy(products, x => x.label)
 
 
                   expect(products.length).to.equal(2)
@@ -2432,7 +2431,7 @@ function upserttest(settings) {
                       return fin(err)
                     }
 
-                    players = _.sortBy(players, x => x.points)
+                    players = sortBy(players, x => x.points)
 
 
                     expect(players.length).to.equal(2)
@@ -2512,7 +2511,7 @@ function upserttest(settings) {
                       return fin(err)
                     }
 
-                    users = _.sortBy(users, x => x.username)
+                    users = sortBy(users, x => x.username)
 
 
                     expect(users.length).to.equal(2)
@@ -2615,7 +2614,7 @@ function upserttest(settings) {
                   return fin(err)
                 }
 
-                products = _.sortBy(products, x => x.price)
+                products = sortBy(products, x => x.price)
 
 
                 expect(products.length).to.equal(2)
@@ -2719,7 +2718,7 @@ function upserttest(settings) {
               return fin(err)
             }
 
-            users = _.sortBy(users, x => x.username)
+            users = sortBy(users, x => x.username)
 
 
             expect(users.length).to.equal(2)
@@ -3001,3 +3000,21 @@ function make_it(lab) {
     )
   }
 }
+
+function sortBy(ary, f) {
+  return [...ary].sort((a, b) => {
+    const x = f(a)
+    const y = f(b)
+
+    if (x < y) {
+      return -1
+    }
+
+    if (x > y) {
+      return 1
+    }
+
+    return 0
+  })
+}
+
