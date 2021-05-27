@@ -41,3 +41,9 @@ Shared.limitstest({
   seneca: si,
   script: lab,
 })
+
+Shared.upserttest({
+  seneca: si,
+  script: lab
+})
+
