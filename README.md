@@ -1,4 +1,4 @@
-![Seneca](http://senecajs.org/files/assets/seneca-logo.png)
+![Seneca](http://senecajs.org/files/assets/seneca-logo.png?1)
 
 > A [Seneca.js][] plugin
 
