@@ -2566,6 +2566,183 @@ function upserttest(settings) {
             })
           })
         })
+
+        describe('upserting on the id field and some other field', () => {
+          describe('matching entity exists', () => {
+            const id_of_richard = 'some_id'
+
+            beforeEach(
+              () =>
+                new Promise((fin) => {
+                  si.make('players')
+                    .data$({
+                      id: id_of_richard,
+                      username: 'richard',
+                      points: 8000,
+                    })
+                    .save$(fin)
+                })
+            )
+
+            beforeEach(
+              () =>
+                new Promise((fin) => {
+                  si.make('players')
+                    .data$({ username: 'bob', points: 1000 })
+                    .save$(fin)
+                })
+            )
+
+            it('updates the matching entity', (fin) => {
+              si.test(fin)
+
+              si.make('players')
+                .data$({ id: id_of_richard, username: 'richard', points: 9999 })
+                .save$({ upsert$: ['id', 'username'] }, (err) => {
+                  if (err) {
+                    return fin(err)
+                  }
+
+                  si.make('players').list$({}, (err, players) => {
+                    if (err) {
+                      return fin(err)
+                    }
+
+                    players = sortBy(players, x => x.points)
+
+
+                    expect(players.length).to.equal(2)
+
+                    expect(players[0]).to.contain({
+                      username: 'bob',
+                      points: 1000,
+                    })
+
+                    expect(players[1]).to.contain({
+                      id: id_of_richard,
+                      username: 'richard',
+                      points: 9999,
+                    })
+
+
+                    return fin()
+                  })
+                })
+            })
+
+            it('works with load$ after the update', (fin) => {
+              si.test(fin)
+
+              si.make('players')
+                .data$({ id: id_of_richard, username: 'richard', points: 9999 })
+                .save$({ upsert$: ['id', 'username'] }, (err) => {
+                  if (err) {
+                    return fin(err)
+                  }
+
+                  si.make('players').load$(id_of_richard, (err, player) => {
+                    if (err) {
+                      return fin(err)
+                    }
+
+                    expect(player).to.contain({
+                      id: id_of_richard,
+                      username: 'richard',
+                      points: 9999,
+                    })
+
+                    return fin()
+                  })
+                })
+            })
+          })
+
+          describe('matching entity does not exist', () => {
+            const some_id = 'some_id'
+
+            beforeEach(
+              () =>
+                new Promise((fin) => {
+                  si.make('users')
+                    .data$({ username: 'richard', email: 'rr@example.com' })
+                    .save$(fin)
+                })
+            )
+
+            it('creates a new document with that id', (fin) => {
+              si.test(fin)
+
+              si.make('users')
+                .data$({
+                  id: some_id,
+                  username: 'richard',
+                  email: 'rr@voxgig.com',
+                })
+                .save$({ upsert$: ['id', 'username'] }, (err) => {
+                  if (err) {
+                    return fin(err)
+                  }
+
+                  si.make('users').list$({}, (err, users) => {
+                    if (err) {
+                      return fin(err)
+                    }
+
+                    users = sortBy(users, x => x.email)
+
+
+                    expect(users.length).to.equal(2)
+
+                    expect(users[0].id).not.to.equal(some_id)
+
+                    expect(users[0]).to.contain({
+                      username: 'richard',
+                      email: 'rr@example.com'
+                    })
+
+                    expect(users[1]).to.contain({
+                      id: some_id,
+                      username: 'richard',
+                      email: 'rr@voxgig.com'
+                    })
+
+
+                    return fin()
+                  })
+                })
+            })
+
+            it('works with load$ after the creation', (fin) => {
+              si.test(fin)
+
+              si.make('users')
+                .data$({
+                  id: some_id,
+                  username: 'richard',
+                  email: 'rr@voxgig.com'
+                })
+                .save$({ upsert$: ['id', 'username'] }, (err) => {
+                  if (err) {
+                    return fin(err)
+                  }
+
+                  si.make('users').load$(some_id, (err, user) => {
+                    if (err) {
+                      return fin(err)
+                    }
+
+                    expect(user).to.contain({
+                      id: some_id,
+                      username: 'richard',
+                      email: 'rr@voxgig.com'
+                    })
+
+                    return fin()
+                  })
+                })
+            })
+          })
+        })
       })
     })
 
