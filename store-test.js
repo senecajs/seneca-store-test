@@ -2815,107 +2815,49 @@ function upserttest(settings) {
       })
     })
 
-    describe('additional tests', () => {
-      function makeUser({ seneca }) {
-        return seneca.make('users')
-      }
+    describe('happy path', () => {
+      it('is happy', async (fin) => {
+        const foo_ent = si.entity('foo')
 
+        const f01 = await save(foo_ent.data$({ x: 1, y: 22 }))
+        const f02 = await save(foo_ent.data$({ x: 2, y: 33 }))
+        const f03 = await save(foo_ent.data$({ x: 1, y: 55 }), { upsert$: ['x'] })
+        const foos = sortBy(await list(foo_ent), foo => foo.x)
 
-      describe('happy path', () => {
-        let frank
+        expect(f01.id).not.to.equal(f02.id)
+        expect(f01.id).to.equal(f03.id)
 
-        beforeEach(async () => new Promise((resolve, reject) => {
-          makeUser({ seneca: si })
-            .data$({ email: 'frank.sinatra@voxgig.com', username: 'Frank' })
-            .save$((err, user) => {
-              if (err) {
-                return reject(err)
-              }
+        expect(foos.length).to.equal(2)
 
-              frank = user
+        expect(foos[0]).to.contain({ x: 1, y: 55 })
+        expect(foos[1]).to.contain({ x: 2, y: 33 })
 
-              return resolve()
-            })
-        }))
+        return fin()
+      })
 
-
-        let elvis
-
-        beforeEach(async () => new Promise((resolve, reject) => {
-          makeUser({ seneca: si })
-            .data$({ email: 'elvis@voxgig.com', username: 'Elvis' })
-            .save$((err, user) => {
-              if (err) {
-                return reject(err)
-              }
-
-              elvis = user
-
-              return resolve()
-            })
-        }))
-
-
-        let jimi
-
-        beforeEach(async () => new Promise((resolve, reject) => {
-          makeUser({ seneca: si })
-            .data$({ email: 'frank.sinatra@voxgig.com', username: 'Jimi' })
-            .save$({ upsert$: ['email'] }, (err, user) => {
-              if (err) {
-                return reject(err)
-              }
-
-              jimi = user
-
-              return resolve()
-            })
-        }))
-
-
-        it('sets the correct ids', (fin) => {
-          try {
-            expect(typeof frank.id).to.equal('string')
-            expect(typeof elvis.id).to.equal('string')
-            expect(typeof jimi.id).to.equal('string')
-
-            expect(elvis.id).not.to.equal(frank.id)
-            expect(jimi.id).not.to.equal(elvis.id)
-
-            expect(jimi.id).to.equal(frank.id)
-
-            return fin()
-          } catch (err) {
-            return fin(err)
-          }
-        })
-
-        it('returns the correct list of users', (fin) => {
-          makeUser({ seneca: si }).list$((err, users) => {
+      function save(ent, q = {}) {
+        return new Promise((resolve, reject) => {
+          return ent.save$(q, (err, out) => {
             if (err) {
-              return fin(err)
+              return reject(err)
             }
 
-            users = sortBy(users, x => x.username)
-
-
-            expect(users.length).to.equal(2)
-
-            expect(users[0]).to.contain({
-              email: 'elvis@voxgig.com',
-              username: 'Elvis'
-            })
-
-            expect(users[1]).to.contain({
-              email: 'frank.sinatra@voxgig.com',
-              username: 'Jimi'
-            })
-
-
-            return fin()
+            return resolve(out)
           })
         })
-      })
+      }
+
+      function list(ent) {
+        return new Promise((resolve, reject) => {
+          return ent.list$((err, out) => {
+            if (err) {
+              return reject(err)
+            }
+
+            return resolve(out)
+          })
+        })
+      }
     })
   })
 
