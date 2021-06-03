@@ -42,11 +42,12 @@ var barverify = function (bar) {
 
   if (isDate(bar.wen)) {
     Assert(areDatesEqual(bar.wen, base_date))
-  } else if (typeof bar.wen === 'number') {
+  } else if (['number', 'string'].includes(typeof bar.wen)) {
     Assert(areDatesEqual(new Date(bar.wen), base_date))
   } else {
-    Assert.fail('Expected bar.wen to be either a Unix timestamp or a date.')
+    Assert.fail('Expected bar.wen to be either a Unix timestamp, date ISO string or a Date.')
   }
+
 
   const isJsonMaybe = (x) => typeof x === 'string'
 
