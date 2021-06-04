@@ -1613,7 +1613,7 @@ function upserttest(settings) {
           })
       })
 
-      it('should not save modifications to entity after save completes', (fin) => {
+      it("shouldn't mutate the original entity after save completes", (fin) => {
         si.test(fin)
 
         const player = si.make('players')
@@ -2669,7 +2669,7 @@ function upserttest(settings) {
           })
       )
 
-      it('ignores the upsert$ directive and updates the existing entity, as it normally would', (fin) => {
+      it('completely ignores the upsert$ directive', (fin) => {
         si.test(fin)
 
         existing_product
@@ -2712,7 +2712,11 @@ function upserttest(settings) {
 
         const f01 = await foo_ent.data$({ x: 1, y: 22 }).save$()
         const f02 = await foo_ent.data$({ x: 2, y: 33 }).save$()
-        const f03 = await foo_ent.data$({ x: 1, y: 55 }).save$({ upsert$: ['x'] })
+
+        const f03 = await foo_ent
+          .data$({ x: 1, y: 55 })
+          .save$({ upsert$: ['x'] })
+
         const foos = sortBy(await foo_ent.list$(), foo => foo.x)
 
         expect(f01.id).not.to.equal(f02.id)
