@@ -2551,7 +2551,7 @@ function upserttest(settings) {
       })
     })
 
-    describe('upserting on the id and some other field, match exists', () => {
+    describe('upserting on the id and some field, match exists', () => {
       const id_of_richard = 'some_id'
 
       beforeEach(
@@ -2632,6 +2632,92 @@ function upserttest(settings) {
                 id: id_of_richard,
                 username: 'richard',
                 points: 9999,
+              })
+
+              return fin()
+            })
+          })
+      })
+    })
+
+    describe('upserting on the id and some field, match does not exist', () => {
+      const some_id = 'some_id'
+
+      beforeEach(
+        () =>
+          new Promise((fin) => {
+            si.make('users')
+              .data$({ username: 'richard', email: 'rr@example.com' })
+              .save$(fin)
+          })
+      )
+
+      it('creates a new document with that id', (fin) => {
+        si.test(fin)
+
+        si.make('users')
+          .data$({
+            id: some_id,
+            username: 'richard',
+            email: 'rr@voxgig.com',
+          })
+          .save$({ upsert$: ['id', 'username'] }, (err) => {
+            if (err) {
+              return fin(err)
+            }
+
+            si.make('users').list$({}, (err, users) => {
+              if (err) {
+                return fin(err)
+              }
+
+              users = sortBy(users, x => x.email)
+
+
+              expect(users.length).to.equal(2)
+
+              expect(users[0].id).not.to.equal(some_id)
+
+              expect(users[0]).to.contain({
+                username: 'richard',
+                email: 'rr@example.com'
+              })
+
+              expect(users[1]).to.contain({
+                id: some_id,
+                username: 'richard',
+                email: 'rr@voxgig.com'
+              })
+
+
+              return fin()
+            })
+          })
+      })
+
+      it('works with load$ after the creation', (fin) => {
+        si.test(fin)
+
+        si.make('users')
+          .data$({
+            id: some_id,
+            username: 'richard',
+            email: 'rr@voxgig.com'
+          })
+          .save$({ upsert$: ['id', 'username'] }, (err) => {
+            if (err) {
+              return fin(err)
+            }
+
+            si.make('users').load$(some_id, (err, user) => {
+              if (err) {
+                return fin(err)
+              }
+
+              expect(user).to.contain({
+                id: some_id,
+                username: 'richard',
+                email: 'rr@voxgig.com'
               })
 
               return fin()
