@@ -1768,8 +1768,6 @@ function upserttest(settings) {
           })
       )
 
-      afterEach(clearDb)
-
       it('updates the fields and ignores the id$ qualifier', (fin) => {
         si.test(fin)
 
@@ -1939,10 +1937,6 @@ function upserttest(settings) {
     })
 
     describe('no match, 1 upsert$ field, save$ includes the id$ field', () => {
-      beforeEach(clearDb)
-
-      afterEach(clearDb)
-
       it('creates a new entity with the given id', (fin) => {
         si.test(fin)
 
