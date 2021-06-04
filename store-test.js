@@ -1514,10 +1514,15 @@ function upserttest(settings) {
   Assert('seneca' in settings, 'settings.seneca')
   const si = settings.seneca
 
-  const script = settings.script || Lab.script()
+  if (!si.has_plugin('promisify')) {
+    si.use('promisify')
+  }
 
+
+  const script = settings.script || Lab.script()
   const { describe, beforeEach, afterEach } = script
   const it = make_it(script)
+
 
   describe('Upserts', () => {
     beforeEach(
@@ -2711,10 +2716,10 @@ function upserttest(settings) {
       it('is happy', async (fin) => {
         const foo_ent = si.entity('foo')
 
-        const f01 = await save(foo_ent.data$({ x: 1, y: 22 }))
-        const f02 = await save(foo_ent.data$({ x: 2, y: 33 }))
-        const f03 = await save(foo_ent.data$({ x: 1, y: 55 }), { upsert$: ['x'] })
-        const foos = sortBy(await list(foo_ent), foo => foo.x)
+        const f01 = await foo_ent.data$({ x: 1, y: 22 }).save$()
+        const f02 = await foo_ent.data$({ x: 2, y: 33 }).save$()
+        const f03 = await foo_ent.data$({ x: 1, y: 55 }).save$({ upsert$: ['x'] })
+        const foos = sortBy(await foo_ent.list$(), foo => foo.x)
 
         expect(f01.id).not.to.equal(f02.id)
         expect(f01.id).to.equal(f03.id)
@@ -2726,30 +2731,6 @@ function upserttest(settings) {
 
         return fin()
       })
-
-      function save(ent, q = {}) {
-        return new Promise((resolve, reject) => {
-          return ent.save$(q, (err, out) => {
-            if (err) {
-              return reject(err)
-            }
-
-            return resolve(out)
-          })
-        })
-      }
-
-      function list(ent) {
-        return new Promise((resolve, reject) => {
-          return ent.list$((err, out) => {
-            if (err) {
-              return reject(err)
-            }
-
-            return resolve(out)
-          })
-        })
-      }
     })
   })
 
