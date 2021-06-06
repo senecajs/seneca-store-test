@@ -1514,9 +1514,9 @@ function upserttest(settings) {
   Assert('seneca' in settings, 'settings.seneca')
   const si = settings.seneca
 
-  if (!si.has_plugin('promisify')) {
-    si.use('promisify')
-  }
+  // NOTE: WARNING: Side-effect.
+  //
+  si.use('promisify')
 
 
   const script = settings.script || Lab.script()
