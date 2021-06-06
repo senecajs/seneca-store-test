@@ -10,16 +10,16 @@ const lab = (exports.lab = Lab.script())
 const before = lab.before
 
 
-const si = makeSeneca()
-  .use(MemStore)
+const si = makeSenecaForTest()
 
-const merge = makeSeneca()
-  .use(MemStore, { merge: false })
+const si_merge = makeSenecaForTest({
+  mem_store_opts: { merge: false }
+})
 
 
 Shared.basictest({
   seneca: si,
-  senecaMerge: merge,
+  senecaMerge: si_merge,
   script: lab
 })
 
@@ -39,16 +39,19 @@ Shared.upserttest({
 })
 
 
-function makeSeneca() {
+function makeSenecaForTest(opts = {}) {
   const si = Seneca({
     default_plugins: { 'mem-store': false }
   })
 
-  si.test()
-
   if (si.version >= '2.0.0') {
     si.use('entity')
   }
+
+  const { mem_store_opts = {} } = opts
+  si.use(MemStore, mem_store_opts)
+
+  si.test()
 
   return si
 }
