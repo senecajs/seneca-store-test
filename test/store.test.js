@@ -1,29 +1,21 @@
 /* Copyright (c) 2014 Richard Rodger, MIT License */
 'use strict'
 
-var Seneca = require('seneca')
-var MemStore = require('seneca-mem-store')
-var Shared = require('..')
+const Seneca = require('seneca')
+const MemStore = require('seneca-mem-store')
+const Shared = require('..')
 
-var Lab = require('@hapi/lab')
-var lab = (exports.lab = Lab.script())
-var before = lab.before
+const Lab = require('@hapi/lab')
+const lab = (exports.lab = Lab.script())
+const before = lab.before
 
-var si = Seneca({
-  default_plugins: { 'mem-store': false }
-}).test()
 
-var merge = Seneca({
-  default_plugins: { 'mem-store': false }
-}).test()
+const si = makeSeneca()
+  .use(MemStore)
 
-if (si.version >= '2.0.0') {
-  si.use('entity')
-  merge.use('entity')
-}
+const merge = makeSeneca()
+  .use(MemStore, { merge: false })
 
-si.use(MemStore)
-merge.use(MemStore, { merge: false })
 
 Shared.basictest({
   seneca: si,
@@ -45,4 +37,19 @@ Shared.upserttest({
   seneca: si,
   script: lab
 })
+
+
+function makeSeneca() {
+  const si = Seneca({
+    default_plugins: { 'mem-store': false }
+  })
+
+  si.test()
+
+  if (si.version >= '2.0.0') {
+    si.use('entity')
+  }
+
+  return si
+}
 
