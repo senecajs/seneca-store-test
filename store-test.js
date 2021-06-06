@@ -37,16 +37,12 @@ var barverify = function (bar) {
   Assert.equal(bar.dec, 33.33)
   Assert.equal(bar.bol, false)
 
+
   const base_date = new Date(2020, 1, 1)
   const areDatesEqual = (d1, d2) => !(d1 < d2) && !(d1 > d2)
 
-  if (isDate(bar.wen)) {
-    Assert(areDatesEqual(bar.wen, base_date))
-  } else if (['number', 'string'].includes(typeof bar.wen)) {
-    Assert(areDatesEqual(new Date(bar.wen), base_date))
-  } else {
-    Assert.fail('Expected bar.wen to be either a Unix timestamp, date ISO string or a Date.')
-  }
+  Assert(areDatesEqual(new Date(bar.wen), base_date),
+    'Expected bar.wen to be either a Unix timestamp, date ISO string or a Date.')
 
 
   const isJsonMaybe = (x) => typeof x === 'string'
@@ -1514,7 +1510,7 @@ function upserttest(settings) {
   Assert('seneca' in settings, 'settings.seneca')
   const si = settings.seneca
 
-  // NOTE: WARNING: Side-effect.
+  // NOTE: WARNING: Side-effect - the original seneca instance will be mutated.
   //
   si.use('promisify')
 
@@ -3052,13 +3048,6 @@ module.exports = {
       })
     },
   },
-}
-
-function isDate(x) {
-  return (
-    'object' === typeof x &&
-    '[object Date]' === Object.prototype.toString.call(x)
-  )
 }
 
 function make_it(lab) {
