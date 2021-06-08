@@ -37,10 +37,6 @@ If you're using this module, and need help, you can:
 
 The annotated source can be found locally at [./doc/store-test.html](./doc/store-test.html).
 
-### Seneca compatibility
-
-Supports Seneca versions **1.x** - **3.x**
-
 ## Install
 
 ```sh

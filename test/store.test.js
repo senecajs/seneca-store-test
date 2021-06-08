@@ -9,39 +9,36 @@ const Lab = require('@hapi/lab')
 const lab = (exports.lab = Lab.script())
 const before = lab.before
 
-
 const si = makeSenecaForTest()
 
 const si_merge = makeSenecaForTest({
-  mem_store_opts: { merge: false }
+  mem_store_opts: { merge: false },
 })
-
 
 Shared.basictest({
   seneca: si,
   senecaMerge: si_merge,
-  script: lab
+  script: lab,
 })
 
 Shared.sorttest({
   seneca: si,
-  script: lab
+  script: lab,
 })
 
 Shared.limitstest({
   seneca: si,
-  script: lab
+  script: lab,
 })
 
 Shared.upserttest({
   seneca: si,
-  script: lab
+  script: lab,
 })
-
 
 function makeSenecaForTest(opts = {}) {
   const si = Seneca({
-    default_plugins: { 'mem-store': false }
+    default_plugins: { 'mem-store': false },
   })
 
   if (si.version >= '2.0.0') {
@@ -55,4 +52,3 @@ function makeSenecaForTest(opts = {}) {
 
   return si
 }
-

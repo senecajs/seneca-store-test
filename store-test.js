@@ -37,13 +37,13 @@ var barverify = function (bar) {
   Assert.equal(bar.dec, 33.33)
   Assert.equal(bar.bol, false)
 
-
   const base_date = new Date(2020, 1, 1)
   const areDatesEqual = (d1, d2) => !(d1 < d2) && !(d1 > d2)
 
-  Assert(areDatesEqual(new Date(bar.wen), base_date),
-    'Expected bar.wen to be either a Unix timestamp, date ISO string or a Date.')
-
+  Assert(
+    areDatesEqual(new Date(bar.wen), base_date),
+    'Expected bar.wen to be either a Unix timestamp, date ISO string or a Date.'
+  )
 
   const isJsonMaybe = (x) => typeof x === 'string'
 
@@ -296,7 +296,7 @@ function basictest(settings) {
             p1: 'v1',
             p2: 'v2',
             p3: 'v3',
-          }
+          },
         ])
       )
 
@@ -304,8 +304,8 @@ function basictest(settings) {
         createEntities(si, 'products', [
           {
             id$: 'product-to-be-updated',
-            price: '1.95'
-          }
+            price: '1.95',
+          },
         ])
       )
 
@@ -444,9 +444,8 @@ function basictest(settings) {
           expect(out).to.contain({
             id: 'product-to-be-updated',
             price: '1.95',
-            label: 'lorem ipsum'
+            label: 'lorem ipsum',
           })
-
 
           return out.load$(
             'product-to-be-updated',
@@ -454,7 +453,7 @@ function basictest(settings) {
               expect(out).to.contain({
                 id: 'product-to-be-updated',
                 price: '1.95',
-                label: 'lorem ipsum'
+                label: 'lorem ipsum',
               })
             })
           )
@@ -1514,11 +1513,9 @@ function upserttest(settings) {
   //
   si.use('promisify')
 
-
   const script = settings.script || Lab.script()
   const { describe, beforeEach, afterEach } = script
   const it = make_it(script)
-
 
   describe('Upserts', () => {
     beforeEach(
@@ -1586,8 +1583,7 @@ function upserttest(settings) {
                 return fin(err)
               }
 
-              players = sortBy(players, x => x.points)
-
+              players = sortBy(players, (x) => x.points)
 
               expect(players.length).to.equal(2)
 
@@ -1603,7 +1599,6 @@ function upserttest(settings) {
                 points: 9999,
               })
 
-
               return fin()
             })
           })
@@ -1612,20 +1607,24 @@ function upserttest(settings) {
       it("shouldn't mutate the original entity after save completes", (fin) => {
         si.test(fin)
 
-        const player = si.make('players')
+        const player = si
+          .make('players')
           .data$({ username: 'richard', points_history: [37] })
 
-        player.save$({ upsert$: ['username'] }, verify(fin, function (out) {
-          expect(out.id).to.equal(id_of_richard)
-          expect(out.points_history).to.equal([37])
+        player.save$(
+          { upsert$: ['username'] },
+          verify(fin, function (out) {
+            expect(out.id).to.equal(id_of_richard)
+            expect(out.points_history).to.equal([37])
 
-          // Now that the player is in the database, we modify
-          // the original data.
-          //
-          out.points_history.push(43)
+            // Now that the player is in the database, we modify
+            // the original data.
+            //
+            out.points_history.push(43)
 
-          expect(player.points_history).to.equal([37])
-        }))
+            expect(player.points_history).to.equal([37])
+          })
+        )
       })
     })
 
@@ -1699,8 +1698,7 @@ function upserttest(settings) {
                 return fin(err)
               }
 
-              racers = sortBy(racers, x => x.points)
-
+              racers = sortBy(racers, (x) => x.points)
 
               expect(racers.length).to.equal(2)
 
@@ -1842,8 +1840,7 @@ function upserttest(settings) {
                 return fin(err)
               }
 
-              customers = sortBy(customers, x => x.credits)
-
+              customers = sortBy(customers, (x) => x.credits)
 
               expect(customers.length).to.equal(2)
 
@@ -1858,7 +1855,6 @@ function upserttest(settings) {
                 last_name: 'gear',
                 credits: 1234,
               })
-
 
               return fin()
             })
@@ -1908,8 +1904,7 @@ function upserttest(settings) {
                 return fin(err)
               }
 
-              products = sortBy(products, x => x.label)
-
+              products = sortBy(products, (x) => x.label)
 
               expect(products.length).to.equal(2)
 
@@ -1994,8 +1989,7 @@ function upserttest(settings) {
                 return fin(err)
               }
 
-              customers = sortBy(customers, x => x.credits)
-
+              customers = sortBy(customers, (x) => x.credits)
 
               expect(customers.length).to.equal(2)
 
@@ -2109,8 +2103,7 @@ function upserttest(settings) {
                 return fin(err)
               }
 
-              products = sortBy(products, x => x.label)
-
+              products = sortBy(products, (x) => x.label)
 
               expect(products.length).to.equal(2)
 
@@ -2123,7 +2116,6 @@ function upserttest(settings) {
                 label: 'toothbrush',
                 price: '3.95',
               })
-
 
               return fin()
             })
@@ -2202,8 +2194,7 @@ function upserttest(settings) {
                 return fin(err)
               }
 
-              products = sortBy(products, x => x.label)
-
+              products = sortBy(products, (x) => x.label)
 
               expect(products.length).to.equal(2)
 
@@ -2216,7 +2207,6 @@ function upserttest(settings) {
                 label: 'toothbrush',
                 price: '3.95',
               })
-
 
               return fin()
             })
@@ -2249,8 +2239,7 @@ function upserttest(settings) {
                 return fin(err)
               }
 
-              products = sortBy(products, x => x.price)
-
+              products = sortBy(products, (x) => x.price)
 
               expect(products.length).to.equal(2)
 
@@ -2282,9 +2271,7 @@ function upserttest(settings) {
       beforeEach(
         () =>
           new Promise((fin) => {
-            si.make('products')
-              .data$({ price: '3.40', label: null })
-              .save$(fin)
+            si.make('products').data$({ price: '3.40', label: null }).save$(fin)
           })
       )
 
@@ -2303,8 +2290,7 @@ function upserttest(settings) {
                 return fin(err)
               }
 
-              products = sortBy(products, x => x.label)
-
+              products = sortBy(products, (x) => x.label)
 
               expect(products.length).to.equal(2)
 
@@ -2317,7 +2303,6 @@ function upserttest(settings) {
                 label: 'a toothbrush',
                 price: '3.40',
               })
-
 
               return fin()
             })
@@ -2350,8 +2335,7 @@ function upserttest(settings) {
                 return fin(err)
               }
 
-              products = sortBy(products, x => x.label)
-
+              products = sortBy(products, (x) => x.label)
 
               expect(products.length).to.equal(2)
 
@@ -2364,7 +2348,6 @@ function upserttest(settings) {
                 label: null,
                 price: '2.95',
               })
-
 
               return fin()
             })
@@ -2412,8 +2395,7 @@ function upserttest(settings) {
                 return fin(err)
               }
 
-              players = sortBy(players, x => x.points)
-
+              players = sortBy(players, (x) => x.points)
 
               expect(players.length).to.equal(2)
 
@@ -2427,7 +2409,6 @@ function upserttest(settings) {
                 username: 'richard',
                 points: 9999,
               })
-
 
               return fin()
             })
@@ -2492,8 +2473,7 @@ function upserttest(settings) {
                 return fin(err)
               }
 
-              users = sortBy(users, x => x.username)
-
+              users = sortBy(users, (x) => x.username)
 
               expect(users.length).to.equal(2)
 
@@ -2509,7 +2489,6 @@ function upserttest(settings) {
                 username: 'richard',
                 email: 'rr@example.com',
               })
-
 
               return fin()
             })
@@ -2587,8 +2566,7 @@ function upserttest(settings) {
                 return fin(err)
               }
 
-              players = sortBy(players, x => x.points)
-
+              players = sortBy(players, (x) => x.points)
 
               expect(players.length).to.equal(2)
 
@@ -2602,7 +2580,6 @@ function upserttest(settings) {
                 username: 'richard',
                 points: 9999,
               })
-
 
               return fin()
             })
@@ -2667,8 +2644,7 @@ function upserttest(settings) {
                 return fin(err)
               }
 
-              users = sortBy(users, x => x.email)
-
+              users = sortBy(users, (x) => x.email)
 
               expect(users.length).to.equal(2)
 
@@ -2676,15 +2652,14 @@ function upserttest(settings) {
 
               expect(users[0]).to.contain({
                 username: 'richard',
-                email: 'rr@example.com'
+                email: 'rr@example.com',
               })
 
               expect(users[1]).to.contain({
                 id: some_id,
                 username: 'richard',
-                email: 'rr@voxgig.com'
+                email: 'rr@voxgig.com',
               })
-
 
               return fin()
             })
@@ -2698,7 +2673,7 @@ function upserttest(settings) {
           .data$({
             id: some_id,
             username: 'richard',
-            email: 'rr@voxgig.com'
+            email: 'rr@voxgig.com',
           })
           .save$({ upsert$: ['id', 'username'] }, (err) => {
             if (err) {
@@ -2713,7 +2688,7 @@ function upserttest(settings) {
               expect(user).to.contain({
                 id: some_id,
                 username: 'richard',
-                email: 'rr@voxgig.com'
+                email: 'rr@voxgig.com',
               })
 
               return fin()
@@ -2766,8 +2741,7 @@ function upserttest(settings) {
                 return fin(err)
               }
 
-              products = sortBy(products, x => x.price)
-
+              products = sortBy(products, (x) => x.price)
 
               expect(products.length).to.equal(2)
 
@@ -2780,7 +2754,6 @@ function upserttest(settings) {
                 label: 'capuccino',
                 price: '7.99',
               })
-
 
               return fin()
             })
@@ -2799,7 +2772,7 @@ function upserttest(settings) {
           .data$({ x: 1, y: 55 })
           .save$({ upsert$: ['x'] })
 
-        const foos = sortBy(await foo_ent.list$(), foo => foo.x)
+        const foos = sortBy(await foo_ent.list$(), (foo) => foo.x)
 
         expect(f01.id).not.to.equal(f02.id)
         expect(f01.id).to.equal(f03.id)
@@ -3083,4 +3056,3 @@ function sortBy(ary, f) {
     return 0
   })
 }
-

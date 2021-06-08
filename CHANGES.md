@@ -1,11 +1,14 @@
-## [WIP]
+## 4.0.0
 
-* Updated dependencies
+* Provide standard upsert test.
+* Updated dependencies.
+
 
 ## 1.1.1 2016-05-09
 
 * Fixed the native$ tests
 * Removed peerDependencies from package.json
+
 
 ## 1.1.0: 2016-04-01
 
