@@ -1517,7 +1517,7 @@ function upserttest(settings) {
   const { describe, beforeEach, afterEach } = script
   const it = make_it(script)
 
-  describe('Upserts:', () => {
+  describe('Upserts', () => {
     beforeEach(
       () =>
         new Promise((resolve, _reject) => {
