@@ -2763,16 +2763,16 @@ function upserttest(settings) {
 
     describe('happy path', () => {
       it('is happy', async (fin) => {
-        const foo_ent = si.entity('foo')
+        const make_foo = () => si.make('foo')
 
-        const f01 = await foo_ent.data$({ x: 1, y: 22 }).save$()
-        const f02 = await foo_ent.data$({ x: 2, y: 33 }).save$()
+        const f01 = await make_foo().data$({ x: 1, y: 22 }).save$()
+        const f02 = await make_foo().data$({ x: 2, y: 33 }).save$()
 
-        const f03 = await foo_ent
+        const f03 = await make_foo()
           .data$({ x: 1, y: 55 })
           .save$({ upsert$: ['x'] })
 
-        const foos = sortBy(await foo_ent.list$(), (foo) => foo.x)
+        const foos = sortBy(await make_foo().list$(), (foo) => foo.x)
 
         expect(f01.id).not.to.equal(f02.id)
         expect(f01.id).to.equal(f03.id)
