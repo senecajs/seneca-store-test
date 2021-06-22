@@ -148,10 +148,95 @@ function createEntities(si, name, data) {
   }
 }
 
+function mergetest(settings) {
+  const si = settings.senecaMergeFalse
+
+  Assert(
+    si,
+    'Implementor should provide a seneca instance with the store configured to default to merge:false'
+  )
+
+  const script = settings.script || Lab.script()
+  const it = make_it(script)
+  const { describe, before, beforeEach } = script
+
+  describe('With Option merge:false', function () {
+    beforeEach(clearDb(si))
+    beforeEach(
+      createEntities(si, 'foo', [
+        {
+          id$: 'to-be-updated',
+          p1: 'v1',
+          p2: 'v2',
+          p3: 'v3',
+        },
+      ])
+    )
+
+    it('should update an entity if id provided', function (done) {
+      var foo = si.make('foo')
+      foo.id = 'to-be-updated'
+      foo.p1 = 'z1'
+      foo.p2 = 'z2'
+
+      foo.save$(function (err, foo1) {
+        Assert.isNull(err)
+        Assert.isNotNull(foo1.id)
+        Assert.equal(foo1.id, 'to-be-updated')
+        Assert.equal(foo1.p1, 'z1')
+        Assert.equal(foo1.p2, 'z2')
+        Assert.notOk(foo1.p3)
+
+        foo1.load$(
+          'to-be-updated',
+          verify(done, function (foo2) {
+            Assert.isNotNull(foo2)
+            Assert.equal(foo2.id, 'to-be-updated')
+            Assert.equal(foo2.p1, 'z1')
+            Assert.equal(foo2.p2, 'z2')
+            Assert.notOk(foo2.p3)
+          })
+        )
+      })
+    })
+
+    it('should allow to merge during update with merge$: true', function (done) {
+      var foo = si.make('foo')
+      foo.id = 'to-be-updated'
+      foo.p1 = 'z1'
+      foo.p2 = 'z2'
+      foo.p3 = 'v3'
+
+      foo.save$({ merge$: true }, function (err, foo1) {
+        Assert.isNull(err)
+        Assert.isNotNull(foo1.id)
+        Assert.equal(foo1.id, 'to-be-updated')
+        Assert.equal(foo1.p1, 'z1')
+        Assert.equal(foo1.p2, 'z2')
+        Assert.equal(foo1.p3, 'v3')
+        Assert.notOk(foo1.merge$)
+
+        foo1.load$(
+          'to-be-updated',
+          verify(done, function (foo2) {
+            Assert.isNotNull(foo2)
+            Assert.equal(foo2.id, 'to-be-updated')
+            Assert.equal(foo2.p1, 'z1')
+            Assert.equal(foo2.p2, 'z2')
+            Assert.equal(foo1.p3, 'v3')
+            Assert.notOk(foo1.merge$)
+          })
+        )
+      })
+    })
+  })
+
+  return script
+}
+
 function basictest(settings) {
   var si = settings.seneca
 
-  var merge = settings.senecaMerge
   var script = settings.script || Lab.script()
 
   var describe = script.describe
@@ -668,85 +753,6 @@ function basictest(settings) {
               })
             )
           })
-        })
-      })
-    })
-
-    describe('With Option merge:false', function () {
-      beforeEach(clearDb(merge))
-      beforeEach(
-        createEntities(merge, 'foo', [
-          {
-            id$: 'to-be-updated',
-            p1: 'v1',
-            p2: 'v2',
-            p3: 'v3',
-          },
-        ])
-      )
-
-      it('should provide senecaMerge', function (done) {
-        Assert(
-          merge,
-          'Implementor should provide a seneca instance with the store configured to default to merge:false'
-        )
-        done()
-      })
-
-      it('should update an entity if id provided', function (done) {
-        var foo = merge.make('foo')
-        foo.id = 'to-be-updated'
-        foo.p1 = 'z1'
-        foo.p2 = 'z2'
-
-        foo.save$(function (err, foo1) {
-          Assert.isNull(err)
-          Assert.isNotNull(foo1.id)
-          Assert.equal(foo1.id, 'to-be-updated')
-          Assert.equal(foo1.p1, 'z1')
-          Assert.equal(foo1.p2, 'z2')
-          Assert.notOk(foo1.p3)
-
-          foo1.load$(
-            'to-be-updated',
-            verify(done, function (foo2) {
-              Assert.isNotNull(foo2)
-              Assert.equal(foo2.id, 'to-be-updated')
-              Assert.equal(foo2.p1, 'z1')
-              Assert.equal(foo2.p2, 'z2')
-              Assert.notOk(foo2.p3)
-            })
-          )
-        })
-      })
-
-      it('should allow to merge during update with merge$: true', function (done) {
-        var foo = merge.make('foo')
-        foo.id = 'to-be-updated'
-        foo.p1 = 'z1'
-        foo.p2 = 'z2'
-        foo.p3 = 'v3'
-
-        foo.save$({ merge$: true }, function (err, foo1) {
-          Assert.isNull(err)
-          Assert.isNotNull(foo1.id)
-          Assert.equal(foo1.id, 'to-be-updated')
-          Assert.equal(foo1.p1, 'z1')
-          Assert.equal(foo1.p2, 'z2')
-          Assert.equal(foo1.p3, 'v3')
-          Assert.notOk(foo1.merge$)
-
-          foo1.load$(
-            'to-be-updated',
-            verify(done, function (foo2) {
-              Assert.isNotNull(foo2)
-              Assert.equal(foo2.id, 'to-be-updated')
-              Assert.equal(foo2.p1, 'z1')
-              Assert.equal(foo2.p2, 'z2')
-              Assert.equal(foo1.p3, 'v3')
-              Assert.notOk(foo1.merge$)
-            })
-          )
         })
       })
     })
@@ -2852,6 +2858,7 @@ function sqltest(settings) {
 
 module.exports = {
   basictest: basictest,
+  mergetest: mergetest,
   sorttest: sorttest,
   limitstest: limitstest,
   upserttest: upserttest,

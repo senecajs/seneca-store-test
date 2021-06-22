@@ -7,17 +7,12 @@ const Shared = require('..')
 
 const Lab = require('@hapi/lab')
 const lab = (exports.lab = Lab.script())
-const before = lab.before
+
 
 const si = makeSenecaForTest()
 
-const si_merge = makeSenecaForTest({
-  mem_store_opts: { merge: false },
-})
-
 Shared.basictest({
   seneca: si,
-  senecaMerge: si_merge,
   script: lab,
 })
 
@@ -35,6 +30,17 @@ Shared.upserttest({
   seneca: si,
   script: lab,
 })
+
+
+const si_replace = makeSenecaForTest({
+  mem_store_opts: { merge: false },
+})
+
+Shared.mergetest({
+  senecaMergeFalse: si_replace,
+  script: lab,
+})
+
 
 function makeSenecaForTest(opts = {}) {
   const si = Seneca({
