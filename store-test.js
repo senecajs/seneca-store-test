@@ -2347,18 +2347,18 @@ function upserttest(settings) {
                 return fin(err)
               }
 
-              products = sortBy(products, (x) => x.label)
+              products = sortBy(products, (x) => x.price)
 
               expect(products.length).to.equal(2)
 
               expect(products[0]).to.contain({
-                label: 'a toothbrush',
-                price: '3.40',
+                label: null,
+                price: '2.95'
               })
 
               expect(products[1]).to.contain({
-                label: null,
-                price: '2.95',
+                label: 'a toothbrush',
+                price: '3.40'
               })
 
               return fin()
