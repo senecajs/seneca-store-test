@@ -175,9 +175,7 @@ function mergetest(settings) {
       foo.p2 = 'z2'
 
       foo.save$(function (err, foo1) {
-        if (err) {
-          return done(err)
-        }
+        Assert.isNull(err)
 
         expect(foo1).to.contain({
           id: 'to-be-updated',
@@ -210,9 +208,7 @@ function mergetest(settings) {
       foo.p3 = 'v3'
 
       foo.save$({ merge$: true }, function (err, foo1) {
-        if (err) {
-          return done(err)
-        }
+        Assert.isNull(err)
 
         expect(foo1).to.contain({
           id: 'to-be-updated',
