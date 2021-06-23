@@ -155,26 +155,96 @@ function mergetest(settings) {
   const it = make_it(script)
   const { describe, beforeEach } = script
 
-  describe('With Option merge:false', function () {
-    beforeEach(clearDb(si))
-    beforeEach(
-      createEntities(si, 'foo', [
-        {
-          id$: 'to-be-updated',
-          p1: 'v1',
-          p2: 'v2',
-          p3: 'v3'
-        }
-      ])
-    )
+  describe('Testing the merge option', function () {
+    describe('merge:false as plugin option', function () {
+      beforeEach(clearDb(si))
+      beforeEach(
+        createEntities(si, 'foo', [
+          {
+            id$: 'to-be-updated',
+            p1: 'v1',
+            p2: 'v2',
+            p3: 'v3'
+          }
+        ])
+      )
 
-    it('should update an entity if id provided', function (done) {
+      it('should update an entity if id provided', function (done) {
+        const foo = si.make('foo')
+        foo.id = 'to-be-updated'
+        foo.p1 = 'z1'
+        foo.p2 = 'z2'
+
+        foo.save$(function (err, foo1) {
+          Assert.isNull(err)
+
+          expect(foo1).to.contain({
+            id: 'to-be-updated',
+            p1: 'z1',
+            p2: 'z2'
+          })
+
+          expect('p3' in foo1).to.equal(false)
+
+          foo1.load$(
+            'to-be-updated',
+            verify(done, function (foo2) {
+              expect(foo2).to.contain({
+                id: 'to-be-updated',
+                p1: 'z1',
+                p2: 'z2'
+              })
+
+              expect('p3' in foo2).to.equal(false)
+            })
+          )
+        })
+      })
+
+      it('should allow to merge during update with merge$: true', function (done) {
+        const foo = si.make('foo')
+        foo.id = 'to-be-updated'
+        foo.p1 = 'z1'
+        foo.p2 = 'z2'
+        foo.p3 = 'v3'
+
+        foo.save$({ merge$: true }, function (err, foo1) {
+          Assert.isNull(err)
+
+          expect(foo1).to.contain({
+            id: 'to-be-updated',
+            p1: 'z1',
+            p2: 'z2',
+            p3: 'v3'
+          })
+
+          expect('merge$' in foo1).to.equal(false)
+
+
+          foo1.load$(
+            'to-be-updated',
+            verify(done, function (foo2) {
+              expect(foo1).to.contain({
+                id: 'to-be-updated',
+                p1: 'z1',
+                p2: 'z2',
+                p3: 'v3'
+              })
+
+              expect('merge$' in foo1).to.equal(false)
+            })
+          )
+        })
+      })
+    })
+
+    it('should allow to not merge during update with merge$: false', function (done) {
       const foo = si.make('foo')
       foo.id = 'to-be-updated'
       foo.p1 = 'z1'
       foo.p2 = 'z2'
 
-      foo.save$(function (err, foo1) {
+      foo.save$({ merge$: false }, function (err, foo1) {
         Assert.isNull(err)
 
         expect(foo1).to.contain({
@@ -183,42 +253,7 @@ function mergetest(settings) {
           p2: 'z2'
         })
 
-        expect('p3' in foo1).to.equal(false)
-
-        foo1.load$(
-          'to-be-updated',
-          verify(done, function (foo2) {
-            expect(foo2).to.contain({
-              id: 'to-be-updated',
-              p1: 'z1',
-              p2: 'z2'
-            })
-
-            expect('p3' in foo2).to.equal(false)
-          })
-        )
-      })
-    })
-
-    it('should allow to merge during update with merge$: true', function (done) {
-      const foo = si.make('foo')
-      foo.id = 'to-be-updated'
-      foo.p1 = 'z1'
-      foo.p2 = 'z2'
-      foo.p3 = 'v3'
-
-      foo.save$({ merge$: true }, function (err, foo1) {
-        Assert.isNull(err)
-
-        expect(foo1).to.contain({
-          id: 'to-be-updated',
-          p1: 'z1',
-          p2: 'z2',
-          p3: 'v3'
-        })
-
-        expect('merge$' in foo1).to.equal(false)
-
+        expect(foo1.p3).to.satisfy(p3 => null == p3)
 
         foo1.load$(
           'to-be-updated',
@@ -226,11 +261,10 @@ function mergetest(settings) {
             expect(foo1).to.contain({
               id: 'to-be-updated',
               p1: 'z1',
-              p2: 'z2',
-              p3: 'v3'
+              p2: 'z2'
             })
 
-            expect('merge$' in foo1).to.equal(false)
+            expect(foo1.p3).to.satisfy(p3 => null == p3)
           })
         )
       })
@@ -624,33 +658,6 @@ function basictest(settings) {
               Assert.equal(foo2.p1, 'z1')
               Assert.equal(foo2.p2, 'z2')
               Assert.equal(foo2.p3, 'z3')
-            })
-          )
-        })
-      })
-
-      it('should allow to not merge during update with merge$: false', function (done) {
-        var foo = si.make('foo')
-        foo.id = 'to-be-updated'
-        foo.p1 = 'z1'
-        foo.p2 = 'z2'
-
-        foo.save$({ merge$: false }, function (err, foo1) {
-          Assert.isNull(err)
-          Assert.isNotNull(foo1.id)
-          Assert.equal(foo1.id, 'to-be-updated')
-          Assert.equal(foo1.p1, 'z1')
-          Assert.equal(foo1.p2, 'z2')
-          Assert.notOk(foo1.p3)
-
-          foo1.load$(
-            'to-be-updated',
-            verify(done, function (foo2) {
-              Assert.isNotNull(foo2)
-              Assert.equal(foo2.id, 'to-be-updated')
-              Assert.equal(foo2.p1, 'z1')
-              Assert.equal(foo2.p2, 'z2')
-              Assert.notOk(foo1.p3)
             })
           )
         })
