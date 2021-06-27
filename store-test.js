@@ -38,7 +38,7 @@ var barverify = function (bar) {
   Assert.equal(bar.bol, false)
 
   const base_date = new Date(2020, 1, 1)
-  const areDatesEqual = (d1, d2) => !(d1 < d2) && !(d1 > d2)
+  const areDatesEqual = (d1, d2) => d1.getTime() === d2.getTime()
 
   Assert(
     areDatesEqual(new Date(bar.wen), base_date),
