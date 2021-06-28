@@ -38,7 +38,7 @@ var barverify = function (bar) {
   Assert.equal(bar.bol, false)
 
   const base_date = new Date(2020, 1, 1)
-  const areDatesEqual = (d1, d2) => !(d1 < d2) && !(d1 > d2)
+  const areDatesEqual = (d1, d2) => d1.getTime() === d2.getTime()
 
   Assert(
     areDatesEqual(new Date(bar.wen), base_date),
@@ -148,10 +148,135 @@ function createEntities(si, name, data) {
   }
 }
 
+function mergetest(settings) {
+  const si = settings.senecaMergeFalse
+
+  const script = settings.script || Lab.script()
+  const it = make_it(script)
+  const { describe, beforeEach } = script
+
+  describe('Testing the merge option', function () {
+    describe('merge:false as plugin option', function () {
+      beforeEach(clearDb(si))
+      beforeEach(
+        createEntities(si, 'foo', [
+          {
+            id$: 'to-be-updated',
+            p1: 'v1',
+            p2: 'v2',
+            p3: 'v3'
+          }
+        ])
+      )
+
+      it('should update an entity if id provided', function (done) {
+        const foo = si.make('foo')
+        foo.id = 'to-be-updated'
+        foo.p1 = 'z1'
+        foo.p2 = 'z2'
+
+        foo.save$(function (err, foo1) {
+          Assert.isNull(err)
+
+          expect(foo1).to.contain({
+            id: 'to-be-updated',
+            p1: 'z1',
+            p2: 'z2'
+          })
+
+          expect('p3' in foo1).to.equal(false)
+
+          foo1.load$(
+            'to-be-updated',
+            verify(done, function (foo2) {
+              expect(foo2).to.contain({
+                id: 'to-be-updated',
+                p1: 'z1',
+                p2: 'z2'
+              })
+
+              expect('p3' in foo2).to.equal(false)
+            })
+          )
+        })
+      })
+
+      it('should allow to merge during update with merge$: true', function (done) {
+        const foo = si.make('foo')
+        foo.id = 'to-be-updated'
+        foo.p1 = 'z1'
+        foo.p2 = 'z2'
+        foo.p3 = 'v3'
+
+        foo.save$({ merge$: true }, function (err, foo1) {
+          Assert.isNull(err)
+
+          expect(foo1).to.contain({
+            id: 'to-be-updated',
+            p1: 'z1',
+            p2: 'z2',
+            p3: 'v3'
+          })
+
+          expect('merge$' in foo1).to.equal(false)
+
+
+          foo1.load$(
+            'to-be-updated',
+            verify(done, function (foo2) {
+              expect(foo1).to.contain({
+                id: 'to-be-updated',
+                p1: 'z1',
+                p2: 'z2',
+                p3: 'v3'
+              })
+
+              expect('merge$' in foo1).to.equal(false)
+            })
+          )
+        })
+      })
+    })
+
+    it('should allow to not merge during update with merge$: false', function (done) {
+      const foo = si.make('foo')
+      foo.id = 'to-be-updated'
+      foo.p1 = 'z1'
+      foo.p2 = 'z2'
+
+      foo.save$({ merge$: false }, function (err, foo1) {
+        Assert.isNull(err)
+
+        expect(foo1).to.contain({
+          id: 'to-be-updated',
+          p1: 'z1',
+          p2: 'z2'
+        })
+
+        expect(foo1.p3).to.satisfy(p3 => null == p3)
+
+        foo1.load$(
+          'to-be-updated',
+          verify(done, function (foo2) {
+            expect(foo1).to.contain({
+              id: 'to-be-updated',
+              p1: 'z1',
+              p2: 'z2'
+            })
+
+            expect(foo1.p3).to.satisfy(p3 => null == p3)
+          })
+        )
+      })
+    })
+  })
+
+  return script
+}
+
 function basictest(settings) {
   var si = settings.seneca
 
-  var merge = settings.senecaMerge
   var script = settings.script || Lab.script()
 
   var describe = script.describe
@@ -538,33 +663,6 @@ function basictest(settings) {
         })
       })
 
-      it('should allow to not merge during update with merge$: false', function (done) {
-        var foo = si.make('foo')
-        foo.id = 'to-be-updated'
-        foo.p1 = 'z1'
-        foo.p2 = 'z2'
-
-        foo.save$({ merge$: false }, function (err, foo1) {
-          Assert.isNull(err)
-          Assert.isNotNull(foo1.id)
-          Assert.equal(foo1.id, 'to-be-updated')
-          Assert.equal(foo1.p1, 'z1')
-          Assert.equal(foo1.p2, 'z2')
-          Assert.notOk(foo1.p3)
-
-          foo1.load$(
-            'to-be-updated',
-            verify(done, function (foo2) {
-              Assert.isNotNull(foo2)
-              Assert.equal(foo2.id, 'to-be-updated')
-              Assert.equal(foo2.p1, 'z1')
-              Assert.equal(foo2.p2, 'z2')
-              Assert.notOk(foo1.p3)
-            })
-          )
-        })
-      })
-
       it('should support different attribute types', function (done) {
         var bar = si.make(bartemplate)
         var mark = (bar.mark = Math.random().toString())
@@ -668,85 +766,6 @@ function basictest(settings) {
               })
             )
           })
-        })
-      })
-    })
-
-    describe('With Option merge:false', function () {
-      beforeEach(clearDb(merge))
-      beforeEach(
-        createEntities(merge, 'foo', [
-          {
-            id$: 'to-be-updated',
-            p1: 'v1',
-            p2: 'v2',
-            p3: 'v3',
-          },
-        ])
-      )
-
-      it('should provide senecaMerge', function (done) {
-        Assert(
-          merge,
-          'Implementor should provide a seneca instance with the store configured to default to merge:false'
-        )
-        done()
-      })
-
-      it('should update an entity if id provided', function (done) {
-        var foo = merge.make('foo')
-        foo.id = 'to-be-updated'
-        foo.p1 = 'z1'
-        foo.p2 = 'z2'
-
-        foo.save$(function (err, foo1) {
-          Assert.isNull(err)
-          Assert.isNotNull(foo1.id)
-          Assert.equal(foo1.id, 'to-be-updated')
-          Assert.equal(foo1.p1, 'z1')
-          Assert.equal(foo1.p2, 'z2')
-          Assert.notOk(foo1.p3)
-
-          foo1.load$(
-            'to-be-updated',
-            verify(done, function (foo2) {
-              Assert.isNotNull(foo2)
-              Assert.equal(foo2.id, 'to-be-updated')
-              Assert.equal(foo2.p1, 'z1')
-              Assert.equal(foo2.p2, 'z2')
-              Assert.notOk(foo2.p3)
-            })
-          )
-        })
-      })
-
-      it('should allow to merge during update with merge$: true', function (done) {
-        var foo = merge.make('foo')
-        foo.id = 'to-be-updated'
-        foo.p1 = 'z1'
-        foo.p2 = 'z2'
-        foo.p3 = 'v3'
-
-        foo.save$({ merge$: true }, function (err, foo1) {
-          Assert.isNull(err)
-          Assert.isNotNull(foo1.id)
-          Assert.equal(foo1.id, 'to-be-updated')
-          Assert.equal(foo1.p1, 'z1')
-          Assert.equal(foo1.p2, 'z2')
-          Assert.equal(foo1.p3, 'v3')
-          Assert.notOk(foo1.merge$)
-
-          foo1.load$(
-            'to-be-updated',
-            verify(done, function (foo2) {
-              Assert.isNotNull(foo2)
-              Assert.equal(foo2.id, 'to-be-updated')
-              Assert.equal(foo2.p1, 'z1')
-              Assert.equal(foo2.p2, 'z2')
-              Assert.equal(foo1.p3, 'v3')
-              Assert.notOk(foo1.merge$)
-            })
-          )
         })
       })
     })
@@ -2290,18 +2309,18 @@ function upserttest(settings) {
                 return fin(err)
               }
 
-              products = sortBy(products, (x) => x.label)
+              products = sortBy(products, (x) => x.label || '')
 
               expect(products.length).to.equal(2)
 
               expect(products[0]).to.contain({
                 label: null,
-                price: '3.40',
+                price: '3.40'
               })
 
               expect(products[1]).to.contain({
                 label: 'a toothbrush',
-                price: '3.40',
+                price: '3.40'
               })
 
               return fin()
@@ -2335,18 +2354,18 @@ function upserttest(settings) {
                 return fin(err)
               }
 
-              products = sortBy(products, (x) => x.label)
+              products = sortBy(products, (x) => x.price)
 
               expect(products.length).to.equal(2)
 
               expect(products[0]).to.contain({
-                label: 'a toothbrush',
-                price: '3.40',
+                label: null,
+                price: '2.95'
               })
 
               expect(products[1]).to.contain({
-                label: null,
-                price: '2.95',
+                label: 'a toothbrush',
+                price: '3.40'
               })
 
               return fin()
@@ -2852,6 +2871,7 @@ function sqltest(settings) {
 
 module.exports = {
   basictest: basictest,
+  mergetest: mergetest,
   sorttest: sorttest,
   limitstest: limitstest,
   upserttest: upserttest,
