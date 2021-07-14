@@ -1,6 +1,6 @@
 {
   "name": "seneca-store-test",
-  "version": "4.0.2",
+  "version": "4.1.0",
   "description": "Standard test cases for seneca stores",
   "main": "store-test.js",
   "scripts": {
@@ -54,10 +54,10 @@
   },
   "devDependencies": {
     "@hapi/code": "8.0.3",
-    "@hapi/lab": "24.2.1",
-    "coveralls": "3.1.0",
+    "@hapi/lab": "24.3.2",
+    "coveralls": "3.1.1",
     "seneca": "plugin",
     "seneca-entity": "14.0.0",
-    "seneca-mem-store": "6.0.1"
+    "seneca-mem-store": "6.0.3"
   }
 }

@@ -164,8 +164,8 @@ function mergetest(settings) {
             id$: 'to-be-updated',
             p1: 'v1',
             p2: 'v2',
-            p3: 'v3'
-          }
+            p3: 'v3',
+          },
         ])
       )
 
@@ -181,7 +181,7 @@ function mergetest(settings) {
           expect(foo1).to.contain({
             id: 'to-be-updated',
             p1: 'z1',
-            p2: 'z2'
+            p2: 'z2',
           })
 
           expect('p3' in foo1).to.equal(false)
@@ -192,7 +192,7 @@ function mergetest(settings) {
               expect(foo2).to.contain({
                 id: 'to-be-updated',
                 p1: 'z1',
-                p2: 'z2'
+                p2: 'z2',
               })
 
               expect('p3' in foo2).to.equal(false)
@@ -215,11 +215,10 @@ function mergetest(settings) {
             id: 'to-be-updated',
             p1: 'z1',
             p2: 'z2',
-            p3: 'v3'
+            p3: 'v3',
           })
 
           expect('merge$' in foo1).to.equal(false)
-
 
           foo1.load$(
             'to-be-updated',
@@ -228,7 +227,7 @@ function mergetest(settings) {
                 id: 'to-be-updated',
                 p1: 'z1',
                 p2: 'z2',
-                p3: 'v3'
+                p3: 'v3',
               })
 
               expect('merge$' in foo1).to.equal(false)
@@ -250,10 +249,10 @@ function mergetest(settings) {
         expect(foo1).to.contain({
           id: 'to-be-updated',
           p1: 'z1',
-          p2: 'z2'
+          p2: 'z2',
         })
 
-        expect(foo1.p3).to.satisfy(p3 => null == p3)
+        expect(foo1.p3).to.satisfy((p3) => null == p3)
 
         foo1.load$(
           'to-be-updated',
@@ -261,10 +260,10 @@ function mergetest(settings) {
             expect(foo1).to.contain({
               id: 'to-be-updated',
               p1: 'z1',
-              p2: 'z2'
+              p2: 'z2',
             })
 
-            expect(foo1.p3).to.satisfy(p3 => null == p3)
+            expect(foo1.p3).to.satisfy((p3) => null == p3)
           })
         )
       })
@@ -2315,12 +2314,12 @@ function upserttest(settings) {
 
               expect(products[0]).to.contain({
                 label: null,
-                price: '3.40'
+                price: '3.40',
               })
 
               expect(products[1]).to.contain({
                 label: 'a toothbrush',
-                price: '3.40'
+                price: '3.40',
               })
 
               return fin()
@@ -2360,12 +2359,12 @@ function upserttest(settings) {
 
               expect(products[0]).to.contain({
                 label: null,
-                price: '2.95'
+                price: '2.95',
               })
 
               expect(products[1]).to.contain({
                 label: 'a toothbrush',
-                price: '3.40'
+                price: '3.40',
               })
 
               return fin()
