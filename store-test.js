@@ -1482,40 +1482,42 @@ function limitstest(settings) {
 
       it('should ignore limit < 0', function (done) {
         var cl = si.make('foo')
-        cl.remove$({ all$: true, limit$: -1, sort$: { p1: 1 } }, function (
-          err
-        ) {
-          if (err) {
-            return done(err)
-          }
+        cl.remove$(
+          { all$: true, limit$: -1, sort$: { p1: 1 } },
+          function (err) {
+            if (err) {
+              return done(err)
+            }
 
-          cl.list$(
-            { sort$: { p1: 1 } },
-            verify(done, function (lst) {
-              Assert.lengthOf(lst, 0)
-            })
-          )
-        })
+            cl.list$(
+              { sort$: { p1: 1 } },
+              verify(done, function (lst) {
+                Assert.lengthOf(lst, 0)
+              })
+            )
+          }
+        )
       })
 
       it('should ignore invalid qualifier values', function (done) {
         var cl = si.make('foo')
-        cl.remove$({ limit$: 'A', skip$: 'B', sort$: { p1: 1 } }, function (
-          err
-        ) {
-          if (err) {
-            return done(err)
-          }
+        cl.remove$(
+          { limit$: 'A', skip$: 'B', sort$: { p1: 1 } },
+          function (err) {
+            if (err) {
+              return done(err)
+            }
 
-          cl.list$(
-            { sort$: { p1: 1 } },
-            verify(done, function (lst) {
-              Assert.lengthOf(lst, 2)
-              Assert.equal(lst[0].p1, 'v2')
-              Assert.equal(lst[1].p1, 'v3')
-            })
-          )
-        })
+            cl.list$(
+              { sort$: { p1: 1 } },
+              verify(done, function (lst) {
+                Assert.lengthOf(lst, 2)
+                Assert.equal(lst[0].p1, 'v2')
+                Assert.equal(lst[1].p1, 'v3')
+              })
+            )
+          }
+        )
       })
     })
   })
