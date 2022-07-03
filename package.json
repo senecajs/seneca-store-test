@@ -47,17 +47,17 @@
     "lib"
   ],
   "dependencies": {
-    "async": "3.2.0",
-    "chai": "4.3.4",
-    "nid": "1.3.3",
-    "seneca-promisify": "2.0.0"
+    "async": "3.2.4",
+    "chai": "4.3.6",
+    "nid": "2.0.0",
+    "seneca-promisify": "2.4.1"
   },
   "devDependencies": {
-    "@hapi/code": "8.0.3",
-    "@hapi/lab": "24.3.2",
+    "@hapi/code": "9.0.1",
+    "@hapi/lab": "25.0.1",
     "coveralls": "3.1.1",
     "seneca": "plugin",
-    "seneca-entity": "14.0.0",
-    "seneca-mem-store": "6.0.3"
+    "seneca-entity": "17.1.0",
+    "seneca-mem-store": "6.4.0"
   }
 }
