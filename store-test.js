@@ -2899,7 +2899,7 @@ module.exports = {
         lab.it('clear-data', async () => {
           let seneca = opts.seneca
 
-          let ent0 = seneca.make(opts.ent0)
+          let ent0 = seneca.entity(opts.ent0)
           await ent0.remove$({ all$: true })
 
           let list = await ent0.list$()
@@ -2912,7 +2912,7 @@ module.exports = {
       lab.describe('store-keyvalue', () => {
         lab.it('save-load-auto-id', async () => {
           let seneca = opts.seneca
-          let ent0 = seneca.make(opts.ent0)
+          let ent0 = seneca.entity(opts.ent0)
 
           // load non-existent
           let n0 = await ent0.make$().load$('not-an-id')
@@ -2965,7 +2965,7 @@ module.exports = {
 
         lab.it('save-load-given-id', async () => {
           let seneca = opts.seneca
-          let ent0 = seneca.make(opts.ent0)
+          let ent0 = seneca.entity(opts.ent0)
 
           // load non-existent
           let n0 = await ent0.make$().load$('not-an-id')
@@ -3016,7 +3016,7 @@ module.exports = {
 
         lab.it('remove', async () => {
           let seneca = opts.seneca
-          let ent0 = seneca.make(opts.ent0)
+          let ent0 = seneca.entity(opts.ent0)
 
           let c0 = await ent0.make$({ c: 0 }).save$()
           let c0o = await ent0.make$().load$(c0.id)
