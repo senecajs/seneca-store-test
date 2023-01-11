@@ -1,6 +1,6 @@
 {
   "name": "seneca-store-test",
-  "version": "5.1.0",
+  "version": "5.2.0",
   "description": "Standard test cases for seneca stores",
   "main": "store-test.js",
   "scripts": {
@@ -48,17 +48,17 @@
   ],
   "dependencies": {
     "async": "3.2.4",
-    "chai": "4.3.6",
-    "nid": "2.0.0",
-    "seneca-promisify": "3.0.0"
+    "chai": "4.3.7",
+    "nid": "2.0.1",
+    "seneca-promisify": "3.4.0"
   },
   "devDependencies": {
-    "@hapi/code": "9.0.1",
-    "@hapi/lab": "25.0.1",
+    "@hapi/code": "9.0.2",
+    "@hapi/lab": "25.1.0",
     "coveralls": "3.1.1",
-    "prettier": "^2.7.1",
+    "prettier": "^2.8.2",
     "seneca": "plugin",
-    "seneca-entity": "18.0.0",
-    "seneca-mem-store": "6.4.0"
+    "seneca-entity": "18.4.0",
+    "seneca-mem-store": "7.0.1"
   }
 }

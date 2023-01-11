@@ -870,6 +870,14 @@ function basictest(settings) {
           ['foo1', 'foo2'],
           verify(done, function (res) {
             Assert.lengthOf(res, 2)
+
+            // Order is not guaranteed.
+            if ('v2' === res[0].p1) {
+              let res0 = res[0]
+              res[0] = res[1]
+              res[1] = res0
+            }
+
             Assert.equal(res[0].p1, 'v1')
             Assert.notOk(res[0].p2)
             Assert.notOk(res[0].p3)
