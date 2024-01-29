@@ -3023,7 +3023,7 @@ module.exports = {
           
           // entity id exists
           await ent0.save$({ b: 12 })
-          expect(ent0.id, 'id exists').exists()
+          expect(ent0.id, 'entity id exists').exists()
         })
 
         lab.it('remove', async () => {
