@@ -3020,6 +3020,10 @@ module.exports = {
           expect(b0s.data$(), 'expected data').contains({ b: 10, c: 'c0' })
           let b1s = await ent0.make$().load$(b1.id)
           expect(b1s.data$(), 'expected data').contains({ b: 11, c: 'c1' })
+          
+          // entity id exists
+          await ent0.save$({ b: 12 })
+          expect(ent0.id, 'id exists').exists()
         })
 
         lab.it('remove', async () => {
