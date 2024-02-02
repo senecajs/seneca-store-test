@@ -2791,17 +2791,16 @@ function upserttest(settings) {
 
     describe('happy path', () => {
       it('is happy', async (fin) => {
-        const foo_ent = si.entity('foo')
 
-        const f01 = await foo_ent.data$({ x: 1, y: 22 }).save$()
-        const f02 = await foo_ent.data$({ x: 2, y: 33 }).save$()
+        const f01 = await si.entity('foo').data$({ x: 1, y: 22 }).save$()
+        const f02 = await si.entity('foo').data$({ x: 2, y: 33 }).save$()
 
-        const f03 = await foo_ent
+        const f03 = await si.entity('foo')
           .data$({ x: 1, y: 55 })
           .save$({ upsert$: ['x'] })
 
-        const foos = sortBy(await foo_ent.list$(), (foo) => foo.x)
-
+        const foos = sortBy(await si.entity('foo').list$(), (foo) => foo.x)
+        
         expect(f01.id).not.to.equal(f02.id)
         expect(f01.id).to.equal(f03.id)
 
@@ -3020,6 +3019,10 @@ module.exports = {
           expect(b0s.data$(), 'expected data').contains({ b: 10, c: 'c0' })
           let b1s = await ent0.make$().load$(b1.id)
           expect(b1s.data$(), 'expected data').contains({ b: 11, c: 'c1' })
+          
+          // entity id exists
+          await ent0.save$({ b: 12 })
+          expect(ent0.id, 'entity id exists').exists()
         })
 
         lab.it('remove', async () => {
