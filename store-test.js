@@ -42,7 +42,7 @@ var barverify = function (bar) {
 
   Assert(
     areDatesEqual(new Date(bar.wen), base_date),
-    'Expected bar.wen to be either a Unix timestamp, date ISO string or a Date.'
+    'Expected bar.wen to be either a Unix timestamp, date ISO string or a Date.',
   )
 
   const isJsonMaybe = (x) => typeof x === 'string'
@@ -127,7 +127,7 @@ function clearDb(si) {
               si.make('products').remove$({ all$: true }, next)
             },
           ],
-          done
+          done,
         )
       })
     })
@@ -142,7 +142,7 @@ function createEntities(si, name, data) {
         function (el, next) {
           si.make$(name, el).save$(next)
         },
-        done
+        done,
       )
     })
   }
@@ -166,7 +166,7 @@ function mergetest(settings) {
             p2: 'v2',
             p3: 'v3',
           },
-        ])
+        ]),
       )
 
       it('should update an entity if id provided', function (done) {
@@ -196,7 +196,7 @@ function mergetest(settings) {
               })
 
               expect('p3' in foo2).to.equal(false)
-            })
+            }),
           )
         })
       })
@@ -231,7 +231,7 @@ function mergetest(settings) {
               })
 
               expect('merge$' in foo1).to.equal(false)
-            })
+            }),
           )
         })
       })
@@ -264,7 +264,7 @@ function mergetest(settings) {
             })
 
             expect(foo1.p3).to.satisfy((p3) => null == p3)
-          })
+          }),
         )
       })
     })
@@ -297,7 +297,7 @@ function basictest(settings) {
             p1: 'v2',
             p2: 'z2',
           },
-        ])
+        ]),
       )
       before(createEntities(si, 'bar', [bartemplate]))
 
@@ -309,7 +309,7 @@ function basictest(settings) {
             Assert.isNotNull(foo1)
             Assert.equal(foo1.id, 'foo1')
             Assert.equal(foo1.p1, 'v1')
-          })
+          }),
         )
       })
 
@@ -319,7 +319,7 @@ function basictest(settings) {
           'does-not-exist-at-all-at-all',
           verify(done, function (out) {
             Assert.isNull(out)
-          })
+          }),
         )
       })
 
@@ -332,7 +332,7 @@ function basictest(settings) {
             Assert.equal(foo1.id, 'foo2')
             Assert.equal(foo1.p1, 'v2')
             Assert.equal(foo1.p2, 'z2')
-          })
+          }),
         )
       })
 
@@ -345,7 +345,7 @@ function basictest(settings) {
             Assert.equal(foo1.id, 'foo2')
             Assert.equal(foo1.p1, 'v2')
             Assert.equal(foo1.p2, 'z2')
-          })
+          }),
         )
       })
 
@@ -355,7 +355,7 @@ function basictest(settings) {
           { p1: 'v2', p2: 'a' },
           verify(done, function (foo1) {
             Assert.isNull(foo1)
-          })
+          }),
         )
       })
 
@@ -368,7 +368,7 @@ function basictest(settings) {
             Assert.isNotNull(bar1)
             Assert.isNotNull(bar1.id)
             barverify(bar1)
-          })
+          }),
         )
       })
 
@@ -382,7 +382,7 @@ function basictest(settings) {
             Assert.equal(foo1.id, 'foo2')
             Assert.equal(foo1.p1, 'v2')
             Assert.equal(foo1.p2, 'z2')
-          })
+          }),
         )
       })
 
@@ -395,7 +395,7 @@ function basictest(settings) {
             Assert.equal(foo1.id, 'foo2')
             Assert.equal(foo1.p1, 'v2')
             Assert.equal(foo1.p2, 'z2')
-          })
+          }),
         )
       })
 
@@ -405,7 +405,7 @@ function basictest(settings) {
         foo.load$(
           verify(done, function (foo1) {
             Assert.notOk(foo1)
-          })
+          }),
         )
       })
     })
@@ -421,7 +421,7 @@ function basictest(settings) {
             p2: 'v2',
             p3: 'v3',
           },
-        ])
+        ]),
       )
 
       beforeEach(
@@ -430,7 +430,7 @@ function basictest(settings) {
             id$: 'product-to-be-updated',
             price: '1.95',
           },
-        ])
+        ]),
       )
 
       it('should save an entity to store (and generate an id)', function (done) {
@@ -449,7 +449,7 @@ function basictest(settings) {
               Assert.equal(foo2.id, foo1.id)
               Assert.equal(foo2.p1, 'v1')
               Assert.equal(foo2.p2, 'v2')
-            })
+            }),
           )
         })
       })
@@ -472,7 +472,7 @@ function basictest(settings) {
               Assert.equal(foo2.id, 'existing')
               Assert.equal(foo2.p1, 'v1')
               Assert.equal(foo2.p2, 'v2')
-            })
+            }),
           )
         })
       })
@@ -496,7 +496,7 @@ function basictest(settings) {
 
                   expect(foo2.p1).to.equal('v1')
                   expect(foo2.p2).to.equal('v2')
-                })
+                }),
               )
             })
         })
@@ -521,7 +521,7 @@ function basictest(settings) {
 
                   expect(foo2.p1).to.equal('v1')
                   expect(foo2.p2).to.equal('v2')
-                })
+                }),
               )
             })
         })
@@ -550,7 +550,7 @@ function basictest(settings) {
               Assert.equal(foo2.p1, 'z1')
               Assert.equal(foo2.p2, 'z2')
               Assert.equal(foo2.p3, 'v3')
-            })
+            }),
           )
         })
       })
@@ -579,7 +579,7 @@ function basictest(settings) {
                 price: '1.95',
                 label: 'lorem ipsum',
               })
-            })
+            }),
           )
         })
       })
@@ -603,7 +603,7 @@ function basictest(settings) {
 
                   expect(foo2.p1).to.equal('v1')
                   expect(foo2.p2).to.equal('v2')
-                })
+                }),
               )
             })
         })
@@ -628,7 +628,7 @@ function basictest(settings) {
 
                   expect(foo2.p1).to.equal('v1')
                   expect(foo2.p2).to.equal('v2')
-                })
+                }),
               )
             })
         })
@@ -657,7 +657,7 @@ function basictest(settings) {
               Assert.equal(foo2.p1, 'z1')
               Assert.equal(foo2.p2, 'z2')
               Assert.equal(foo2.p3, 'z3')
-            })
+            }),
           )
         })
       })
@@ -680,7 +680,7 @@ function basictest(settings) {
               Assert.equal(bar1.id, bar.id)
               barverify(bar1)
               Assert.equal(bar1.mark, mark)
-            })
+            }),
           )
         })
       })
@@ -702,7 +702,7 @@ function basictest(settings) {
               Assert.equal(foo2.p2, 'v2')
               Assert.notOk(foo2.p1)
               Assert.notOk(foo2.p3)
-            })
+            }),
           )
         })
       })
@@ -716,7 +716,7 @@ function basictest(settings) {
             // now that foo is in the database, modify the original data
             foo.int_arr.push(43)
             Assert.deepEqual(foo1.int_arr, [37])
-          })
+          }),
         )
       })
 
@@ -729,7 +729,7 @@ function basictest(settings) {
             // now that foo is in the database, modify the original data
             foo1.int_arr.push(43)
             Assert.deepEqual(foo.int_arr, [37])
-          })
+          }),
         )
       })
 
@@ -762,7 +762,7 @@ function basictest(settings) {
                 expect(foo3).to.be.instanceof(Object)
                 expect(foo3.p1).to.equal(null)
                 expect(foo3.p2).to.equal('v2')
-              })
+              }),
             )
           })
         })
@@ -782,7 +782,7 @@ function basictest(settings) {
             p1: 'v2',
             p2: 'z2',
           },
-        ])
+        ]),
       )
       before(createEntities(si, 'bar', [bartemplate]))
 
@@ -793,7 +793,7 @@ function basictest(settings) {
           verify(done, function (res) {
             Assert.lengthOf(res, 1)
             barverify(res[0])
-          })
+          }),
         )
       })
 
@@ -803,7 +803,7 @@ function basictest(settings) {
           {},
           verify(done, function (res) {
             Assert.lengthOf(res, 2)
-          })
+          }),
         )
       })
 
@@ -812,7 +812,7 @@ function basictest(settings) {
         foo.list$(
           verify(done, function (res) {
             Assert.lengthOf(res, 2)
-          })
+          }),
         )
       })
 
@@ -825,7 +825,7 @@ function basictest(settings) {
             Assert.equal(res[0].p1, 'v1')
             Assert.notOk(res[0].p2)
             Assert.notOk(res[0].p3)
-          })
+          }),
         )
       })
 
@@ -836,7 +836,7 @@ function basictest(settings) {
           verify(done, function (res) {
             Assert.lengthOf(res, 1)
             barverify(res[0])
-          })
+          }),
         )
       })
 
@@ -848,7 +848,7 @@ function basictest(settings) {
             Assert.lengthOf(res, 1)
             Assert.equal(res[0].p1, 'v2')
             Assert.equal(res[0].p2, 'z2')
-          })
+          }),
         )
       })
 
@@ -860,7 +860,7 @@ function basictest(settings) {
             Assert.lengthOf(res, 1)
             Assert.equal(res[0].p1, 'v2')
             Assert.equal(res[0].p2, 'z2')
-          })
+          }),
         )
       })
 
@@ -884,7 +884,7 @@ function basictest(settings) {
             Assert.equal(res[1].p1, 'v2')
             Assert.equal(res[1].p2, 'z2')
             Assert.equal(res[1].p3)
-          })
+          }),
         )
       })
 
@@ -897,7 +897,7 @@ function basictest(settings) {
             Assert.equal(res[0].p1, 'v2')
             Assert.equal(res[0].p2, 'z2')
             Assert.equal(res[0].p3)
-          })
+          }),
         )
       })
 
@@ -910,7 +910,7 @@ function basictest(settings) {
             Assert.equal(res[0].p1, 'v2')
             Assert.equal(res[0].p2, 'z2')
             Assert.equal(res[0].p3)
-          })
+          }),
         )
       })
 
@@ -920,7 +920,7 @@ function basictest(settings) {
           { p2: 'z2', p1: 'v1' },
           verify(done, function (res) {
             Assert.lengthOf(res, 0)
-          })
+          }),
         )
       })
 
@@ -934,7 +934,7 @@ function basictest(settings) {
             Assert.equal(res[0].id, 'foo2')
             Assert.equal(res[0].p1, 'v2')
             Assert.equal(res[0].p2, 'z2')
-          })
+          }),
         )
       })
     })
@@ -952,7 +952,7 @@ function basictest(settings) {
             p1: 'v2',
             p2: 'z2',
           },
-        ])
+        ]),
       )
       beforeEach(createEntities(si, 'bar', [bartemplate]))
 
@@ -965,7 +965,7 @@ function basictest(settings) {
             {},
             verify(done, function (res) {
               Assert.lengthOf(res, 1)
-            })
+            }),
           )
         })
       })
@@ -980,7 +980,7 @@ function basictest(settings) {
             {},
             verify(done, function (res) {
               Assert.lengthOf(res, 0)
-            })
+            }),
           )
         })
       })
@@ -995,7 +995,7 @@ function basictest(settings) {
             verify(done, function (res) {
               Assert.lengthOf(res, 1)
               Assert.equal('v2', res[0].p1)
-            })
+            }),
           )
         })
       })
@@ -1009,7 +1009,7 @@ function basictest(settings) {
             {},
             verify(done, function (res) {
               Assert.lengthOf(res, 2)
-            })
+            }),
           )
         })
       })
@@ -1022,7 +1022,7 @@ function basictest(settings) {
             Assert.ok(res)
             Assert.equal(res.p1, 'v2')
             Assert.equal(res.p2, 'z2')
-          })
+          }),
         )
       })
 
@@ -1032,7 +1032,7 @@ function basictest(settings) {
           { all$: true, load$: true },
           verify(done, function (res) {
             Assert.notOk(res)
-          })
+          }),
         )
       })
 
@@ -1048,7 +1048,7 @@ function basictest(settings) {
             verify(done, function (res) {
               Assert.lengthOf(res, 1)
               Assert.equal(res[0].id, 'foo2')
-            })
+            }),
           )
         })
       })
@@ -1068,7 +1068,7 @@ function basictest(settings) {
               verify(done, function (res) {
                 Assert.lengthOf(res, 1)
                 Assert.equal(res[0].id, 'foo1')
-              })
+              }),
             )
           })
         })
@@ -1081,7 +1081,7 @@ function basictest(settings) {
         foo.native$(
           verify(done, function (driver) {
             Assert.ok(driver)
-          })
+          }),
         )
       })
     })
@@ -1108,7 +1108,7 @@ function sorttest(settings) {
         // possibly leading to false positives
         { p1: 'v2', p2: 'v3' },
         { p1: 'v3', p2: 'v2' },
-      ])
+      ]),
     )
 
     describe('Load', function () {
@@ -1119,7 +1119,7 @@ function sorttest(settings) {
           verify(done, function (foo) {
             Assert.ok(foo)
             Assert.equal(foo.p1, 'v1')
-          })
+          }),
         )
       })
 
@@ -1130,7 +1130,7 @@ function sorttest(settings) {
           verify(done, function (foo) {
             Assert.ok(foo)
             Assert.equal(foo.p1, 'v3')
-          })
+          }),
         )
       })
     })
@@ -1145,7 +1145,7 @@ function sorttest(settings) {
             Assert.equal(lst[0].p1, 'v1')
             Assert.equal(lst[1].p1, 'v2')
             Assert.equal(lst[2].p1, 'v3')
-          })
+          }),
         )
       })
 
@@ -1158,7 +1158,7 @@ function sorttest(settings) {
             Assert.equal(lst[0].p1, 'v3')
             Assert.equal(lst[1].p1, 'v2')
             Assert.equal(lst[2].p1, 'v1')
-          })
+          }),
         )
       })
     })
@@ -1177,7 +1177,7 @@ function sorttest(settings) {
               Assert.equal(lst.length, 2)
               Assert.equal(lst[0].p1, 'v2')
               Assert.equal(lst[1].p1, 'v3')
-            })
+            }),
           )
         })
       })
@@ -1195,7 +1195,7 @@ function sorttest(settings) {
               Assert.equal(lst.length, 2)
               Assert.equal(lst[0].p1, 'v1')
               Assert.equal(lst[1].p1, 'v2')
-            })
+            }),
           )
         })
       })
@@ -1223,7 +1223,7 @@ function limitstest(settings) {
         // possibly leading to false positives
         { p1: 'v3' },
         { p1: 'v2' },
-      ])
+      ]),
     )
 
     it('check setup correctly', function (done) {
@@ -1232,7 +1232,7 @@ function limitstest(settings) {
         {},
         verify(done, function (lst) {
           Assert.lengthOf(lst, 3)
-        })
+        }),
       )
     })
 
@@ -1244,7 +1244,7 @@ function limitstest(settings) {
           verify(done, function (foo) {
             Assert.ok(foo)
             Assert.equal(foo.p1, 'v2')
-          })
+          }),
         )
       })
 
@@ -1254,7 +1254,7 @@ function limitstest(settings) {
           { skip$: 3 },
           verify(done, function (foo) {
             Assert.notOk(foo)
-          })
+          }),
         )
       })
 
@@ -1265,7 +1265,7 @@ function limitstest(settings) {
           verify(done, function (foo) {
             Assert.ok(foo)
             Assert.equal(foo.p1, 'v1')
-          })
+          }),
         )
       })
 
@@ -1276,7 +1276,7 @@ function limitstest(settings) {
           verify(done, function (foo) {
             Assert.ok(foo)
             Assert.equal(foo.p1, 'v1')
-          })
+          }),
         )
       })
 
@@ -1287,7 +1287,7 @@ function limitstest(settings) {
           verify(done, function (foo) {
             Assert.ok(foo)
             Assert.equal(foo.p1, 'v1')
-          })
+          }),
         )
       })
 
@@ -1298,7 +1298,7 @@ function limitstest(settings) {
           verify(done, function (foo) {
             Assert.ok(foo)
             Assert.equal(foo.p1, 'v1')
-          })
+          }),
         )
       })
     })
@@ -1311,7 +1311,7 @@ function limitstest(settings) {
           verify(done, function (lst) {
             Assert.lengthOf(lst, 1)
             Assert.equal(lst[0].p1, 'v2')
-          })
+          }),
         )
       })
 
@@ -1321,7 +1321,7 @@ function limitstest(settings) {
           { limit$: 2, skip$: 3 },
           verify(done, function (lst) {
             Assert.lengthOf(lst, 0)
-          })
+          }),
         )
       })
 
@@ -1332,7 +1332,7 @@ function limitstest(settings) {
           verify(done, function (lst) {
             Assert.lengthOf(lst, 1)
             Assert.equal(lst[0].p1, 'v3')
-          })
+          }),
         )
       })
 
@@ -1345,7 +1345,7 @@ function limitstest(settings) {
             Assert.equal(lst[0].p1, 'v1')
             Assert.equal(lst[1].p1, 'v2')
             Assert.equal(lst[2].p1, 'v3')
-          })
+          }),
         )
       })
 
@@ -1358,7 +1358,7 @@ function limitstest(settings) {
             Assert.equal(lst[0].p1, 'v1')
             Assert.equal(lst[1].p1, 'v2')
             Assert.equal(lst[2].p1, 'v3')
-          })
+          }),
         )
       })
 
@@ -1371,7 +1371,7 @@ function limitstest(settings) {
             Assert.equal(lst[0].p1, 'v1')
             Assert.equal(lst[1].p1, 'v2')
             Assert.equal(lst[2].p1, 'v3')
-          })
+          }),
         )
       })
     })
@@ -1390,7 +1390,7 @@ function limitstest(settings) {
               Assert.lengthOf(lst, 2)
               Assert.equal(lst[0].p1, 'v1')
               Assert.equal(lst[1].p1, 'v3')
-            })
+            }),
           )
         })
       })
@@ -1408,7 +1408,7 @@ function limitstest(settings) {
               Assert.lengthOf(lst, 2)
               Assert.equal(lst[0].p1, 'v2')
               Assert.equal(lst[1].p1, 'v3')
-            })
+            }),
           )
         })
       })
@@ -1427,9 +1427,9 @@ function limitstest(settings) {
               verify(done, function (lst) {
                 Assert.lengthOf(lst, 1)
                 Assert.equal(lst[0].p1, 'v1')
-              })
+              }),
             )
-          }
+          },
         )
       })
 
@@ -1444,7 +1444,7 @@ function limitstest(settings) {
             { sort$: { p1: 1 } },
             verify(done, function (lst) {
               Assert.lengthOf(lst, 3)
-            })
+            }),
           )
         })
       })
@@ -1464,9 +1464,9 @@ function limitstest(settings) {
                 Assert.lengthOf(lst, 2)
                 Assert.equal(lst[0].p1, 'v1')
                 Assert.equal(lst[1].p1, 'v2')
-              })
+              }),
             )
-          }
+          },
         )
       })
 
@@ -1483,7 +1483,7 @@ function limitstest(settings) {
               Assert.lengthOf(lst, 2)
               Assert.equal(lst[0].p1, 'v2')
               Assert.equal(lst[1].p1, 'v3')
-            })
+            }),
           )
         })
       })
@@ -1501,9 +1501,9 @@ function limitstest(settings) {
               { sort$: { p1: 1 } },
               verify(done, function (lst) {
                 Assert.lengthOf(lst, 0)
-              })
+              }),
             )
-          }
+          },
         )
       })
 
@@ -1522,9 +1522,9 @@ function limitstest(settings) {
                 Assert.lengthOf(lst, 2)
                 Assert.equal(lst[0].p1, 'v2')
                 Assert.equal(lst[1].p1, 'v3')
-              })
+              }),
             )
-          }
+          },
         )
       })
     })
@@ -1550,7 +1550,7 @@ function upserttest(settings) {
       () =>
         new Promise((resolve, _reject) => {
           si.ready(resolve)
-        })
+        }),
     )
 
     beforeEach(clearDb(si))
@@ -1574,7 +1574,7 @@ function upserttest(settings) {
 
                 return fin()
               })
-          })
+          }),
       )
 
       let id_of_bob
@@ -1593,7 +1593,7 @@ function upserttest(settings) {
 
                 return fin()
               })
-          })
+          }),
       )
 
       it('updates the entity', (fin) => {
@@ -1651,7 +1651,7 @@ function upserttest(settings) {
             out.points_history.push(43)
 
             expect(player.points_history).to.equal([37])
-          })
+          }),
         )
       })
     })
@@ -1681,7 +1681,7 @@ function upserttest(settings) {
                   return fin(err)
                 }
               })
-          })
+          }),
       )
 
       let id_of_bob
@@ -1708,7 +1708,7 @@ function upserttest(settings) {
                   return fin(err)
                 }
               })
-          })
+          }),
       )
 
       it('retains the entity fields missing from data$', (fin) => {
@@ -1770,7 +1770,7 @@ function upserttest(settings) {
 
                 return resolve()
               })
-          })
+          }),
       )
 
       beforeEach(
@@ -1787,7 +1787,7 @@ function upserttest(settings) {
 
               return resolve()
             })
-          })
+          }),
       )
 
       it('updates the fields and ignores the id$ qualifier', (fin) => {
@@ -1833,7 +1833,7 @@ function upserttest(settings) {
                 credits: 0,
               })
               .save$(fin)
-          })
+          }),
       )
 
       beforeEach(
@@ -1846,7 +1846,7 @@ function upserttest(settings) {
                 credits: 0,
               })
               .save$(fin)
-          })
+          }),
       )
 
       it('updates the entity', (fin) => {
@@ -1914,7 +1914,7 @@ function upserttest(settings) {
                   return fin(err)
                 }
               })
-          })
+          }),
       )
 
       it('creates a new entity', (fin) => {
@@ -1999,7 +1999,7 @@ function upserttest(settings) {
                 credits: 5,
               })
               .save$(fin)
-          })
+          }),
       )
 
       it('creates a new entity', (fin) => {
@@ -2109,7 +2109,7 @@ function upserttest(settings) {
                 psst$: 'private',
               })
               .save$(fin)
-          })
+          }),
       )
 
       it('creates a new entity', (fin) => {
@@ -2162,7 +2162,7 @@ function upserttest(settings) {
                 psst$: 'private',
               })
               .save$(fin)
-          })
+          }),
       )
 
       it('matches by the public field and updates the entity', (fin) => {
@@ -2204,7 +2204,7 @@ function upserttest(settings) {
             si.make('products')
               .data$({ label: 'toothbrush', price: '3.95' })
               .save$(fin)
-          })
+          }),
       )
 
       it('creates a new document', (fin) => {
@@ -2249,7 +2249,7 @@ function upserttest(settings) {
             si.make('products')
               .data$({ label: undefined, price: '3.95' })
               .save$(fin)
-          })
+          }),
       )
 
       it('creates a new document', (fin) => {
@@ -2300,7 +2300,7 @@ function upserttest(settings) {
         () =>
           new Promise((fin) => {
             si.make('products').data$({ price: '3.40', label: null }).save$(fin)
-          })
+          }),
       )
 
       it('creates a new entity', (fin) => {
@@ -2345,7 +2345,7 @@ function upserttest(settings) {
             si.make('products')
               .data$({ label: 'a toothbrush', price: '3.40' })
               .save$(fin)
-          })
+          }),
       )
 
       it('creates a new entity because it can never match', (fin) => {
@@ -2396,7 +2396,7 @@ function upserttest(settings) {
                 points: 8000,
               })
               .save$(fin)
-          })
+          }),
       )
 
       beforeEach(
@@ -2405,7 +2405,7 @@ function upserttest(settings) {
             si.make('players')
               .data$({ username: 'bob', points: 1000 })
               .save$(fin)
-          })
+          }),
       )
 
       it('updates the matching entity', (fin) => {
@@ -2479,7 +2479,7 @@ function upserttest(settings) {
             si.make('users')
               .data$({ username: 'richard', email: 'rr@example.com' })
               .save$(fin)
-          })
+          }),
       )
 
       it('creates a new document with that id', (fin) => {
@@ -2567,7 +2567,7 @@ function upserttest(settings) {
                 points: 8000,
               })
               .save$(fin)
-          })
+          }),
       )
 
       beforeEach(
@@ -2576,7 +2576,7 @@ function upserttest(settings) {
             si.make('players')
               .data$({ username: 'bob', points: 1000 })
               .save$(fin)
-          })
+          }),
       )
 
       it('updates the matching entity', (fin) => {
@@ -2650,7 +2650,7 @@ function upserttest(settings) {
             si.make('users')
               .data$({ username: 'richard', email: 'rr@example.com' })
               .save$(fin)
-          })
+          }),
       )
 
       it('creates a new document with that id', (fin) => {
@@ -2742,7 +2742,7 @@ function upserttest(settings) {
 
                 return fin()
               })
-          })
+          }),
       )
 
       beforeEach(
@@ -2751,7 +2751,7 @@ function upserttest(settings) {
             si.make('products')
               .data$({ label: 'capuccino', price: '7.99' })
               .save$(fin)
-          })
+          }),
       )
 
       it('completely ignores the upsert$ directive', (fin) => {
@@ -2793,8 +2793,11 @@ function upserttest(settings) {
       it('is happy', async (fin) => {
         const foo_ent = si.entity('foo')
 
-        const f01 = await foo_ent.data$({ x: 1, y: 22 }).save$()
-        const f02 = await foo_ent.data$({ x: 2, y: 33 }).save$()
+        const f01c = await foo_ent.clone$()
+        const f02c = await foo_ent.clone$()
+
+        const f01 = await f01c.data$({ x: 1, y: 22 }).save$()
+        const f02 = await f02c.data$({ x: 2, y: 33 }).save$()
 
         const f03 = await foo_ent
           .data$({ x: 1, y: 55 })
@@ -2835,7 +2838,7 @@ function sqltest(settings) {
       createEntities(si, 'products', [
         { label: 'apple', price: 200 },
         { label: 'pear', price: 100 },
-      ])
+      ]),
     )
 
     it('should accept a string query', function (done) {
@@ -2851,7 +2854,7 @@ function sqltest(settings) {
           Assert.equal(list[1].entity$, '-/-/products')
           Assert.equal(list[1].label, 'apple')
           Assert.equal(list[1].price, 200)
-        })
+        }),
       )
     })
 
@@ -2870,7 +2873,7 @@ function sqltest(settings) {
           Assert.equal(list[0].entity$, '-/-/products')
           Assert.equal(list[0].label, 'pear')
           Assert.equal(list[0].price, 100)
-        })
+        }),
       )
     })
   })
@@ -3064,7 +3067,7 @@ function make_it(lab) {
       opts,
       Util.promisify(function (x, fin) {
         func(fin)
-      })
+      }),
     )
   }
 }
