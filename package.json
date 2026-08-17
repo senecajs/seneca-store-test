@@ -1,10 +1,10 @@
 {
-  "name": "seneca-store-test",
+  "name": "@seneca/store-test",
   "version": "6.0.0",
   "description": "Standard test cases for seneca stores",
   "main": "store-test.js",
   "scripts": {
-    "test":"echo fix-test",
+    "test": "echo fix-test",
     "x-test": "lab -v -P test -L -t 80 -r console -o stdout -r html -o test/coverage.html -r lcov -o test/lcov.info",
     "test-some": "lab -v -P test -L -r console -g ",
     "coveralls": "lab -s -P test -r lcov | coveralls",
