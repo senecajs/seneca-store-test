@@ -1,0 +1,49 @@
+From 108bae2fb6fc22ca2611da17bb162c26549f4681 Mon Sep 17 00:00:00 2001
+From: Richard Rodger <richard@ricebridge.com>
+Date: Wed, 7 Oct 2026 21:36:03 +0000
+Subject: [PATCH] ci: run the build on Node.js 24 and 22 for master and main
+
+The workflow triggered only on main, but the default branch is master,
+and it ran a single Node.js version. Trigger on master and main, and
+test on Node.js 24 and 22 with a matrix.
+
+Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01LaHppcejXbSsAH4BZXNsjV
+---
+ .github/workflows/build.yml | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
+
+diff --git a/.github/workflows/build.yml b/.github/workflows/build.yml
+index 0cacbf2..210010c 100644
+--- a/.github/workflows/build.yml
++++ b/.github/workflows/build.yml
+@@ -2,19 +2,22 @@ name: build
+ 
+ on:
+   push:
+-    branches: [main]
++    branches: [master, main]
+   pull_request:
+-    branches: [main]
++    branches: [master, main]
+ 
+ jobs:
+   build:
+     runs-on: ubuntu-latest
++    strategy:
++      matrix:
++        node-version: [24.x, 22.x]
+     steps:
+       - uses: actions/checkout@v4
+-      - name: Use Node.js 24
++      - name: Use Node.js ${{ matrix.node-version }}
+         uses: actions/setup-node@v4
+         with:
+-          node-version: '24'
++          node-version: ${{ matrix.node-version }}
+       - run: npm install
+       - run: npm run build --if-present
+       - run: npm test
+-- 
+2.43.0
+

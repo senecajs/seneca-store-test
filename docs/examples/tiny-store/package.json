@@ -1,0 +1,8 @@
+{
+  "name": "tiny-store",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Example entity store plugin for the @seneca/store-test tutorial",
+  "main": "tiny-store.js",
+  "license": "MIT"
+}

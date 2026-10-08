@@ -1,17 +1,21 @@
 /* Copyright (c) 2014-2021 Richard Rodger, MIT License */
 'use strict'
 
-var Util = require('util')
-
 var Assert = require('chai').assert
 var Async = require('async')
-var Lab = require('@hapi/lab')
 const Code = require('@hapi/code')
 const Nid = require('nid')
 
 var ExtendedTests = require('./lib/store-test-extended')
 
 const expect = Code.expect
+
+// The test groups register with the script in settings.script: a @hapi/lab
+// script, or the node:test module. @hapi/lab is only required when no
+// script is given, so that it is not needed with other runners.
+function make_script(settings) {
+  return settings.script || require('@hapi/lab').script()
+}
 
 var bartemplate = {
   name$: 'bar',
@@ -151,7 +155,7 @@ function createEntities(si, name, data) {
 function mergetest(settings) {
   const si = settings.senecaMergeFalse
 
-  const script = settings.script || Lab.script()
+  const script = make_script(settings)
   const it = make_it(script)
   const { describe, beforeEach } = script
 
@@ -276,7 +280,7 @@ function mergetest(settings) {
 function basictest(settings) {
   var si = settings.seneca
 
-  var script = settings.script || Lab.script()
+  var script = make_script(settings)
 
   var describe = script.describe
   var it = make_it(script)
@@ -1092,7 +1096,7 @@ function basictest(settings) {
 
 function sorttest(settings) {
   var si = settings.seneca
-  var script = settings.script || Lab.script()
+  var script = make_script(settings)
 
   var describe = script.describe
   var it = make_it(script)
@@ -1207,7 +1211,7 @@ function sorttest(settings) {
 
 function limitstest(settings) {
   var si = settings.seneca
-  var script = settings.script || Lab.script()
+  var script = make_script(settings)
 
   var describe = script.describe
   var it = make_it(script)
@@ -1537,11 +1541,17 @@ function upserttest(settings) {
   Assert('seneca' in settings, 'settings.seneca')
   const si = settings.seneca
 
-  // NOTE: WARNING: Side-effect - the original seneca instance will be mutated.
+  // The promise based entity API used below needs seneca-promisify on
+  // Seneca 3 (seneca-entity calls seneca.post). Promises are built into
+  // Seneca 4, where seneca-promisify is a no-op, so it is not loaded there.
   //
-  si.use('promisify')
+  // NOTE: WARNING: Side-effect - on Seneca 3 the original seneca instance
+  // will be mutated.
+  if (si.version.startsWith('3.')) {
+    si.use('promisify')
+  }
 
-  const script = settings.script || Lab.script()
+  const script = make_script(settings)
   const { describe, beforeEach, afterEach } = script
   const it = make_it(script)
 
@@ -1751,7 +1761,7 @@ function upserttest(settings) {
     })
 
     describe('matches on 1 upsert$ field, save$ includes id$ the field', () => {
-      beforeEach(clearDb)
+      beforeEach(clearDb(si))
 
       let target_user_id
 
@@ -2823,7 +2833,7 @@ function upserttest(settings) {
 
 function sqltest(settings) {
   var si = settings.seneca
-  var script = settings.script || Lab.script()
+  var script = make_script(settings)
 
   var describe = script.describe
   var before = script.before
@@ -2902,7 +2912,10 @@ module.exports = {
 
           let seneca = opts.seneca
           seneca.use('..', opts.options)
-          await seneca.ready()
+
+          // Callback form: the promise form of ready hangs on an idle
+          // instance in Seneca 4.0.0-rc5.
+          await new Promise((resolve) => seneca.ready(resolve))
 
           expect(seneca.has_plugin(opts.name), 'has_plugin').true()
         })
@@ -3055,6 +3068,12 @@ module.exports = {
   },
 }
 
+// Adapts callback style tests, `function (done) {...}`, to the runner's
+// script. The registered test function takes one argument and returns a
+// promise, which both @hapi/lab and node:test accept (node:test treats a
+// two argument function as callback style, so a promisified wrapper does
+// not work there). A test function that returns a rejected promise before
+// calling done fails the test instead of timing out.
 function make_it(lab) {
   return function it(name, opts, func) {
     if ('function' === typeof opts) {
@@ -3062,13 +3081,22 @@ function make_it(lab) {
       opts = {}
     }
 
-    lab.it(
-      name,
-      opts,
-      Util.promisify(function (x, fin) {
-        func(fin)
-      }),
-    )
+    lab.it(name, opts, function (flags) {
+      return new Promise(function (resolve, reject) {
+        var fin = function (err) {
+          return err ? reject(err) : resolve()
+        }
+
+        try {
+          var res = func(fin)
+          if (res && 'function' === typeof res.then) {
+            res.then(null, fin)
+          }
+        } catch (err) {
+          fin(err)
+        }
+      })
+    })
   }
 }
 

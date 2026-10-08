@@ -1,14 +1,13 @@
 {
   "name": "@seneca/store-test",
-  "version": "6.0.0",
+  "version": "6.1.0",
   "description": "Standard test cases for seneca stores",
   "main": "store-test.js",
   "scripts": {
-    "test": "echo fix-test",
-    "x-test": "lab -v -P test -L -t 80 -r console -o stdout -r html -o test/coverage.html -r lcov -o test/lcov.info",
+    "test": "lab -v -P test -L -t 80 -r console -o stdout -r html -o test/coverage.html -r lcov -o test/lcov.info && npm run test-examples",
     "test-some": "lab -v -P test -L -r console -g ",
-    "coveralls": "lab -s -P test -r lcov | coveralls",
-    "coverage": "lab -v -P test  -t 80 -r html > docs/coverage.html",
+    "test-examples": "for f in docs/examples/*.js; do node $f || exit 1; done && lab -v docs/examples/tiny-store/test",
+    "coverage": "lab -v -P test -t 80 -r html > test/coverage.html",
     "prettier": "prettier --write --no-semi --single-quote *.js lib/*.js test/*.js",
     "reset": "npm run clean && npm i && npm test",
     "clean": "rm -rf node_modules package-lock.json yarn.lock",
@@ -43,23 +42,24 @@
   "license": "MIT",
   "files": [
     "README.md",
+    "CHANGES.md",
     "LICENSE",
     "store-test.js",
-    "lib"
+    "lib",
+    "docs"
   ],
   "dependencies": {
+    "@hapi/code": "^9.0.3",
     "async": "3.2.5",
     "chai": "4.3.7",
     "nid": "2.0.1",
     "seneca-promisify": "3.7.2"
   },
   "devDependencies": {
-    "@hapi/code": "9.0.3",
-    "@hapi/lab": "25.2.0",
-    "coveralls": "3.1.1",
+    "@hapi/lab": "^25.2.0",
     "prettier": "^3.3.2",
-    "seneca": "plugin",
-    "seneca-entity": "27.2.0",
-    "seneca-mem-store": "9.3.0"
+    "seneca": "^4.0.0-rc5",
+    "seneca-entity": "^28.1.0",
+    "seneca-mem-store": "^9.4.0"
   }
 }
