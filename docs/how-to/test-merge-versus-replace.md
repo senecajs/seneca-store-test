@@ -14,18 +14,18 @@ the record with that id and either:
 * **replaces**: the record becomes exactly the entity's fields.
 
 The default is to merge. A store offers replacing through a plugin
-option (`merge: false` in seneca-mem-store and other official stores)
+option (`merge: false` in @seneca/mem-store and other official stores)
 and lets a single call choose with the `merge$` directive:
-`ent.save$({ merge$: false })`. seneca-entity copies `merge$` onto the
+`ent.save$({ merge$: false })`. @seneca/entity copies `merge$` onto the
 entity, so the store reads it as `msg.ent.merge$`. A store decides
-like this (from seneca-mem-store):
+like this (from @seneca/mem-store):
 
 ```js
 const should_merge = !(false === options.merge || false === ent.merge$)
 ```
 
 `null` values are part of both behaviours: a field set to `null` is
-stored as `null`; a field set to `undefined` is dropped by seneca-entity
+stored as `null`; a field set to `undefined` is dropped by @seneca/entity
 before the store sees it.
 
 ## What the tests check
@@ -54,7 +54,7 @@ keeps it, `merge$: false` drops it, and the reply never carries a
    ```js
    const seneca_replace = Seneca()
      .test()
-     .use('entity', { mem_store: false })
+     .use('@seneca/entity', { mem_store: false })
      .use(MyStore, { merge: false })
 
    Shared.mergetest({ senecaMergeFalse: seneca_replace, script: lab })

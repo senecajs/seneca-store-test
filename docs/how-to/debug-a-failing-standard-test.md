@@ -82,17 +82,17 @@ npx lab -v -P test -g 'should update an entity if id provided'
 Make the instance print every message it handles:
 
 ```js
-const seneca = Seneca().test('print').use('entity', { mem_store: false }).use(MyStore)
+const seneca = Seneca().test('print').use('@seneca/entity', { mem_store: false }).use(MyStore)
 ```
 
 Each `sys:entity` message is printed with its `ent` or `q` and `qent`,
-and each reply with its result, so you can see what seneca-entity sent
+and each reply with its result, so you can see what @seneca/entity sent
 to your store and what came back. For a quieter view, log the arguments
 inside the store function that the failing test exercises.
 
-## 5. Compare with seneca-mem-store
+## 5. Compare with @seneca/mem-store
 
-seneca-mem-store passes every group except `sqltest` and `extended`.
+@seneca/mem-store passes every group except `sqltest` and `extended`.
 When a test's expectation is not obvious, run the same group against it
 and read its implementation (`dist/mem-store.js` and `dist/intern.js`
 in the package) to see how it handles that case.
@@ -114,4 +114,3 @@ in the package) to see how it handles that case.
 | `entity matches on a private field` inserts nothing new | Fields ending in `$` were stored or used for matching. Ignore them. |
 | `mergetest` first test fails with `Expected true to equal specified value: false` | The `senecaMergeFalse` instance still merges. See [Test merge versus replace semantics](test-merge-versus-replace.md). |
 | `load-store-plugin` fails on `has_plugin` | The plugin name differs from the definition function's name; see step 1. |
-| Everything times out on Seneca 4.0.0-rc5 | A test or hook uses `await seneca.ready()` on an idle instance, which hangs on rc5. Use `await new Promise((r) => seneca.ready(r))`. |

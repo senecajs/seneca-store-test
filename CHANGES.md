@@ -1,11 +1,24 @@
-## 6.1.0
+# Changes
 
-* Seneca 4 prerelease support. The test groups run on seneca 4.0.0-rc5
-  and 4.0.0 as well as on Seneca 3 (verified with 3.38.0). `upserttest`
-  loads seneca-promisify only on Seneca 3, where seneca-entity's promise
-  API needs it; on Seneca 4 promises are built in and the plugin is not
-  loaded. `test.init` waits for `ready` with the callback form, which
-  also works on 4.0.0-rc5.
+## 7.0.0 2026-11-20
+
+First release under the name `@seneca/store-test`. Version 6.1.0 was
+prepared in the repository but never published; its changes are part
+of this release.
+
+* Seneca 4: the peer dependencies are `seneca` `^4.0.0` and
+  `@seneca/entity` `^29.0.0`. Seneca 3 users stay on
+  `seneca-store-test@6`.
+* Renamed from `seneca-store-test` to `@seneca/store-test`.
+* Node.js 24 or later (`engines.node` `>=24`).
+* Removed the dependency on `seneca-promisify`: promises are built into
+  Seneca 4, and `upserttest` no longer loads the plugin (D4).
+* `test.init` and `upserttest` wait with `await seneca.ready()`.
+* The test file and the examples load `@seneca/entity` and
+  `@seneca/mem-store` by their full names (B14). The development
+  dependencies are `seneca` `^4.0.0`, `@seneca/entity` `^29.0.0` and
+  `@seneca/mem-store` `^10.0.0`, in place of `seneca-entity` 28 and
+  `seneca-mem-store` 9 (B11).
 * Any test runner. `settings.script` can be the `node:test` module: the
   tests are registered with a one argument function that returns a
   promise instead of a promisified two argument function, which
@@ -17,17 +30,13 @@
 * Fixed a `beforeEach` hook in `upserttest` that registered the
   `clearDb` factory instead of a clearing hook.
 * `npm test` runs the suite again. It had been `echo fix-test` since
-  6.0.0, when the `seneca@plugin` dist-tag (Seneca 3.28) stopped working
-  with seneca-entity 27. It now runs @hapi/lab 25 against seneca-mem-store
-  on Node.js 24 and 22, with the development dependencies seneca
-  ^4.0.0-rc5, seneca-entity ^28.1.0 and seneca-mem-store ^9.4.0, and
-  then runs the documentation examples. Removed coveralls and
-  `.travis.yml`; the GitHub Actions workflow change (Node.js 24 and 22,
-  branches master and main) is provided in `.patches/`.
+  6.0.0. It now runs @hapi/lab 25 against @seneca/mem-store, then runs
+  the documentation examples. Removed coveralls and `.travis.yml`.
 * Documentation reorganized under `docs/` (Diátaxis): a tutorial with a
   complete example store plugin, how-to guides, a reference for every
   function, setting, test group and fixture, and an explanation of the
-  suite. The README is a landing page.
+  suite. The README is a landing page. The guide "Move a store's tests
+  to Seneca 4" lists the changes a store's own tests need.
 
 
 ## 4.0.0

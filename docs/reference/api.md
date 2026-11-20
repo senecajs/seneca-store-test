@@ -11,8 +11,8 @@ Every test group takes one `settings` object:
 
 | Setting | Type | Used by | Meaning |
 | ------- | ---- | ------- | ------- |
-| `seneca` | Seneca instance | `basictest`, `sorttest`, `limitstest`, `upserttest`, `sqltest`, `extended` | An instance with seneca-entity and the store under test loaded, with the store's default (merging) save behaviour. Required. |
-| `senecaMergeFalse` | Seneca instance | `mergetest` | An instance whose store is configured to replace instead of merge on update (`merge: false` for seneca-mem-store). Required by `mergetest`. |
+| `seneca` | Seneca instance | `basictest`, `sorttest`, `limitstest`, `upserttest`, `sqltest`, `extended` | An instance with @seneca/entity and the store under test loaded, with the store's default (merging) save behaviour. Required. |
+| `senecaMergeFalse` | Seneca instance | `mergetest` | An instance whose store is configured to replace instead of merge on update (`merge: false` for @seneca/mem-store). Required by `mergetest`. |
 | `script` | test script | all groups | Where the tests are registered: a `@hapi/lab` script (`Lab.script()`), or the `node:test` module. Optional: when omitted a new lab script is created with `require('@hapi/lab').script()`, which needs `@hapi/lab` to be installed. |
 
 The script must provide `describe`, `it`, `before`, `beforeEach` and
@@ -51,14 +51,11 @@ Registers the `Upserts` group: the `upsert$` directive of `save$`, 25
 tests. Needs `settings.seneca` and fails immediately (`settings.seneca`
 assertion) when it is missing.
 
-On Seneca 3 the group loads `seneca-promisify` into the instance
-(`seneca.use('promisify')`), because its last test uses the promise
-based entity API, which seneca-entity implements with `seneca.post`.
-This mutates the instance you pass in. On Seneca 4 promises are built
-in and nothing is loaded.
+Its last test uses the promise based entity API, which is built into
+Seneca 4. The group loads no plugin into the instance you pass in.
 
-Before every test the group waits for `ready` and clears the data; it
-clears again after every test.
+Before every test the group waits for `ready` (`await seneca.ready()`)
+and clears the data; it clears again after every test.
 
 ## mergetest(settings)
 
@@ -106,7 +103,7 @@ and an options object as the second:
 
 | Option | Type | Meaning |
 | ------ | ---- | ------- |
-| `seneca` | Seneca instance | An instance with seneca-entity loaded, but not yet the store. Required. |
+| `seneca` | Seneca instance | An instance with @seneca/entity loaded, but not yet the store. Required. |
 | `name` | string | The name the plugin registers under; `seneca.has_plugin(name)` must be true after loading. Required. |
 | `options` | object | Plugin options passed to `seneca.use('..', options)`. Optional. |
 | `ent0` | string | The entity type (canon) used for the data checks. Default `'test0'`; the default is written back to `opts.ent0`, so pass the same `opts` object to `test.keyvalue`. |
@@ -114,9 +111,9 @@ and an options object as the second:
 Tests:
 
 * `load-store-plugin`: `seneca.use('..', opts.options)`, then waits for
-  `ready` (callback form, which also works on Seneca 4.0.0-rc5) and
-  asserts `seneca.has_plugin(opts.name)`. The plugin is loaded by the
-  relative module name `..`: Seneca resolves it from the module that
+  `ready` (`await seneca.ready()`) and asserts
+  `seneca.has_plugin(opts.name)`. The plugin is loaded by the relative
+  module name `..`: Seneca resolves it from the module that
   first required `seneca`, which in a plugin repository is the test file
   in `test/`, so `..` is the package root and its `main` file. Seneca
   registers a plugin loaded this way under the name of its definition
@@ -130,8 +127,7 @@ Tests:
 Registers the `store-keyvalue` group: 3 promise style tests of the
 minimum a store must do. Takes `opts.seneca` (with the store loaded, for
 example by `test.init`) and `opts.ent0`. The tests use
-`seneca.entity(ent0)`, the promise based entity API, so on Seneca 3 the
-instance must have `seneca-promisify` loaded.
+`seneca.entity(ent0)`, the promise based entity API of Seneca 4.
 
 * `save-load-auto-id`: a load of an unknown id gives nothing; two saves
   generate distinct ids; each save and load returns a new object with
