@@ -12,7 +12,7 @@
 function tiny_store(options) {
   const seneca = this
 
-  // seneca-entity exports the function that registers a store, and the
+  // @seneca/entity exports the function that registers a store, and the
   // default id generator (a 6 character random string).
   const init = seneca.export('entity/init')
   const generate_id = seneca.export('entity/generate_id')

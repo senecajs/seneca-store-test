@@ -1541,27 +1541,12 @@ function upserttest(settings) {
   Assert('seneca' in settings, 'settings.seneca')
   const si = settings.seneca
 
-  // The promise based entity API used below needs seneca-promisify on
-  // Seneca 3 (seneca-entity calls seneca.post). Promises are built into
-  // Seneca 4, where seneca-promisify is a no-op, so it is not loaded there.
-  //
-  // NOTE: WARNING: Side-effect - on Seneca 3 the original seneca instance
-  // will be mutated.
-  if (si.version.startsWith('3.')) {
-    si.use('promisify')
-  }
-
   const script = make_script(settings)
   const { describe, beforeEach, afterEach } = script
   const it = make_it(script)
 
   describe('Upserts', () => {
-    beforeEach(
-      () =>
-        new Promise((resolve, _reject) => {
-          si.ready(resolve)
-        }),
-    )
+    beforeEach(() => si.ready())
 
     beforeEach(clearDb(si))
 
@@ -2912,10 +2897,7 @@ module.exports = {
 
           let seneca = opts.seneca
           seneca.use('..', opts.options)
-
-          // Callback form: the promise form of ready hangs on an idle
-          // instance in Seneca 4.0.0-rc5.
-          await new Promise((resolve) => seneca.ready(resolve))
+          await seneca.ready()
 
           expect(seneca.has_plugin(opts.name), 'has_plugin').true()
         })

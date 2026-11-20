@@ -17,8 +17,8 @@ function makeSeneca(store_opts = {}) {
   return (
     Seneca()
       .test()
-      // mem_store: false stops seneca-entity loading seneca-mem-store
-      .use('entity', { mem_store: false })
+      // mem_store: false stops @seneca/entity loading @seneca/mem-store
+      .use('@seneca/entity', { mem_store: false })
       .use(TinyStore, store_opts)
   )
 }
@@ -28,7 +28,7 @@ function makeSeneca(store_opts = {}) {
 // directory, resolved from the module that first required seneca (this
 // file), as in a real plugin repository.
 const test_opts = {
-  seneca: Seneca().test().use('entity', { mem_store: false }),
+  seneca: Seneca().test().use('@seneca/entity', { mem_store: false }),
   name: 'tiny-store',
 }
 Shared.test.init(lab, test_opts)
