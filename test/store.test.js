@@ -2,7 +2,7 @@
 'use strict'
 
 const Seneca = require('seneca')
-const MemStore = require('seneca-mem-store')
+const MemStore = require('@seneca/mem-store')
 const Shared = require('..')
 
 const Lab = require('@hapi/lab')
@@ -40,13 +40,10 @@ Shared.mergetest({
 })
 
 function makeSenecaForTest(opts = {}) {
-  const si = Seneca({
-    default_plugins: { 'mem-store': false },
-  })
+  const si = Seneca()
 
-  if (si.version >= '2.0.0') {
-    si.use('entity')
-  }
+  // mem_store: false stops @seneca/entity loading its own mem-store.
+  si.use('@seneca/entity', { mem_store: false })
 
   const { mem_store_opts = {} } = opts
   si.use(MemStore, mem_store_opts)

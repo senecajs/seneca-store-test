@@ -1,4 +1,4 @@
-/* Runs the standard store tests against seneca-mem-store with the Node.js
+/* Runs the standard store tests against @seneca/mem-store with the Node.js
  * test runner instead of @hapi/lab. From the repository root:
  *   node docs/examples/mem-store-node-test.js
  */
@@ -14,9 +14,9 @@ function makeSeneca(store_opts = {}) {
   return (
     Seneca()
       .test()
-      // mem_store: false stops seneca-entity loading its own mem-store
-      .use('entity', { mem_store: false })
-      .use('mem-store', store_opts)
+      // mem_store: false stops @seneca/entity loading its own mem-store
+      .use('@seneca/entity', { mem_store: false })
+      .use('@seneca/mem-store', store_opts)
   )
 }
 

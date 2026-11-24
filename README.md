@@ -4,11 +4,11 @@
 # @seneca/store-test
 
 The standard test suite for Seneca entity store plugins. Every official
-store (seneca-mem-store, the SQL and document stores) runs these tests
+store (@seneca/mem-store, the SQL and document stores) runs these tests
 to prove that it implements the entity store protocol the same way:
 ids, merging, sorting, skipping and limiting, removing and upserts. It
-works with Seneca 3 and Seneca 4 (tested with the 4.0.0 prerelease),
-with seneca-entity, and with @hapi/lab or the Node.js test runner.
+works with Seneca 4 and @seneca/entity, and with @hapi/lab or the
+Node.js test runner. Seneca 3 stores keep `seneca-store-test` 6.0.0.
 
 | ![Voxgig](https://www.voxgig.com/res/img/vgt01r.png) | This open source module is sponsored and supported by [Voxgig](https://www.voxgig.com). |
 |---|---|
@@ -21,13 +21,14 @@ with seneca-entity, and with @hapi/lab or the Node.js test runner.
 ## Install
 
 ```sh
-npm install --save-dev @seneca/store-test
+npm install --save-dev @seneca/store-test seneca@^4 @seneca/entity @hapi/lab
 ```
 
-Versions up to 6.0.0 were published as `seneca-store-test`; from the
-next version the package is `@seneca/store-test`. Your tests also need
-`seneca`, `seneca-entity` and a test runner (`@hapi/lab`, or Node.js
-`node:test` with no extra package).
+Versions up to 6.0.0 were published as `seneca-store-test`; from 7.0.0
+the package is `@seneca/store-test`. It has the peer dependencies
+`seneca` `^4.0.0` and `@seneca/entity` `^29.0.0`, and needs Node.js 24
+or later. Your tests also need a test runner: `@hapi/lab`, or Node.js
+`node:test` with no extra package.
 
 ## Quick Example
 
@@ -44,7 +45,7 @@ const lab = (exports.lab = Lab.script())
 function makeSeneca(store_opts = {}) {
   return Seneca()
     .test()
-    .use('entity', { mem_store: false })
+    .use('@seneca/entity', { mem_store: false })
     .use(MyStore, store_opts)
 }
 
@@ -77,12 +78,12 @@ Run with `npx lab -v -P test`. With the Node.js test runner, pass
 * [Run a subset of the groups](docs/how-to/run-a-subset-of-the-groups.md)
 * [Test merge versus replace semantics](docs/how-to/test-merge-versus-replace.md)
 * [Debug a failing standard test](docs/how-to/debug-a-failing-standard-test.md)
-* [Support Seneca 3 and 4 in one test file](docs/how-to/support-seneca-3-and-4.md)
+* [Move a store's tests to Seneca 4](docs/how-to/move-to-seneca-4.md)
 * [Run the standard tests with node:test](docs/how-to/run-with-node-test.md)
 
 The example programs are in [docs/examples](docs/examples/), and
 [test/store.test.js](test/store.test.js) runs the suite against
-seneca-mem-store.
+@seneca/mem-store.
 
 ## Motivation
 
@@ -118,7 +119,7 @@ Full documentation: [docs/README.md](docs/README.md), with a
 
 | Setting | Meaning |
 | ------- | ------- |
-| [`seneca`](docs/reference/api.md#the-settings-object) | Instance with seneca-entity and the store loaded. |
+| [`seneca`](docs/reference/api.md#the-settings-object) | Instance with @seneca/entity and the store loaded. |
 | [`senecaMergeFalse`](docs/reference/api.md#the-settings-object) | Instance whose store replaces on update (`merge: false`). |
 | [`script`](docs/reference/api.md#the-settings-object) | A `@hapi/lab` script or the `node:test` module; default: a new lab script. |
 
@@ -138,40 +139,31 @@ npm install
 npm test
 ```
 
-`npm test` runs the suite against seneca-mem-store with @hapi/lab
+`npm test` runs the suite against @seneca/mem-store with @hapi/lab
 (including lint, leak detection and an 80% coverage threshold), then
-the documentation examples (`npm run test-examples`). It passes on
-Node.js 24 and 22 with the `seneca` development dependency
-(`^4.0.0-rc5`). To run it against another Seneca version:
-
-```sh
-npm install --no-save seneca@3 && npm test
-npm install    # restore the development dependency
-```
+the documentation examples (`npm run test-examples`). It needs Node.js
+24 or later and the development dependencies `seneca` `^4.0.0`,
+`@seneca/entity` `^29.0.0` and `@seneca/mem-store` `^10.0.0`. The npm
+scripts use bash syntax; on Windows run them with Git Bash
+(`npm config set script-shell` to the path of `bash.exe`).
 
 `npm run test-some -- 'Sorting'` runs the tests whose title matches.
-
-The GitHub Actions workflow change for Node.js 24 and 22 is provided as
-a patch in [.patches](.patches/README.md), because workflow files need
-a credential scope the contributing session did not have; apply it with
-`git am .patches/*.patch`.
 
 ## Background
 
 The suite started in 2014 as the test file of the first Seneca stores
 and became its own package so that every store could share it. Version
 1.1.0 added the `sqltest` and `extended` groups, 4.0.0 the upsert
-tests, 4.1.0 the separate `mergetest` group, and 6.1.0 Seneca 4 support
-and the ability to run with `node:test`. Changes are listed in
-[CHANGES.md](CHANGES.md). Versions up to 6.0.0 were published as
-`seneca-store-test`; from the next version the package is
-`@seneca/store-test`.
+tests, 4.1.0 the separate `mergetest` group, and 7.0.0 Seneca 4 support,
+the new name `@seneca/store-test` and the ability to run with
+`node:test`. Changes are listed in [CHANGES.md](CHANGES.md). Versions
+up to 6.0.0 were published as `seneca-store-test`.
 
-| @seneca/store-test | Seneca | seneca-entity | Node.js | Runner |
-| ----------------- | ------ | ------------- | ------- | ------ |
-| 6.1.x | 3.38, 4.0.0-rc5, 4.0.0 | 28 | 18 or later; tested on 24 and 22 | @hapi/lab 25, node:test |
-| 6.0.x | 3 (not 3.28 with seneca-entity 27) | 27 | 18 or later | @hapi/lab 25 |
-| 5.x | 3 | 18 | | @hapi/lab 25 |
+| Package and version | Seneca | Entity plugin | Node.js | Runner |
+| ------------------- | ------ | ------------- | ------- | ------ |
+| @seneca/store-test 7.x | 4 | @seneca/entity 29 | 24 or later | @hapi/lab 25, node:test |
+| seneca-store-test 6.0.x | 3 (not 3.28 with seneca-entity 27) | seneca-entity 27 | 18 or later | @hapi/lab 25 |
+| seneca-store-test 5.x | 3 | seneca-entity 18 | | @hapi/lab 25 |
 
 Licensed under [MIT][].
 

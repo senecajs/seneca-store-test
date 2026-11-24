@@ -5,8 +5,8 @@ The names are the exact test titles, so you can run one test with
 `lab -g '<title>'` (see [Run a subset of the groups](../how-to/run-a-subset-of-the-groups.md)).
 The data each group creates is described in [Fixtures](fixtures.md).
 
-All queries go through the seneca-entity API, so what reaches the store
-is what seneca-entity sends: a string or number id becomes `{ id }` for
+All queries go through the @seneca/entity API, so what reaches the store
+is what @seneca/entity sends: a string or number id becomes `{ id }` for
 `load$` and `remove$`, an empty query (`{}` or none, and no id on the
 entity) makes `load$` and `remove$` return without calling the store,
 `undefined` query values are dropped, and the `save$` options object is
@@ -34,7 +34,7 @@ one `zen/moon/bar` entity from the [bar template](fixtures.md#the-bar-template).
 | `should support different attribute types` | `load$({ str: 'aaa' })` on `zen/moon/bar` returns an entity with an `id` that passes the [bar checks](fixtures.md#the-bar-template): strings, integers, decimals, booleans, dates, arrays and objects round trip. |
 | `should not mix attributes from entity to query for filtering` | With `p1 = 'v1'` set on the query entity, `load$({ p2: 'z2' })` returns `foo2`: only the query decides. |
 | `should reload current entity if no query provided and id present` | With `id = 'foo2'` set on the entity, `load$()` returns `foo2`. |
-| `should do nothing if no query provided and id not present` | With only `p1` set and no id, `load$()` gives no entity (seneca-entity does not call the store). |
+| `should do nothing if no query provided and id not present` | With only `p1` set and no id, `load$()` gives no entity (@seneca/entity does not call the store). |
 
 ### Save
 
@@ -90,7 +90,7 @@ Data before each test: `foo1`, `foo2` and the bar entity.
 | `should return deleted entity if load$: true` | `remove$({ p1: 'v2', load$: true })` replies with the removed entity (`p1` `v2`, `p2` `z2`). |
 | `should never return deleted entities if all$: true` | `remove$({ all$: true, load$: true })` replies with nothing. |
 | `should not delete current ent (only uses query)` | With `id = 'foo2'` on the entity, `remove$({ p1: 'v1' })` removes `foo1` and keeps `foo2`. |
-| `should delete current entity if no query present` | On a loaded `foo2`, `remove$()` removes it (seneca-entity sends `{ id: 'foo2' }`); `foo1` remains. |
+| `should delete current entity if no query present` | On a loaded `foo2`, `remove$()` removes it (@seneca/entity sends `{ id: 'foo2' }`); `foo1` remains. |
 
 ### Native
 
@@ -170,7 +170,7 @@ order does not matter. The directive is `save$({ upsert$: [fields] })`.
 | `entity matches on a private field` (product with `psst$: 'private'`) | `creates a new entity` | `upsert$: ['psst$']` cannot match (private fields are not stored): a second product is inserted. |
 | `entity matches on a private and a public field` | `matches by the public field and updates the entity` | `upsert$: ['psst$', 'label']` matches on `label` and updates the price; still 1 product. |
 | `empty upsert$ array` | `creates a new document` | `upsert$: []` inserts. |
-| ``entity matches on a field with the `undefined` value`` | `creates a new document` | Both records have `label: undefined`, which seneca-entity strips, so there is nothing to match: 2 products. |
+| ``entity matches on a field with the `undefined` value`` | `creates a new document` | Both records have `label: undefined`, which @seneca/entity strips, so there is nothing to match: 2 products. |
 | `some upsert$ fields are blank in existing entities` (existing `label: null`) | `creates a new entity` | Upserting `{ price: '3.40', label: 'a toothbrush' }` on `['price', 'label']` inserts: `null` does not match a value. |
 | `fields in upsert$ are not present in the data$ object` | `creates a new entity because it can never match` | Upserting `{ price: '2.95', label: null }` on `['label']` inserts a product with `label` `null`. |
 | `upserting on the id field, match exists` (player with `id: 'some_id'`) | `updates the matching entity` | Saving `{ id: 'some_id', ..., points: 9999 }` with `upsert$: ['id']` updates that player: an entity with an id is updated by id. |

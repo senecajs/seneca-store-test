@@ -24,7 +24,7 @@ its lab test) and [mem-store-node-test.js](examples/mem-store-node-test.js).
 | [Run a subset of the groups](how-to/run-a-subset-of-the-groups.md) | Choosing groups, running one test with `-g`, skipping tests, hooks. |
 | [Test merge versus replace semantics](how-to/test-merge-versus-replace.md) | The `merge` option and `merge$` directive, the `senecaMergeFalse` instance, what `mergetest` checks. |
 | [Debug a failing standard test](how-to/debug-a-failing-standard-test.md) | Reading the report, timeouts that hide assertions, running one test, printing messages, common causes. |
-| [Support Seneca 3 and 4 in one test file](how-to/support-seneca-3-and-4.md) | Dependencies, version checks, seneca-promisify, `ready`, errors, close hooks, options, running on both. |
+| [Move a store's tests to Seneca 4](how-to/move-to-seneca-4.md) | Dependencies, full plugin names, `ready`, errors, close hooks, options, running the tests. |
 | [Run the standard tests with node:test](how-to/run-with-node-test.md) | Passing the `node:test` module as the script, running, options, closing instances. |
 
 ## Reference
@@ -39,7 +39,7 @@ its lab test) and [mem-store-node-test.js](examples/mem-store-node-test.js).
 
 | Explanation | Topic |
 | ----------- | ----- |
-| [Why a shared conformance suite](explanation/why-a-shared-conformance-suite.md) | One API and many stores, how the suite drives the store protocol, its design and limits, Seneca 3 versus 4. |
+| [Why a shared conformance suite](explanation/why-a-shared-conformance-suite.md) | One API and many stores, how the suite drives the store protocol, its design and limits, what changed with Seneca 4. |
 
 ## Feature index
 
@@ -69,9 +69,8 @@ documented.
 | Query qualifiers tested: `sort$`, `skip$`, `limit$`, `fields$`, `all$`, `load$`, `native$` | [Test groups](reference/test-groups.md) | [Tutorial](tutorials/add-the-standard-tests.md) |
 | Save directives tested: `id$`, `merge$`, `upsert$` | [Test groups: Basic Tests](reference/test-groups.md#basic-tests), [Upserts](reference/test-groups.md#upserts), [merge](reference/test-groups.md#testing-the-merge-option) | [Test merge versus replace semantics](how-to/test-merge-versus-replace.md) |
 | Extended operators: `ne$`, `eq$`, `gte$`, `gt$`, `lte$`, `lt$`, `in$`, `nin$`, `or$`, `and$` | [Test groups: Sql extended support](reference/test-groups.md#sql-extended-support) | |
-| seneca-promisify on Seneca 3 | [Functions: upserttest](reference/api.md#upserttestsettings) | [Support Seneca 3 and 4](how-to/support-seneca-3-and-4.md) |
-| Seneca 4 prerelease (`ready`, errors, close, plugin names) | [Explanation: Seneca 3 and Seneca 4](explanation/why-a-shared-conformance-suite.md#seneca-3-and-seneca-4) | [Support Seneca 3 and 4](how-to/support-seneca-3-and-4.md) |
-| Dependencies: `@hapi/code` (always), `@hapi/lab` (only without a script), `chai`, `async`, `nid`, `seneca-promisify` | [The settings object](reference/api.md#the-settings-object) | [Run the standard tests with node:test](how-to/run-with-node-test.md) |
+| Seneca 4 (`ready`, errors, close, plugin names, options) | [Explanation: Seneca 4](explanation/why-a-shared-conformance-suite.md#seneca-4) | [Move a store's tests to Seneca 4](how-to/move-to-seneca-4.md) |
+| Dependencies: `@hapi/code` (always), `@hapi/lab` (only without a script), `chai`, `async`, `nid`; peers `seneca` `^4.0.0` and `@seneca/entity` `^29.0.0` | [The settings object](reference/api.md#the-settings-object) | [Move a store's tests to Seneca 4](how-to/move-to-seneca-4.md), [Run the standard tests with node:test](how-to/run-with-node-test.md) |
 
 ## Other documents
 

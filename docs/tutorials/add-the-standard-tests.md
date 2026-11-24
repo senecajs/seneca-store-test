@@ -2,20 +2,20 @@
 
 In this tutorial you write a small entity store plugin and run the
 standard store tests against it. The finished files are in
-[docs/examples/tiny-store](../examples/tiny-store/). You need Node.js 18
-or later, and a basic knowledge of Seneca plugins (see the Seneca
+[docs/examples/tiny-store](../examples/tiny-store/). You need Node.js 24
+or later, Seneca 4, and a basic knowledge of Seneca plugins (see the Seneca
 tutorial [Writing a plugin](https://github.com/senecajs/seneca/blob/master/docs/tutorials/writing-a-plugin.md)).
 
 ## 1. What a store plugin is
 
-Applications use entities through seneca-entity:
+Applications use entities through @seneca/entity:
 
 ```js
 const foo = await seneca.entity('foo').data$({ p1: 'v1' }).save$()
 const same = await seneca.entity('foo').load$(foo.id)
 ```
 
-seneca-entity turns each call into a message, `sys:entity,cmd:save`
+@seneca/entity turns each call into a message, `sys:entity,cmd:save`
 with the entity in `msg.ent`, or `cmd:load`, `cmd:list`,
 `cmd:remove` with the query in `msg.q` and a template entity of the
 type in `msg.qent`. A store plugin provides the actions for these
@@ -62,7 +62,7 @@ missing part):
 function tiny_store(options) {
   const seneca = this
 
-  // seneca-entity exports the function that registers a store, and the
+  // @seneca/entity exports the function that registers a store, and the
   // default id generator (a 6 character random string).
   const init = seneca.export('entity/init')
   const generate_id = seneca.export('entity/generate_id')
@@ -290,13 +290,13 @@ module.exports = tiny_store
 
 ## 3. Install the test dependencies
 
-The tests need @seneca/store-test, a Seneca version, seneca-entity and
-a test runner. @seneca/store-test works with @hapi/lab, used here, and
+The tests need @seneca/store-test, Seneca 4, @seneca/entity and a test
+runner. @seneca/store-test works with @hapi/lab, used here, and
 with the Node.js test runner (see
 [Run the standard tests with node:test](../how-to/run-with-node-test.md)).
 
 ```sh
-npm install --save-dev @seneca/store-test seneca seneca-entity @hapi/lab
+npm install --save-dev @seneca/store-test seneca@^4 @seneca/entity @hapi/lab
 ```
 
 ## 4. Write the test
@@ -325,8 +325,8 @@ function makeSeneca(store_opts = {}) {
   return (
     Seneca()
       .test()
-      // mem_store: false stops seneca-entity loading seneca-mem-store
-      .use('entity', { mem_store: false })
+      // mem_store: false stops @seneca/entity loading @seneca/mem-store
+      .use('@seneca/entity', { mem_store: false })
       .use(TinyStore, store_opts)
   )
 }
@@ -336,7 +336,7 @@ function makeSeneca(store_opts = {}) {
 // directory, resolved from the module that first required seneca (this
 // file), as in a real plugin repository.
 const test_opts = {
-  seneca: Seneca().test().use('entity', { mem_store: false }),
+  seneca: Seneca().test().use('@seneca/entity', { mem_store: false }),
   name: 'tiny-store',
 }
 Shared.test.init(lab, test_opts)
@@ -383,7 +383,7 @@ npx lab -v docs/examples/tiny-store/test
 ```
 
 In your plugin, with the test in `test/`, `npx lab -v -P test`. The
-output on Node.js 24 with seneca 4.0.0-rc5, seneca-entity 28.1.0 and
+output on Node.js 24 with seneca 4.0.0, @seneca/entity 29.0.0 and
 @hapi/lab 25:
 
 ```
@@ -570,7 +570,7 @@ that pending messages can be queued.
   [Fixtures](../reference/fixtures.md).
 * When a test fails:
   [Debug a failing standard test](../how-to/debug-a-failing-standard-test.md).
-* Keep the plugin working on Seneca 3 and 4:
-  [Support Seneca 3 and 4 in one test file](../how-to/support-seneca-3-and-4.md).
+* Move an existing store's tests from Seneca 3:
+  [Move a store's tests to Seneca 4](../how-to/move-to-seneca-4.md).
 * Why the suite exists and how it drives the store protocol:
   [Why a shared conformance suite](../explanation/why-a-shared-conformance-suite.md).

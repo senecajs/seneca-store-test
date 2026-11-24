@@ -12,10 +12,10 @@ shape, so it can be passed as `settings.script` directly. @hapi/lab is
 not loaded when a script is given, so it does not need to be installed.
 
 The complete file, [docs/examples/mem-store-node-test.js](../examples/mem-store-node-test.js),
-runs the groups against seneca-mem-store:
+runs the groups against @seneca/mem-store:
 
 ```js
-/* Runs the standard store tests against seneca-mem-store with the Node.js
+/* Runs the standard store tests against @seneca/mem-store with the Node.js
  * test runner instead of @hapi/lab. From the repository root:
  *   node docs/examples/mem-store-node-test.js
  */
@@ -31,9 +31,9 @@ function makeSeneca(store_opts = {}) {
   return (
     Seneca()
       .test()
-      // mem_store: false stops seneca-entity loading its own mem-store
-      .use('entity', { mem_store: false })
-      .use('mem-store', store_opts)
+      // mem_store: false stops @seneca/entity loading its own mem-store
+      .use('@seneca/entity', { mem_store: false })
+      .use('@seneca/mem-store', store_opts)
   )
 }
 
@@ -121,7 +121,7 @@ close every instance in a top level `after` hook, as the example does.
 These take the script as their first argument and work the same way:
 
 ```js
-const test_opts = { seneca: Seneca().test().use('entity', { mem_store: false }), name: 'my-store' }
+const test_opts = { seneca: Seneca().test().use('@seneca/entity', { mem_store: false }), name: 'my-store' }
 Shared.test.init(test, test_opts)
 Shared.test.keyvalue(test, test_opts)
 ```
@@ -131,5 +131,6 @@ Shared.test.keyvalue(test, test_opts)
 Each group wraps its callback style tests in a function that takes one
 argument and returns a promise. node:test treats a two argument test
 function as callback style and fails it when it also returns a promise,
-which is what happened with the promisified wrapper used before
-@seneca/store-test 6.1.0, so use 6.1.0 or later with node:test.
+which is what happened with the promisified wrapper of
+`seneca-store-test` 6.0.0 and earlier, so use @seneca/store-test 7.0.0
+or later with node:test.

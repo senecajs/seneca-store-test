@@ -1,7 +1,7 @@
 # Why a shared conformance suite
 
 What @seneca/store-test is for, how it drives the entity store protocol,
-what it does not cover, and what changes between Seneca 3 and 4.
+what it does not cover, and what changed with Seneca 4.
 
 ## One API, many stores
 
@@ -10,7 +10,7 @@ Applications written with Seneca use entities through one API:
 `sort$`, `skip$`, `limit$`, `fields$`, `all$`, `load$`, `merge$` and
 `upsert$` qualifiers. Which database holds the data is decided by the
 store plugin that is loaded, and can be changed by configuration:
-seneca-mem-store during development and tests, a SQL or document store
+@seneca/mem-store during development and tests, a SQL or document store
 in production, different stores for different entity types through the
 `map` option of `init`.
 
@@ -29,8 +29,8 @@ its clauses.
 ## How the suite drives the protocol
 
 The tests never call a store directly. They use the entity API on a
-Seneca instance that has seneca-entity and the store loaded, exactly as
-an application does. seneca-entity turns each call into a message:
+Seneca instance that has @seneca/entity and the store loaded, exactly as
+an application does. @seneca/entity turns each call into a message:
 
 | Call | Message |
 | ---- | ------- |
@@ -48,7 +48,7 @@ store plugin never adds these actions itself: it gives
 (wrapping them so that `msg.ent` and `msg.qent` are always entity
 objects) and a hook on Seneca's close action.
 
-Testing through the message path matters. seneca-entity normalizes
+Testing through the message path matters. @seneca/entity normalizes
 calls before they reach the store: a string id becomes `{ id }` for
 `load$` and `remove$` but not for `list$`, an empty query on `load$` or
 `remove$` returns without a message, `undefined` query values are
@@ -77,7 +77,7 @@ in another process behind a transport.
   `seneca.test(done)` or promises.
 * **Runner independence.** The tests are registered into a `script`
   passed by the caller. The script was always a @hapi/lab script; since
-  version 6.1.0 the wrapper that adapts the callback tests takes a
+  version 7.0.0 the wrapper that adapts the callback tests takes a
   single argument and returns a promise, which is also what `node:test`
   expects, so the `node:test` module can be passed directly and @hapi/lab
   is only required when no script is given.
@@ -100,43 +100,42 @@ in another process behind a transport.
   arrays and objects and any representation of a date with the right
   time, because SQL stores legitimately differ here.
 
-## Seneca 3 and Seneca 4
+## Seneca 4
 
-The suite runs on both. The differences that touched it:
+Version 7.0.0 of the suite supports Seneca 4 only. Seneca 3 stores keep
+`seneca-store-test` 6.0.0. The differences that touched the suite:
 
 * **Promises.** Seneca 4 has `post`, `message` and promise returning
-  `ready` and `close` built in; seneca-promisify, which provided them
-  on Seneca 3, is a no-op there. seneca-entity's promise based entities
-  (`seneca.entity(...)`) call `seneca.post`, so on Seneca 3 the instance
-  needs seneca-promisify. `upserttest` loads it only when
-  `seneca.version` starts with `3.`.
-* **ready.** `await seneca.ready()` on an idle instance hangs in Seneca
-  4.0.0-rc5. The suite waits for `ready` with the callback form
-  everywhere.
-* **Errors.** Seneca 3 wraps action errors (`seneca: Action ... failed:`,
+  `ready` and `close` built in. On Seneca 3 they came from
+  seneca-promisify, which `upserttest` loaded. The suite no longer
+  loads it or depends on it.
+* **ready.** The suite waits with `await seneca.ready()` in `test.init`
+  and `upserttest`. The older groups still use the callback form,
+  which works too.
+* **Errors.** Seneca 3 wrapped action errors (`seneca: Action ... failed:`,
   with the original in `err.orig`); Seneca 4 delivers the original
   error. The suite asserts that `err` is `null` and otherwise forwards
-  it, so it reads the same on both; a store's own tests should use
-  `(err.orig || err).message`.
+  it. A store's own tests should assert on the error the store replies,
+  such as its `code`, not on `err.orig`.
 * **Close.** Seneca 4 closes through `sys:seneca,cmd:close`, and
-  `init` registers the store's `close` function on that pattern. Seneca
-  3 translates `sys:seneca` to `role:seneca`, so the same registration
-  works there.
+  `init` registers the store's `close` function on that pattern.
 * **Plugin names.** Seneca registers a plugin loaded through a module
   path, as `test.init` does with `seneca.use('..')`, under the name of
   its definition function. A store whose function is `mem_store` but
   whose name is `mem-store` is found by `has_plugin('mem-store')` only
-  when the function's `name` property is set to `mem-store`.
+  when the function's `name` property is set to `mem-store`. Load the
+  entity plugin and other published plugins by their full package
+  names, `use('@seneca/entity')`: a short name such as `entity` finds
+  the Seneca 3 package `seneca-entity` first when it is installed.
 * **Options.** Seneca 4 validates options strictly and ignores
-  `default_plugins`; Seneca 3 test files often set
-  `default_plugins: { 'mem-store': false }`, which is harmless but
-  unnecessary on either version now (Seneca 3.38 loads only `transport`
-  by default).
-* **Dependencies.** Seneca 3.28, the `seneca@plugin` dist-tag that this
-  package used to test with, cannot load seneca-entity 27 and later,
-  and its dependency `norma` fails on Node.js 23 and later. The package
-  tests with seneca 4.0.0-rc5 (and 4.0.0) and was verified against
-  seneca 3.38.
+  `default_plugins`. Seneca 3 test files often set
+  `default_plugins: { 'mem-store': false }`; with @seneca/entity, pass
+  `mem_store: false` to the entity plugin instead.
+* **Dependencies.** The entity plugin is `@seneca/entity` 29 and the
+  in-memory store is `@seneca/mem-store` 10. The earlier
+  `seneca-entity` 28 and `seneca-mem-store` 9 build their options with
+  Gubu, and Seneca 4 does not load them. The suite tests with
+  `seneca` `^4.0.0` on Node.js 24 and later.
 
-See [Support Seneca 3 and 4 in one test file](../how-to/support-seneca-3-and-4.md)
+See [Move a store's tests to Seneca 4](../how-to/move-to-seneca-4.md)
 for the steps.
